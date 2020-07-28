@@ -1,0 +1,6 @@
+[submodule "Plugins/nDisplayExtensions"]
+	path = Plugins/nDisplayExtensions
+	url = https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/ndisplayextensions.git
+[submodule "Plugins/CaveOverlay"]
+	path = Plugins/CaveOverlay
+	url = https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/unreal-cave-overlay.git

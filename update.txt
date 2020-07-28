@@ -1,0 +1,2 @@
+https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/unrealprojecttemplate.git
+master

@@ -25,7 +25,19 @@ public class StudyFrameworkPlugin : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				// "Core",
+                // "DisplayCluster",
+                // "DisplayClusterExtensions",
+                // TODO Check what is necessary
+                "Core",
+                "Projects",
+                "CoreUObject",
+                "Engine",
+                "DisplayCluster",
+                "DisplayClusterExtensions",
+                "InputCore",
+                "Sockets",
+                "Networking"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

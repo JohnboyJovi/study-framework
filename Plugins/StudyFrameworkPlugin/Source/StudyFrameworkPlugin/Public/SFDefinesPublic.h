@@ -9,20 +9,29 @@
 // 
 // }
 
+enum EPriority
+{
+	Last	= 1,
+	Low		= 2,
+	Neutral = 3,
+	High	= 4,
+	First	= 5
+};
+
 struct FStudySetting
 {
-	FString NameOfConfiguration;
-
-	void* Function;
-
-	int NumberOfConfigurations;
+	FString Name				= "";
+	int		Count				= 1;
+	void*	Function			= nullptr;
+	int		Priority			= EPriority::Neutral;		// TODO Make use of it
+	bool	bBehindEachOther	= false;					// TODO Make use of it
 
 	bool operator==(FStudySetting const & Other) const {
-		return this->NameOfConfiguration == Other.NameOfConfiguration;
+		return this->Name == Other.Name;
 	}
 
 	bool operator==(FString const & Other) const {
-		return this->NameOfConfiguration == Other;
+		return this->Name == Other;
 	}
 };
 

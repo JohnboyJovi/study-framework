@@ -5,11 +5,23 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class FStudyFrameworkPluginModule : public IModuleInterface
+// FStudyFrameworkPluginModule
+
+// TODO Check .cs file for correct Dependencies
+
+class FSFPlugin : public IModuleInterface
 {
 public:
 
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+
+	
+	static bool GetIsMaster();
+
+
+protected:
+
+	static bool bIsMaster;
 };

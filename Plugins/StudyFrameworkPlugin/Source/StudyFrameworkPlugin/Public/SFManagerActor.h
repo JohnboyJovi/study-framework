@@ -3,7 +3,7 @@
 #pragma once
 
 #include "SFParticipant.h"
-#include "SFDefines.h"
+#include "SFDefinesPublic.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -28,7 +28,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void NextSetup();
 
-	
+	// TODO UFUNCTION?!
+	void AddStudySetting(FStudySetting Setting);
 	
 
 	
@@ -36,8 +37,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	SFParticipant* CurrentParticipant;
+	USFParticipant* CurrentParticipant;
 
 	TArray<FStudySetting> Settings;
+
+	bool bStudyStarted = false;
 
 };

@@ -1,9 +1,13 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "SFUtils.h"
+
+#include "Engine/Engine.h"
 #include "LogMacros.h"
 #include "SFPlugin.h"
 
+
+int FSFUtils::KeyCounter = -1;
 
 DEFINE_LOG_CATEGORY(SFLog);
 
@@ -57,6 +61,14 @@ void FSFUtils::LogStuff(const FString Text, const bool Error)
 	else
 	{
 		UE_LOG(SFLog, Log, TEXT("%s"), *Text);
+	}
+}
+
+void FSFUtils::PrintToScreen(const FString Text, const float Time, const FColor Color)
+{
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(KeyCounter--, Time, Color, Text);
 	}
 }
 

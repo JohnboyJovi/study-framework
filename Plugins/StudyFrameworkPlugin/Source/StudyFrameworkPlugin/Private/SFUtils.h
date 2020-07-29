@@ -18,4 +18,11 @@ public:
 	// Log into VALog
 	static void LogStuff(FString Text, bool Error = false);
 
+	// Print to Screen
+	static void PrintToScreen(FString Text, float Time = 5.0f, FColor Color = FColor::Red);
+
+private:
+
+	static int KeyCounter;
+
 };

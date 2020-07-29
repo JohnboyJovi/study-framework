@@ -38,6 +38,9 @@ void USFParticipant::Initialize(FString IdN, TArray<FStudySettingU> Configuratio
 
 bool USFParticipant::SaveConfigurationFile()
 {
+	// https://forums.unrealengine.com/development-discussion/c-gameplay-programming/79298-how-to-access-input-ini-in-run-time-and-modify-it
+	// https://docs.unrealengine.com/en-US/Gameplay/SaveGame/index.html
+	// https://forums.unrealengine.com/unreal-engine/announcements-and-releases/1745504-a-new-community-hosted-unreal-engine-wiki
 	return false;
 }
 
@@ -127,12 +130,8 @@ bool USFParticipant::LogSetupOrder()
 			Text = Text + FString::FromInt(SetupOrder[i][j]) + "  ";
 		}
 		FSFUtils::LogStuff(Text, false);
-
-		// Also print it on Screen
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-10, 1.f, FColor::Yellow, Text);
-		}
+		FSFUtils::PrintToScreen(Text);
+		
 	}
 
 	return true;

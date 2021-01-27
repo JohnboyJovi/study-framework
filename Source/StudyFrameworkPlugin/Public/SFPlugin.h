@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+
 // FStudyFrameworkPluginModule
 
 // TODO Check .cs file for correct Dependencies

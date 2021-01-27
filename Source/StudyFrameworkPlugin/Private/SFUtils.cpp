@@ -28,7 +28,7 @@ void FSFUtils::OpenMessageBox(const FString Text, const bool bError)
 		TrueStatement = "FALSE";
 	}
 	
-	LogStuff("[FVAUtils::OpenMessageBox(ERROR = " + TrueStatement + ")]: Opening Message Box with message: " + Text);
+	LogStuff("[FVAUtils::OpenMessageBox(ERROR = " + TrueStatement + ")]: Opening Message Box with message: " + Text, bError);
 
 	if (bError)
 	{
@@ -57,10 +57,12 @@ void FSFUtils::LogStuff(const FString Text, const bool Error)
 	if (Error)
 	{
 		UE_LOG(SFLog, Error, TEXT("%s"), *Text);
+		PrintToScreen("[Error]: " + Text);
 	}
 	else
 	{
 		UE_LOG(SFLog, Log, TEXT("%s"), *Text);
+        PrintToScreen(Text);
 	}
 }
 
@@ -70,5 +72,21 @@ void FSFUtils::PrintToScreen(const FString Text, const float Time, const FColor 
 	{
 		GEngine->AddOnScreenDebugMessage(KeyCounter--, Time, Color, Text);
 	}
+}
+
+FString FSFUtils::SetupToString(TArray<int> Setup)
+{
+    if (Setup.Num() == 0)
+    {
+        return "";
+    }
+
+    FString Output = FString::FromInt(Setup[0]);
+    for (int i = 1; i < Setup.Num(); i++)
+    {
+        Output = Output + "_" + FString::FromInt(Setup[i]);
+    }
+
+    return Output;
 }
 

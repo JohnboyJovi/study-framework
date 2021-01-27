@@ -3,62 +3,69 @@
 #include "CoreMinimal.h"
 #include "Class.h"
 
-// USTRUCT(BlueprintType)
-// namespace EDistance
-// {
-// 
-// }
+#include "SFDefinesPublic.generated.h"
 
-enum EPriority
+
+
+USTRUCT()
+struct FSFClassOfBlueprintActor
 {
-	Last	= 1,
-	Low		= 2,
-	Neutral = 3,
-	High	= 4,
-	First	= 5
+	GENERATED_BODY()
+
+public:
+    UPROPERTY()
+	    FString Path;
+	UPROPERTY()
+	    FString ClassName;
 };
 
-struct FStudySetting
+UENUM()
+enum EMixingSetupOrder                // Hier nur withinMap first? Rename into Repition order
 {
-	FString Name				= "";
-	int		Count				= 1;
-	void*	Function			= nullptr;
-	int		Priority			= EPriority::Neutral;		// TODO Make use of it
-	bool	bBehindEachOther	= false;					// TODO Make use of it
+    RandomSetupOrder = 0        UMETA(DisplayName = "Random"),
+    WithinMapFirst = 1          UMETA(DisplayName = "WithinMapFirst")
+};
 
-	bool operator==(FStudySetting const & Other) const {
-		return this->Name == Other.Name;
-	}
+UENUM()
+enum EPhaseRepetitionType                // Hier nur withinMap first? Rename into Repition order
+{
+    SameOrder = 0               UMETA(DisplayName = "Same Order"),
+    DifferentOrder = 1          UMETA(DisplayName = "Different Order")
+};
 
-	bool operator==(FString const & Other) const {
-		return this->Name == Other;
-	}
+// TODO Maybe better in Private Defines?
+UENUM()
+enum EFadeState
+{
+    NotFading = 0               UMETA(DisplayName = "Not Fading"),
+    FadingOut = 1               UMETA(DisplayName = "Fading Out"),
+    WaitForLevelLoaded = 2      UMETA(DisplayName = "Wait for Level Loaded"),
+    WaitForTimerFadedOut = 3    UMETA(DisplayName = "Wait for Timer Faded Out"),
+    FadingIn = 4                UMETA(DisplayName = "Fading In")
+};
+
+DECLARE_DELEGATE_OneParam(FFactorChangeDelegate, int);
+
+
+USTRUCT()
+struct FSFStudySetting
+{
+	GENERATED_BODY()
+
+	FString			Name		= "";
+
+    int			Count		= 1;
+
+    FFactorChangeDelegate	Delegate;
+
+    // // TODO struct operators needed?
+	// bool operator==(FSFStudySetting const & Other) const {
+	// 	return this->Name == Other.Name;
+	// }
+    // 
+	// bool operator==(FString const & Other) const {
+	// 	return this->Name == Other;
+	// }
 };
 
 
-/*
-template <typename T>
-struct array {
-	size_t x;
-	T *ary;
-};
-
-
-int f(int a, int b, bool c)
-{
-	return c ? a + b : a - b;
-}
-
-template <typename R, typename... Args>
-R callFunctionUsingMemAddress(void* funcaddr, Args... args)
-{
-	typedef R(*Function)(Args...);
-	Function fnptr = (Function)funcaddr;
-	return fnptr(args...);
-}
-int main()
-{
-	std::cout << callFunctionUsingMemAddress<int>((void*)f, 42, 10, true) << '\n';
-	std::cout << callFunctionUsingMemAddress<int>((void*)f, 42, 10, false) << '\n';
-}
-*/

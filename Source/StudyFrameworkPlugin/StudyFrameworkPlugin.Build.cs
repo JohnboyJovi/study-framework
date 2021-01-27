@@ -37,6 +37,8 @@ public class StudyFrameworkPlugin : ModuleRules
                 "DisplayClusterExtensions",
                 "InputCore",
                 "Sockets",
+                "Json",
+                "JsonUtilities",
                 "Networking"
 				// ... add other public dependencies that you statically link with here ...
 			}
@@ -50,6 +52,7 @@ public class StudyFrameworkPlugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+                "UniversalLogging"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

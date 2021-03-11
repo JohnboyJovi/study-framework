@@ -12,6 +12,71 @@
 #include "SFUtils.h"
 
 #include "EngineUtils.h"            // For Spawning in Actor in each level
+#include "IUniversalLogging.h"
+#include "SFMasterHUD.h"
+
+
+// ****************************************************************** // 
+// ******* Initialization ******************************************* //
+// ****************************************************************** //
+
+void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
+{
+    if (bInitialized)
+    {
+        return;
+    }
+
+    // FadeHandler
+    FadeHandler = NewObject<USFFadeHandler>();
+    FadeHandler->AddToRoot();                   // TODO What is that?
+    FadeHandler->SetGameInstance(this);
+    FadeHandler->SetInitialFadedOut(false);
+
+    // Participant
+    Participant = NewObject<USFParticipant>();
+    Participant->Initialize(ParticipantID, JsonFilePath, this);
+
+    // TODO Check if necessary
+    SpawnInEveryPhaseCpp.Add(ASFStudyControllerActor::StaticClass());
+
+    bInitialized = true;
+}
+
+
+bool USFGameInstance::IsInitialized() const
+{
+    return bInitialized;
+}
+
+
+// ****************************************************************** // 
+// ******* Control Study ******************************************** //
+// ****************************************************************** //
+
+bool USFGameInstance::StartStudy()
+{
+    if (bStudyStarted)
+    {
+        FSFUtils::LogStuff("[USFGameInstance::StartStudy()]: Study already started.", true);
+        return false;
+    }
+
+    Participant->StartStudy();
+
+    bStudyStarted = true;
+
+    NextSetup();
+    return true;
+}
+
+void USFGameInstance::EndStudy()
+{
+    Participant->CommitData();
+    Participant->EndStudy();
+}
+
+
 
 
 bool USFGameInstance::NextSetup()
@@ -24,41 +89,55 @@ bool USFGameInstance::NextSetup()
     }
 
     // Commit data at SFLogger
-    Logger->CommitData();
-    
-    // Get next Setup
-    TArray<int> NextSetup = CurrentPhase->NextSetup();
-    if (NextSetup.Num() == 0)
+    Participant->CommitData();
+
+    FString NextLevelName = Participant->NextSetup();
+
+    if (NextLevelName.Equals(""))
     {
-        if (CurrentPhaseIdx >= (Phases.Num() - 1)) // So there is no next phase
-        {
-            FSFUtils::LogStuff("[USFGameInstance::NextSetup()]: No All setups already ran.", false);
-            EndStudy();
-            return false;
-        }
-        else
-        {
-            CurrentPhase = Phases[++CurrentPhaseIdx];
-        }
+        UniLog.Log("SFLog", "[USFGameInstance::NextSetup()]: Could not load next setup.");
+        return false;
     }
-    
-    const FString LevelName = CurrentPhase->GetUpcomingLevelName();
 
     // Fade to next Level
-    FadeHandler->FadeToLevel(LevelName);
+    FadeHandler->FadeToLevel(NextLevelName);
     return true;
 }
-
-void USFGameInstance::OnLevelLoaded()
-{
-    CurrentPhase->ApplySettings();
-}
-
 
 bool USFGameInstance::IsStarted() const
 {
     return bStudyStarted;
 }
+
+
+void USFGameInstance::SaveData(const FString Where, FString Data)
+{
+    TArray<FString> DataArray;
+    DataArray.Add(Data);
+
+    SaveDataArray(Where, DataArray);
+}
+
+void USFGameInstance::SaveDataArray(const FString Where, TArray<FString> Data)
+{
+    Participant->SaveDataArray(Where, Data);
+}
+
+void USFGameInstance::CommitData()
+{
+    Participant->CommitData();
+}
+
+void USFGameInstance::LogData(const FString String)
+{
+    Participant->LogData(String);
+}
+
+
+
+// ****************************************************************** // 
+// ******* Prepare Study ******************************************** //
+// ****************************************************************** //
 
 void USFGameInstance::AddPhase(USFStudyPhase* Phase)
 {
@@ -66,8 +145,8 @@ void USFGameInstance::AddPhase(USFStudyPhase* Phase)
     {
         FSFUtils::LogStuff("[USFGameInstance::AddPhase()]: Study already started.", true);
     }
-    
-    Phases.Add(Phase);
+
+    Participant->AddPhase(Phase);
 }
 
 void USFGameInstance::AddActorForEveryLevelInEveryPhaseCpp(UClass* Actor)
@@ -79,6 +158,33 @@ void USFGameInstance::AddActorForEveryLevelInEveryPhaseBlueprint(const FSFClassO
 {
     SpawnInEveryPhaseBlueprint.Add(Actor);
 }
+
+
+void USFGameInstance::SetFadeColor(const FLinearColor Color)
+{
+    FadeHandler->SetFadeColor(Color);
+}
+
+void USFGameInstance::SetFadeDuration(const float FadeDuration)
+{
+    FadeHandler->SetFadeDuration(FadeDuration);
+}
+
+void USFGameInstance::SetFadedOutDuration(const float FadeOutWait)
+{
+    FadeHandler->SetFadedOutDuration(FadeOutWait);
+}
+
+void USFGameInstance::SetInitialFadedOut(const bool bFadedOut)
+{
+    FadeHandler->SetInitialFadedOut(bFadedOut);
+}
+
+
+
+// ****************************************************************** // 
+// ******* Executing Study ****************************************** //
+// ****************************************************************** //
 
 void USFGameInstance::SpawnAllActorsForLevel()
 {
@@ -94,13 +200,13 @@ void USFGameInstance::SpawnAllActorsForLevel()
     }
 
     // Spawn all level specific actor
-    TArray<UClass*> SpawnInThisPhaseCpp = CurrentPhase->GetSpawnActorsCpp();
+    TArray<UClass*> SpawnInThisPhaseCpp = Participant->GetCurrentPhase()->GetSpawnActorsCpp();
     for (auto EntryC : SpawnInThisPhaseCpp)
     {
         GetWorld()->SpawnActor(EntryC);
     }
 
-    TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint = CurrentPhase->GetSpawnActorsBlueprint();
+    TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint = Participant->GetCurrentPhase()->GetSpawnActorsBlueprint();
     for (auto EntryBlueprint : SpawnInThisPhaseBlueprint)
     {
         SpawnBlueprintActor(EntryBlueprint);
@@ -133,125 +239,19 @@ void USFGameInstance::SpawnBlueprintActor(const FSFClassOfBlueprintActor Actor) 
         + Actor.Path + "/" + Actor.ClassName + ") cannot be found!", true);
 }
 
-bool USFGameInstance::StartStudy()
+void USFGameInstance::OnLevelLoaded()
 {
-	if (bStudyStarted)
-	{
-		FSFUtils::LogStuff("[USFGameInstance::StartStudy()]: Study already started.", true);
-        return false;
-	}
-    
-	Participant = NewObject<USFParticipant>();
-    
-	Participant->Initialize("Test", this);
-    
-	bStudyStarted = true;
-    
-    // Check if all Phases are valid
-    int Valid = true;
-    for (auto Phase : Phases)
-    {
-        if(Phase->PhaseValid())
-        {
-            Phase->GenerateOrder();
-        }
-        else
-        {
-            Valid = false;
-        }
-    }
-    
-    if (!Valid)
-    {
-        FSFUtils::LogStuff("[USFGameInstance::StartStudy()]: Not all phases are valid. Cannot start study.", true);
-        return false;
-    }
-    
-    FString Log = "[USFGameInstance::StartStudy()]: Phases: ";
-    FSFUtils::LogStuff("[USFGameInstance::StartStudy()]: There are " + FString::FromInt(Phases.Num()) + "phases: ", false);
-
-    Logger->Initialize(Phases);
-
-	NextSetup();
-    return true;
-}
-
-void USFGameInstance::EndStudy()
-{
-
+    Participant->GetCurrentPhase()->ApplySettings();
 }
 
 
-// Data Stuff
 
-void USFGameInstance::Initialize()
+void USFGameInstance::UpdateHUD()
 {
-    if (bInitialized)
-    {
-        return;
-    }
-
-    FadeHandler = NewObject<USFFadeHandler>();
-    FadeHandler->AddToRoot();                   // TODO What is that?
-    FadeHandler->SetGameInstance(this);
-    FadeHandler->SetInitialFadedOut(false);
-
-    // TODO Check if necessary
-    SpawnInEveryPhaseCpp.Add(ASFStudyControllerActor::StaticClass());
-
-	bInitialized = true;
-}
-
-bool USFGameInstance::IsInitialized() const
-{
-    return bInitialized;
-}
-
-
-bool USFGameInstance::HasData() const
-{
-    // return (Participant != nullptr && Phases.Num());
-    return true;
-}
-
-
-void USFGameInstance::SetFadeColor(const FLinearColor Color)
-{
-    FadeHandler->SetFadeColor(Color);
-}
-
-void USFGameInstance::SetFadeDuration(const float FadeDuration)
-{
-    FadeHandler->SetFadeDuration(FadeDuration);
-}
-
-void USFGameInstance::SetFadedOutDuration(const float FadeOutWait)
-{
-    FadeHandler->SetFadedOutDuration(FadeOutWait);
-}
-
-void USFGameInstance::SetInitialFadedOut(const bool bFadedOut)
-{
-    FadeHandler->SetInitialFadedOut(bFadedOut);
-}
-
-void USFGameInstance::SaveData(const FString Where, FString Data)
-{
-    TArray<int> CurrentSetup = CurrentPhase->GetCurrentSetup();
-
-    FString Setup = FSFUtils::SetupToString(CurrentSetup);
-
-    Logger->SaveData(Where, Data, CurrentPhaseIdx, Setup);
-}
-
-void USFGameInstance::LogData(const FString String)
-{
-    Logger->LogData(String);
-}
-
-void USFGameInstance::CommitData()
-{
-    Logger->CommitData();
+  // TODO UPDATE HUD HERE DELETED
+    // ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+    // 
+    // MasterHUD->SetJsonData(Participant->GetJsonFile());
 }
 
 

@@ -5,9 +5,12 @@
 
 #include "SFGameInstance.h"
 
+#include "SFLogger.h"
 
 #include <string>
 
+
+#include "IUniversalLogging.h"
 #include "Engine/Engine.h"
 #include "SFUtils.h"
 
@@ -19,190 +22,240 @@ USFParticipant::~USFParticipant()
 {
 }
 
-void USFParticipant::Initialize(FString IdN, USFGameInstance* GameInstanceN)
+void USFParticipant::SaveDataArray(FString Where, TArray<FString> Data)
 {
-	Id = IdN;
-	GameInstance = GameInstanceN;
+    TArray<int> CurrentSetup = CurrentPhase->GetCurrentSetup();
 
-	if (FindConfigurationFile())
-	{
-		LoadConfigurationFile();
-	}
-	else
-	{
-		// PhaseSettings = GameInstance->GetPhaseSettings();   // TODO nec?
-        // Phases = GameInstance->GetPhases();                 // TODO nec?
+    FString Setup = FSFUtils::SetupToString(CurrentSetup);
 
-        CurrentPhase = Phases[0];
-
-		CreateNewConfigurationFile();
-	}
-
-	CreateSetupOrder();
-
-	LogSetupOrder();
-
+    Logger->SaveDataArray(Where, Data, CurrentPhaseIdx, Setup);
 }
 
-bool USFParticipant::SaveConfigurationFile()
+void USFParticipant::AddPhase(USFStudyPhase* PhaseNew)
 {
-	// https://forums.unrealengine.com/development-discussion/c-gameplay-programming/79298-how-to-access-input-ini-in-run-time-and-modify-it
-	// https://docs.unrealengine.com/en-US/Gameplay/SaveGame/index.html
-	// https://forums.unrealengine.com/unreal-engine/announcements-and-releases/1745504-a-new-community-hosted-unreal-engine-wiki
-
-    // TODO Create Configuration File
-
-	// Von Jonathan: FFileHelper
-	return false;
+    Phases.Add(PhaseNew);
 }
 
-bool USFParticipant::FindConfigurationFile()
+bool USFParticipant::CheckPhases()
 {
-	return false;
-}
-
-bool USFParticipant::LoadConfigurationFile()
-{
-	return false;
-}
-
-bool USFParticipant::CreateNewConfigurationFile()
-{
-    for (auto Phase : Phases)
+    for (auto EntryPhase : Phases)
     {
-        PhaseTotalNumberOfConfigurations[Phase] = 1;
-	    for (int i = 0; i < PhaseSettings[Phase].Num(); i++)
-	    {
-	    	PhaseTotalNumberOfConfigurations[Phase] = PhaseTotalNumberOfConfigurations[Phase] * PhaseSettings[Phase][i].Count;
-	    }
-
-        // TODO get in?
-        if (PhaseSetupOrder.Find(Phase) == nullptr)
+        if (!EntryPhase->PhaseValid())
         {
-            PhaseSetupOrder.Add(Phase, TArray<TArray<int>>());
+            return false;
         }
-        else
-        {
-            PhaseSetupOrder[Phase].Empty();
-        }
-        PhaseSetupOrder[Phase].SetNum(PhaseTotalNumberOfConfigurations[Phase]);
-        
-	    
-        if (PhaseAlreadyDone.Find(Phase) == nullptr)
-        {
-            PhaseAlreadyDone.Add(Phase, TArray<bool>());
-        }
-        else
-        {
-            PhaseAlreadyDone[Phase].Empty();
-        }
-        PhaseAlreadyDone[Phase].SetNum(PhaseTotalNumberOfConfigurations[Phase]);
-
-	    for (int i = 0; i < PhaseTotalNumberOfConfigurations[Phase]; i++)
-	    {
-	    	PhaseAlreadyDone[Phase][i] = false;
-	    }
-
     }
 
-	SaveConfigurationFile();
-
-	return false;
+    return true;
 }
 
-bool USFParticipant::DeleteConfigurationFile()
+bool USFParticipant::Initialize(FString IdNew, FString JsonFilePath, USFGameInstance* GameInstanceNew, FString LogName, FString SaveDataLogName)
 {
-	return false;
+    ParticipantID = IdNew;
+
+    GameInstance = GameInstanceNew;
+
+    // TODO initialize Logger!!!
+    Logger = NewObject<USFLogger>();
+    Logger->Initialize(this, JsonFilePath, LogName, SaveDataLogName);
+
+    return true;
 }
 
-bool USFParticipant::CreateSetupOrder()
+void USFParticipant::GenerateInitialJsonFile()
 {
+    // Create initial Json File
     /*
-    for (auto Phase : Phases)
-    {
-	    const int NumberOfConf = PhaseSettings[Phase].Num();
+     + Phases (object)
+     +     Num (Int)
+     +         5 (Value)
+     +     1 (object)
+     +         Setup (Array)
+     +             2_2_2 (Value)
+     +         Order (FString Array)
+     +             1_1,1_2,2_1,2_2 (Value)
 
-	    // Setting up a counter to be able to select every single combination 
-	    TArray<int> Counter;
-	    Counter.SetNum(NumberOfConf, false);
-
-	    for (int i = 0; i < NumberOfConf; i++)
-	    {
-	    	Counter[i] = 1;
-            
-	    }
-
-
-	    for (int i = 0; i < PhaseTotalNumberOfConfigurations[Phase]; i++)
-	    {
-	    	PhaseSetupOrder[Phase][i] = Counter;
-
-	    	for (int j = 0; j < NumberOfConf; j++)
-	    	{
-	    		if (Counter[j] < PhaseSettings[Phase][j].Count)
-	    		{
-	    			Counter[j] = Counter[j] + 1;;
-	    			break;
-	    		}
-
-	    		Counter[j] = 1;
-	    	}
-	    }
-
-    }
+     + "Data": (object)
+     +     "Phase_1": (object)
+     +         "1_1": (object)
+     -             "NameOfData": (Array)
+     >                  1,2,3,4,5 (Value)
     */
-	return false;
-}
 
-bool USFParticipant::LogSetupOrder()
-{
-    for (auto Phase : Phases)
+    MainJsonObject = MakeShared<FJsonObject>();
+
+    TSharedPtr<FJsonObject> JsonPhases = MakeShared<FJsonObject>();
+    TSharedPtr<FJsonObject> JsonData = MakeShared<FJsonObject>();
+
+    const int NumPhases = Phases.Num();
+
+    JsonPhases->SetNumberField("NumberOfPhases", NumPhases);
+
+    TArray<TSharedPtr<FJsonObject>> JsonEachPhase;
+
+    for (int i = 0; i < NumPhases; i++)
     {
-	    FSFUtils::LogStuff("[SFParticipant::LogSetupOrder()]: Logging Setup Order now..", false);
-	    for (int i = 0; i < PhaseSetupOrder[Phase].Num(); i++)
-	    {
-	    	FString Text = "";
-	    	for (int j = 0; j < PhaseSettings[Phase].Num(); j++)
-	    	{
-	    		Text = Text + FString::FromInt(PhaseSetupOrder[Phase][i][j]) + "  ";
-	    	}
-	    	FSFUtils::LogStuff(Text, false);
-	    	FSFUtils::PrintToScreen(Text);
+        TSharedPtr<FJsonObject> JsonTmpPhases = MakeShared<FJsonObject>();
+        TSharedPtr<FJsonObject> JsonTmpData = MakeShared<FJsonObject>();
 
-	    }
-    }
-
-	return true;
-}
-
-TArray<int> USFParticipant::GetNextSetup()
-{
-    if (bFinished)
-    {
-        return TArray<int>();
-    }
-
-	if (NextSetupIdx >= PhaseTotalNumberOfConfigurations[CurrentPhase])
-	{
-        FSFUtils::LogStuff("[SFParticipant::GetNextSetup()]: Going to next phase", false);
-
-        CurrentPhaseIdx++;
-
-        if (CurrentPhaseIdx >= Phases.Num())
+        // Setup
+        TArray<int> SetupInt = Phases[i]->GetSetupNumArray();
+        TArray<TSharedPtr<FJsonValue>> Setup;
+        for (auto Entry : SetupInt)
         {
-            FSFUtils::LogStuff("[SFParticipant::GetNextSetup()]: There is no next phase", true);
+            TSharedPtr<FJsonValueNumber> Tmp = MakeShared<FJsonValueNumber>(Entry);
+            Setup.Add(Tmp);
+        }
+        JsonTmpPhases->SetArrayField("Setup", Setup);
 
-            bFinished = true;
+        // Order
+        TArray<FString> OrderFString = Phases[i]->GetSetupOrderArrayString();
+        TArray<TSharedPtr<FJsonValue>> Order;
+        for (auto Entry : OrderFString)
+        {
+            TSharedPtr<FJsonValueString> Tmp = MakeShared<FJsonValueString>(Entry);
+            Order.Add(Tmp);
+        }
+        JsonTmpPhases->SetArrayField("Order", Setup);
 
-            return TArray<int>();
+        // Add Phase
+        JsonPhases->SetObjectField(FString::FromInt(i), JsonTmpPhases);
+
+
+        // Data Part
+        for (auto Entry : OrderFString)
+        {
+            TSharedPtr<FJsonObject> Tmp = MakeShared<FJsonObject>();
+            JsonTmpData->SetObjectField(Entry, Tmp);
         }
 
-        CurrentPhase = Phases[CurrentPhaseIdx];
+        JsonData->SetObjectField(FString::FromInt(i), JsonTmpData);
 
-		
-	}
+    }
 
-	return PhaseSetupOrder[CurrentPhase][NextSetupIdx++];
+    MainJsonObject->SetObjectField("Phases", JsonPhases);
+    MainJsonObject->SetObjectField("Data", JsonData);
+
+    FString JsonAsString = FSFUtils::JsonToString(MainJsonObject);
+
+    FSFUtils::LogStuff(JsonAsString, false);
+}
+
+bool USFParticipant::FindJsonFile()
+{
+    return false;
+}
+
+bool USFParticipant::LoadJsonFile()
+{
+    // TODO set CurrentPhase 
+    // TODO set CurrentPhaseIdx 
+    return false;
+}
+
+bool USFParticipant::StartStudy()
+{
+    // If reload an already existing study?
+    if (FindJsonFile())
+    {
+        UniLog.Log("SFLog", "[USFParticipant::StartStudy()]: Json File found. Loading it now..");
+        return LoadJsonFile();
+    }
+    else
+    {
+        
+    }
+
+    if (!CheckPhases())
+    {
+        UniLog.Log("SFLog", "[USFParticipant::StartStudy()]: Not al Phases valid");
+        return false;
+    }
+
+
+    // Setup order
+    for (auto EntryPhase : Phases)
+    {
+        EntryPhase->GenerateOrder();
+    }
+
+    UniLog.Log("SFLog", "[USFParticipant::StartStudy()]: Generated Phases for " 
+        + FString::FromInt(Phases.Num()) + " phases");
+
+    // Create initial Json file
+    GenerateInitialJsonFile();
+
+    // And save it
+    Logger->SaveJsonFile(MainJsonObject);
+
+    // Set first phase
+    CurrentPhase = Phases[0];
+    CurrentPhaseIdx = 0;
+
+    return true;
+}
+
+FString USFParticipant::NextSetup()     // TODO can maybe be made a schöner function with different if phase finished logic
+{
+    // Get next Setup
+    UpcomingSetup = CurrentPhase->NextSetup();
+
+    if (UpcomingSetup.Num() == 0)
+    {
+        if (CurrentPhaseIdx >= (Phases.Num() - 1)) // So there is no next phase
+        {
+            UniLog.Log("SFLog", "[USFParticipant::NextSetup()]: No All setups already ran.");
+
+            GameInstance->EndStudy();
+
+            return "";
+        }
+        else
+        {
+            CurrentPhase = Phases[++CurrentPhaseIdx];
+
+            UpcomingSetup = CurrentPhase->NextSetup();
+        }
+    }
+
+    const FString LevelName = CurrentPhase->GetUpcomingLevelName();
+
+    return LevelName;
+}
+
+void USFParticipant::EndStudy()
+{
 
 }
+
+void USFParticipant::LogData(FString Data)
+{
+    Logger->LogData(Data);
+}
+
+void USFParticipant::CommitData()
+{
+    Logger->CommitData();
+}
+
+TSharedPtr<FJsonObject> USFParticipant::GetJsonFile()
+{
+    return MainJsonObject;
+}
+
+USFStudyPhase* USFParticipant::GetCurrentPhase()
+{
+    return CurrentPhase;
+}
+
+int USFParticipant::GetCurrentPhaseIdx()
+{
+    return CurrentPhaseIdx;
+}
+
+FString USFParticipant::GetID()
+{
+    return ParticipantID;
+}
+
 

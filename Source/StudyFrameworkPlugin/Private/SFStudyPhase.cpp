@@ -53,6 +53,7 @@ bool USFStudyPhase::GenerateOrder()
         NumberOfSetups = NumberOfSetups * Settings[i].Count;
     }
 
+    Order2D.SetNum(NumberOfSetups);
 
     // Setting up a counter to be able to select every single combination 
     TArray<int> Counter;
@@ -102,7 +103,17 @@ bool USFStudyPhase::GenerateOrder()
 
 TArray<int> USFStudyPhase::NextSetup()
 {
-    UpcomingSetup = Order2D[CurrentSetupIdx + 1];
+    if (Order2D.Num() <= ++CurrentSetupIdx)
+    {
+        // Phase already ran all Setups
+        return TArray<int>();
+    }
+
+    UpcomingSetup = Order2D[CurrentSetupIdx];
+
+    // Level ID stored in first Entry of Setup
+    UpcomingLevelName = LevelNames[UpcomingSetup[0]];
+
     return UpcomingSetup;
 }
 
@@ -116,7 +127,6 @@ bool USFStudyPhase::ApplySettings()
 
     CurrentSetup = UpcomingSetup;
     UpcomingSetup.Empty();
-    CurrentSetupIdx++;
     
     return bSuc;
 }

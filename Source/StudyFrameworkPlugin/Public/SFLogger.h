@@ -3,8 +3,9 @@
 
 #include "CoreMinimal.h"
 #include "JsonObject.h"
+#include "SharedPointer.h"
 
-
+class USFParticipant;
 class USFGameInstance;
 class USFStudyPhase;
 
@@ -19,25 +20,37 @@ public:
     USFLogger();
 
     UFUNCTION()
-        void Initialize(TArray<USFStudyPhase*> Phases);
+        void Initialize(USFParticipant* ParticipantNew, FString JsonFilePathNew, FString LogNameNew, FString SaveLogNameNew);
 
-    UFUNCTION()
-        void InitializeJsonFile(TArray<USFStudyPhase*> Phases);
-    
+    // UFUNCTION()
+    //     void InitializeJsonFile(TArray<USFStudyPhase*> Phases);
+
+
+    void SaveJsonFile(TSharedPtr<FJsonObject> Json);        // TODO implement
+
+
+
     UFUNCTION()
         void LogData(FString String);
 
     UFUNCTION()
-        void SaveData(FString NameOfData, FString Data, int PhaseIdx, FString Setup);
+        void SaveData(FString NameOfData, FString Data, int PhaseIdx, FString Setup);       // TODO get rid of?
 
     UFUNCTION()
-        void CommitData();
+        void SaveDataArray(FString NameOfData, TArray<FString> Data, int PhaseIdx, FString Setup);
 
+    UFUNCTION()
+        void CommitData();          // TODO Make sure the path is only the path
+
+    TSharedPtr<FJsonObject> GetJsonFile();
 
 protected:
 
-
     TSharedPtr<FJsonObject> MainJsonObject; // TODO does it need to be initialized?
+
+    UPROPERTY()
+        USFParticipant* Participant;
+        
 
     UPROPERTY()
         FString JsonFilePath;
@@ -46,13 +59,14 @@ protected:
         FString LogName = "DataLog";
 
     UPROPERTY()
-        FString SaveDataLogName = "SaveDataLog";
+        FString SaveLogName = "SaveLog";
+
 
     UPROPERTY()
         bool bInitialized = false;
 
-    UPROPERTY()
-        USFGameInstance* GameInstance;
+    // UPROPERTY()
+    //     USFGameInstance* GameInstance; // TODO actually needed?
 
 
 };

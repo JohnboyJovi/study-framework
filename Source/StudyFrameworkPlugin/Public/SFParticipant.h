@@ -3,16 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "JsonObject.h"
 #include "SFDefinesPublic.h"
+#include "SFStudyPhase.h"
+
 
 #include "SFParticipant.generated.h"
 
+class USFLogger;
 class USFGameInstance;
 
-/**
- * 
- */
-// TODO UCLASS for saving the whole state of the Participant
+
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFParticipant : public UObject
 {
@@ -22,77 +24,57 @@ public:
 	USFParticipant();
 	~USFParticipant();
 
-	void Initialize(FString IdN, USFGameInstance* GameInstance);
+	bool Initialize(FString IdNew, FString JsonFilePath, USFGameInstance* GameInstanceNew, 
+        FString LogName = "NormalLog", FString SaveDataLogName = "SaveLog");
 
-	// TODO Safe Configuration as it is
-	bool SaveConfigurationFile();
+    void GenerateInitialJsonFile(); // TODO implement GenerateInitialJsonFile()
 
-	// TODO Search for Configuration
-	bool FindConfigurationFile();
+    bool FindJsonFile();       // TODO implement Participant::FindJsonFile()
+    bool LoadJsonFile();       // TODO implement Participant::LoadJsonFile()
 
-	// TODO Load Configuration from files
-	bool LoadConfigurationFile();
+    bool StartStudy();
+    FString NextSetup();
+    void EndStudy();            // TODO implement Participant::EndStudy()
 
-	// TODO implement
-	bool CreateNewConfigurationFile();
+    void AddPhase(USFStudyPhase* PhaseNew);
+    bool CheckPhases();
 
-	// TODO implement
-	bool DeleteConfigurationFile();
 
-	// TODO Set up the Array SetupOrder
-	bool CreateSetupOrder();
+    void SaveDataArray(FString Where, TArray<FString> Data);
+    void LogData(FString Data);
+    void CommitData();              // TODO need CommitData()?
 
-	// TODO Log the Setup Order
-	bool LogSetupOrder();
-	
-	// Function to get the next planned setup
-	TArray<int> GetNextSetup();
-	
+
+    TSharedPtr<FJsonObject> GetJsonFile();
+    USFStudyPhase* GetCurrentPhase();
+    int GetCurrentPhaseIdx();
+    FString GetID();
+
 
 protected:
-	FString Id;
-	
-
-	USFGameInstance* GameInstance;
-	
-	// TArray<FSFStudySetting> Settings;
-	// TArray<TArray<int>> SetupOrder;
-	// TArray<bool> AlreadyDone;
-	int NextSetupIdx = 0;
-
-	TMap<int, int> PhaseTotalNumberOfConfigurations;
-
-    TMap<int, TArray<FSFStudySetting>> PhaseSettings;
-    TMap<int, TArray<TArray<int>>> PhaseSetupOrder;
-    TMap<int, TArray<bool>> PhaseAlreadyDone;
-    TArray<int> Phases;
-
-    int CurrentPhaseIdx = 0;
-    int CurrentPhase;
-
-    // If Study is finished
-    bool bFinished = false;
+    UPROPERTY()
+        FString ParticipantID;
 
 
+    TSharedPtr<FJsonObject> MainJsonObject;
 
 
+    UPROPERTY()
+	    USFGameInstance* GameInstance; 
 
-public:
-	// USFParticipant* operator=(const USFParticipant* Other) // copy assignment
-	// {	
-	// 	Id								= Other->Id;
-	// 	TotalNumberOfConfigurations		= Other->TotalNumberOfConfigurations;
-	// 	AlreadyDone						= new bool[TotalNumberOfConfigurations];
-	// 
-	// 	for (int i = 0; i < TotalNumberOfConfigurations; i++)
-	// 	{
-	// 		AlreadyDone[i] = Other->AlreadyDone[i];
-	// 	}
-	// 
-	// 	Configurations					= Other->Configurations;
-	// 	SetupOrder						= Other->SetupOrder;
-	// 	NextSetup						= Other->NextSetup;
-	// 	
-	// 	return this;
-	// }
+    UPROPERTY()
+        USFLogger* Logger;
+
+
+    UPROPERTY()
+        TArray<int> UpcomingSetup;
+
+    UPROPERTY()
+        TArray<USFStudyPhase*> Phases;
+    UPROPERTY()
+        USFStudyPhase* CurrentPhase;
+    UPROPERTY()
+        int CurrentPhaseIdx;
+
+
 };

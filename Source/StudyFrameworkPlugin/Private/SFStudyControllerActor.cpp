@@ -3,23 +3,28 @@
 
 #include "SFStudyControllerActor.h"
 
+
 // #include <string>
 
 #include "SFUtils.h"
 
 // #include "Components/InputComponent.h"
 // #include "Components/PointLightComponent.h"
+#include "IUniversalLogging.h"
 #include "Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 
 
 #include "SFGameInstance.h"
+#include "SFPlugin.h"
 
 
 ASFStudyControllerActor* ASFStudyControllerActor::Manager;
 
 ASFStudyControllerActor::ASFStudyControllerActor()
 {
+    ILogStream *LogStream = UniLog.NewLogStream("SFLog", "Saved/Logs",
+        "SFLog.log", true);
     PrimaryActorTick.bCanEverTick = false;
 }
 
@@ -27,9 +32,6 @@ ASFStudyControllerActor::ASFStudyControllerActor()
 void ASFStudyControllerActor::BeginPlay()
 {
     Super::BeginPlay();
-
-    Initialize();
-
 }
 
 void ASFStudyControllerActor::Tick(const float DeltaTime)
@@ -55,6 +57,8 @@ bool ASFStudyControllerActor::StartStudy()
 
 	GameInstance->StartStudy();
 
+    // GameInstance->UpdateHUD();
+
     return true;
 }
 
@@ -73,8 +77,12 @@ bool ASFStudyControllerActor::NextSetup()
 
 	GameInstance->NextSetup();
 
+    // GameInstance->UpdateHUD();
+
     return true;
 }
+
+
 
 bool ASFStudyControllerActor::AddPhase(USFStudyPhase* Phase)
 {
@@ -110,6 +118,7 @@ bool ASFStudyControllerActor::AddActorForEachLevelCpp(UClass* Actor)
         FSFUtils::LogStuff("[ASFManagerActor::AddActorForEachLevel()]: Study already started", false);
         return false;
     }
+    
 
     GameInstance->AddActorForEveryLevelInEveryPhaseCpp(Actor);
 
@@ -184,25 +193,40 @@ bool ASFStudyControllerActor::SetInitialFadedOut(bool bFadedOut)
 
 ASFStudyControllerActor* ASFStudyControllerActor::GetCurrentControllerActor()
 {
-	return Manager;
+    return Manager;
+}
+
+void ASFStudyControllerActor::SaveDataArray(const FString DataName, TArray<FString> Data)
+{
+    GameInstance->SaveDataArray(DataName, Data);
+
+    GameInstance->CommitData();
+
+    GameInstance->UpdateHUD();
 }
 
 void ASFStudyControllerActor::SaveData(const FString DataName, FString Data)
 {
     GameInstance->SaveData(DataName, Data);
+
+    GameInstance->CommitData();
+
+    GameInstance->UpdateHUD();
 }
 
 void ASFStudyControllerActor::LogData(const FString String)
 {
     GameInstance->LogData(String);
+
+    GameInstance->UpdateHUD();
 }
 
-void ASFStudyControllerActor::CommitData()
+void ASFStudyControllerActor::UpdateHUD()
 {
-    GameInstance->CommitData();
+    GameInstance->UpdateHUD();
 }
 
-void ASFStudyControllerActor::Initialize()
+void ASFStudyControllerActor::Initialize(FString ParticipantID, FString JsonFilePath)
 {
     if (bInitialized)
     {
@@ -220,12 +244,13 @@ void ASFStudyControllerActor::Initialize()
 
     if (!GameInstance->IsInitialized())
     {
-        GameInstance->Initialize();
+        GameInstance->Initialize(ParticipantID, JsonFilePath);
     }
 
     APlayerController* Controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-    GameInstance->Initialize();
+    GameInstance->Initialize(ParticipantID, JsonFilePath);
 
     bInitialized = true;
+
 }

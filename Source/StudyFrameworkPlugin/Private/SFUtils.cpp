@@ -6,6 +6,8 @@
 #include "LogMacros.h"
 #include "SFPlugin.h"
 
+#include "Json.h"
+
 
 int FSFUtils::KeyCounter = -1;
 
@@ -90,3 +92,22 @@ FString FSFUtils::SetupToString(TArray<int> Setup)
     return Output;
 }
 
+FString FSFUtils::JsonToString(TSharedPtr<FJsonObject> Json)
+{
+    FString OutputString;
+    TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+    FJsonSerializer::Serialize(Json.ToSharedRef(), Writer);
+
+    return OutputString;
+}
+
+TSharedPtr<FJsonObject> FSFUtils::StringToJson(FString String)
+{
+    TSharedPtr<FJsonObject> Json = MakeShareable(new FJsonObject());
+    TSharedRef<TJsonReader<TCHAR>> Reader = FJsonStringReader::Create(String);
+    FJsonSerializer::Deserialize(Reader, Json);
+
+    return Json;
+}
+/*
+ */

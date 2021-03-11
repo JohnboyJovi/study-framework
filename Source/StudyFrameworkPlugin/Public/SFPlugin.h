@@ -21,7 +21,6 @@ public:
 	
 	static bool GetIsMaster();
 
-
 protected:
 
 	static bool bIsMaster;

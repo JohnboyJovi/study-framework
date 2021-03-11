@@ -7,10 +7,11 @@
 #include "GameFramework/Actor.h"
 #include "SFStudyPhase.h"
 
+
 #include "SFStudyControllerActor.generated.h"
 
 
-
+class ASFPlayerController;
 class USFGameInstance;
 
 
@@ -18,30 +19,54 @@ class USFGameInstance;
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API ASFStudyControllerActor : public AActor // TODO rename StudyManager?
 {
-	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    GENERATED_BODY()
 
 public:
-	
-	ASFStudyControllerActor();
+    // Sets default values for this actor's properties
+protected:
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 
-	virtual void Tick(float DeltaTime) override;
+public:
+    ASFStudyControllerActor();
 
-	// TODO implement Start Study()
-	UFUNCTION(BlueprintCallable)
-	    bool StartStudy();
+    virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
-	    bool NextSetup();
+
+    // ****************************************************************** // 
+    // ******* Control Study ******************************************** //
+    // ****************************************************************** //
+
+    UFUNCTION(BlueprintCallable)
+        bool StartStudy();                                          // TODO implement Start Study()
+
+    UFUNCTION(BlueprintCallable)
+        bool NextSetup();
+
+
+    UFUNCTION()     // TODO Kommentar
+        void SaveDataArray(const FString DataName, TArray<FString> Data);
+
+    UFUNCTION()// TODO Kommentar
+        void SaveData(const FString DataName, FString Data);        // TODO ??
+
+    UFUNCTION()// TODO Kommentar
+        void LogData(const FString String);                         // TODO Difference here?
+
+    UFUNCTION()// TODO Kommentar
+        void UpdateHUD();
+
+  
+    // ****************************************************************** // 
+    // ******* Prepare Study ******************************************** //
+    // ****************************************************************** //
+
+    UFUNCTION()
+        void Initialize(FString ParticipantID, FString JsonFilePath);
+
 
     UFUNCTION()
         bool AddPhase(USFStudyPhase* Phase);
-
 
     // Each Level Load
     UFUNCTION()
@@ -60,22 +85,11 @@ public:
         bool SetInitialFadedOut(bool bFadedOut);
 
 
-    UFUNCTION() 
-        void SaveData(const FString DataName, FString Data);
-
-    UFUNCTION()
-        void LogData(const FString String);
-
-    UFUNCTION()
-        void CommitData();
-
-    UFUNCTION()
-        void Initialize();
 
     // TODO implement GetCurrentControllerActor to work non static
     UFUNCTION()
         static ASFStudyControllerActor* GetCurrentControllerActor();
-	
+
 protected:
 
     // TODO need CheckGameInstance()?
@@ -85,11 +99,13 @@ protected:
 
     static ASFStudyControllerActor* Manager;
 
-	UPROPERTY()
-	    USFGameInstance* GameInstance;
+    UPROPERTY()
+        USFGameInstance* GameInstance;
 
     UPROPERTY()
         bool bInitialized = false;
+
+
 };
 
 

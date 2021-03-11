@@ -39,7 +39,8 @@ public class StudyFrameworkPlugin : ModuleRules
                 "Sockets",
                 "Json",
                 "JsonUtilities",
-                "Networking"
+                "Networking",
+                "UMG"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

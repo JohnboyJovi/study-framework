@@ -25,6 +25,18 @@ class STUDYFRAMEWORKPLUGIN_API USFGameInstance : public UGameInstance
 
    
 public: // TODO check what can be protected:
+
+    // ****************************************************************** // 
+    // ******* Initialization ******************************************* //
+    // ****************************************************************** //
+    UFUNCTION()
+        void Initialize(FString ParticipantID, FString JsonFilePath);
+    UFUNCTION()
+        bool IsInitialized() const;
+
+    // ****************************************************************** // 
+    // ******* Control Study ******************************************** //
+    // ****************************************************************** //
     UFUNCTION()
 	    bool StartStudy();  
     UFUNCTION()
@@ -34,34 +46,27 @@ public: // TODO check what can be protected:
     UFUNCTION()
         bool IsStarted() const;
 
-    // instead use:
+
+    UFUNCTION()
+        void SaveData(const FString Where, FString Data);
+    UFUNCTION()
+        void SaveDataArray(const FString Where, TArray<FString> Data);
+    UFUNCTION()
+        void CommitData();
+
+    UFUNCTION()
+        void LogData(const FString String);
+
+    // ****************************************************************** // 
+    // ******* Prepare Study ******************************************** //
+    // ****************************************************************** //
     UFUNCTION()
         void AddPhase(USFStudyPhase* Phase);
 
-    // Load for each level
     UFUNCTION()
         void AddActorForEveryLevelInEveryPhaseCpp(UClass* Actor);
     UFUNCTION()
         void AddActorForEveryLevelInEveryPhaseBlueprint(FSFClassOfBlueprintActor Actor);
-
-
-    // Handling Study 
-    UFUNCTION()
-        void SpawnAllActorsForLevel();
-    UFUNCTION()
-        void SpawnBlueprintActor(FSFClassOfBlueprintActor Actor) const;
-    UFUNCTION()
-        void OnLevelLoaded();
-
-
-
-    UFUNCTION()
-        bool IsInitialized() const;
-    UFUNCTION()
-        void Initialize();
-
-    UFUNCTION()
-        bool HasData() const;               // TODO Was damit machen?
 
     // Fade Handler
     UFUNCTION()
@@ -74,50 +79,48 @@ public: // TODO check what can be protected:
         void SetInitialFadedOut(bool bFadedOut);
 
 
+    // ****************************************************************** // 
+    // ******* Executing Study ****************************************** //
+    // ****************************************************************** //
+    UFUNCTION()
+        void SpawnAllActorsForLevel();
+    UFUNCTION()
+        void SpawnBlueprintActor(FSFClassOfBlueprintActor Actor) const;
+    UFUNCTION()
+        void OnLevelLoaded();
 
     UFUNCTION()
-        void SaveData(const FString Where, FString Data);
-
-    UFUNCTION()
-        void LogData(const FString String);
-
-    UFUNCTION()
-        void CommitData();
+        void UpdateHUD();       // TODO implement
 
 
 protected:
+    // Handlich Stuff
+    UPROPERTY()
+	USFParticipant* Participant;
+    UPROPERTY()
+	USFFadeHandler* FadeHandler;
 
+    // Spawn in every Level
     UPROPERTY()
         TArray<UClass*> SpawnInEveryPhaseCpp;
-
     UPROPERTY()
         TArray<FSFClassOfBlueprintActor> SpawnInEveryPhaseBlueprint;
 
-
-	UPROPERTY()
-		bool bInitialized = false;
-
+    // State of Study / GameInstance
+    UPROPERTY()
+	bool bInitialized = false;
     UPROPERTY()
         bool bStudyStarted = false;
 
-	UPROPERTY()
-		USFFadeHandler* FadeHandler;
-
-    UPROPERTY()
-		USFParticipant* Participant;
 
 
-    // Phase stuff
     UPROPERTY()
         TArray<USFStudyPhase*> Phases;
 
-    UPROPERTY()
-        USFStudyPhase* CurrentPhase;
+    USFStudyPhase* CurrentPhase;
+    int CurrentPhaseIdx;
 
-    UPROPERTY()
-        int CurrentPhaseIdx;
 
-    UPROPERTY()
-        USFLogger* Logger;
+
 
 };

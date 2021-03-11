@@ -113,21 +113,21 @@ private:
 
     // Setups
     UPROPERTY()
-        TArray<int> Order;          // TODO macht gar nichts
+        TArray<int> Order;          // TODO macht gar nichts ??
 
     TArray<TArray<int>> Order2D;
 
     UPROPERTY()
-        TArray<int> UpcomingSetup;  // TODO macht gar nichts
+        TArray<int> UpcomingSetup;  
 
     UPROPERTY()
-        TArray<int> CurrentSetup;   // TODO macht gar nichts
+        TArray<int> CurrentSetup;   
 
     UPROPERTY()
         int CurrentSetupIdx = -1;
 
     UPROPERTY()
-        FString UpcomingLevelName;  // TODO macht gar nichts
+        FString UpcomingLevelName;  
 
     UPROPERTY()
         int NumberOfSetups;

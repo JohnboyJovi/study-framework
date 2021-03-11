@@ -4,6 +4,8 @@
 
 #include "Core.h"
 
+class FJsonObject;
+
 DECLARE_LOG_CATEGORY_EXTERN(SFLog, Log, All);
 
 
@@ -26,6 +28,11 @@ public:
 
 
     static FString SetupToString(TArray<int> Setup);
+
+
+    static FString JsonToString(TSharedPtr<FJsonObject> Json);
+
+    static TSharedPtr<FJsonObject> StringToJson(FString String);
 
 private:
 	static int KeyCounter;

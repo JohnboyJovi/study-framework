@@ -28,13 +28,13 @@ void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
     }
 
     // FadeHandler
-    FadeHandler = NewObject<USFFadeHandler>();
+    FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
     FadeHandler->AddToRoot();                   // TODO What is that?
     FadeHandler->SetGameInstance(this);
     FadeHandler->SetInitialFadedOut(false);
 
     // Participant
-    Participant = NewObject<USFParticipant>();
+    Participant = NewObject<USFParticipant>(GetTransientPackage(), FName(*ParticipantID));
     Participant->Initialize(ParticipantID, JsonFilePath, this);
 
     // TODO Check if necessary
@@ -149,6 +149,9 @@ void USFGameInstance::AddPhase(USFStudyPhase* Phase)
     {
         FSFUtils::LogStuff("[USFGameInstance::AddPhase()]: Study already started.", true);
     }
+
+	 //this Rename is needed, to unbind the Phase object from any other object class, so it is not garbage collected on level change
+	 Phase->Rename(*Phase->GetName(), GetTransientPackage());
 
     Participant->AddPhase(Phase);
 }

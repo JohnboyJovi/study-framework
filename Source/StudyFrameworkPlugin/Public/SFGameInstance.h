@@ -108,19 +108,8 @@ protected:
 
     // State of Study / GameInstance
     UPROPERTY()
-	bool bInitialized = false;
+	 bool bInitialized = false;
     UPROPERTY()
-        bool bStudyStarted = false;
-
-
-
-    UPROPERTY()
-        TArray<USFStudyPhase*> Phases;
-
-    USFStudyPhase* CurrentPhase;
-    int CurrentPhaseIdx;
-
-
-
+    bool bStudyStarted = false;
 
 };

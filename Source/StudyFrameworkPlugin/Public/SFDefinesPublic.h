@@ -6,6 +6,10 @@
 #include "SFDefinesPublic.generated.h"
 
 
+// This struct is used to identify blueprints to spawn
+// ClassName: The name of the blueprint as shown in the Editor
+// Path: where the blueprint is stored
+//     for blueprints in the game's Content dir: use /Game/[path_relative_to_Content_dir]
 
 USTRUCT()
 struct FSFClassOfBlueprintActor

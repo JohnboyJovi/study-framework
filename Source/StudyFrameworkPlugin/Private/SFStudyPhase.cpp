@@ -31,6 +31,10 @@ void USFStudyPhase::SetRepetitions(int Num, EPhaseRepetitionType Type)
 {
     NumberOfRepetitions = Num;
     TypeOfRepetition = Type;
+	 if(TypeOfRepetition!= EPhaseRepetitionType::SameOrder)
+	 {
+		 FSFUtils::LogStuff("Currently only SameOrder repetitions supported! Please implement in USFStudyPhase::GenerateOrder().", true);
+	 }
 }
 
 void USFStudyPhase::SetSettingsMixing(EMixingSetupOrder MixingType)
@@ -40,61 +44,55 @@ void USFStudyPhase::SetSettingsMixing(EMixingSetupOrder MixingType)
 
 bool USFStudyPhase::PhaseValid()
 {
-    return (LevelNames.Num() && Settings.Num());
+	if(LevelNames.Num()==0)
+	{
+		FSFUtils::LogStuff("Phase " + GetName() + " is invalid, since no level is set!", true);
+		return false;
+	}
+	return true;
 }
 
 bool USFStudyPhase::GenerateOrder()
 {
-    const int NumberOfConf = Settings.Num();
+    const int NumberOfSettings = Settings.Num();
 
-    NumberOfSetups = 1;
+    int NumberOfConditions = LevelNames.Num();
     for (int i = 0; i < Settings.Num(); i++)
     {
-        NumberOfSetups = NumberOfSetups * Settings[i].Count;
+		 NumberOfConditions *= Settings[i].Count;
     }
 
-    Order2D.SetNum(NumberOfSetups);
+	 Orders.Empty();
+    Orders.Reserve(NumberOfConditions); //so we have enough space, it is still empty, however
 
-    // Setting up a counter to be able to select every single combination 
-    TArray<int> Counter;
-    Counter.SetNum(NumberOfConf, false);
+	 //TODO: not randomized yet, so add that!
+	 TArray<int> Order;
+	 Order.Init(-1, NumberOfSettings + 1); //invalid entries; +1 for level
+	 for(int LevelIndex=0; LevelIndex<LevelNames.Num(); ++LevelIndex)
+	 {
+		 Order[0] = LevelIndex;
+		 for (int SettingIndex = 0; SettingIndex < NumberOfSettings; ++SettingIndex)
+		 {
+			 for (int SettingLevel = 0; SettingLevel < Settings[SettingIndex].Count; ++SettingLevel)
+			 {
+				 Order[SettingIndex + 1] = SettingLevel;
+				 Orders.Add(Order);
+			 }
+		 }
+	 	if(NumberOfSettings==0)
+	 	{
+			Orders.Add(Order); //add it anyways if we have a phase without settings and only levels
+	 	}
+	 }
 
-    for (int i = 0; i < NumberOfConf; i++)
-    {
-        Counter[i] = 1;
-    }
 
-    for (int i = 0; i < NumberOfSetups; i++)
-    {
-        Order2D[i] = Counter;
-
-        for (int j = 0; j < NumberOfConf; j++)
-        {
-            if (Counter[j] < Settings[j].Count)
-            {
-                Counter[j] = Counter[j] + 1;;
-                break;
-            }
-
-            Counter[j] = 1;
-        }
-    }
-
-    // Now setup repititions
+	 //TODO this does not care for the TypeOfRepetition, currently it always does SameOrder
+    // Now setup repetitions
     for (int r = 0; r < NumberOfRepetitions - 1;  r++)
     {
-        for (int i = 0; i < NumberOfSetups; i++)
+        for (int i = 0; i < NumberOfConditions; i++)
         {
-            Order2D.Add(Order2D[i]);
-        }
-    }
-
-    // Add the Number of repition at last digit in Array
-    for (int r = 0; r < NumberOfRepetitions; r++)
-    {
-        for (int i = 0; i < NumberOfSetups; i++)
-        {
-            Order2D[r * NumberOfRepetitions + i].Add(r);
+            Orders.Add(Orders[i]);
         }
     }
 
@@ -103,13 +101,13 @@ bool USFStudyPhase::GenerateOrder()
 
 TArray<int> USFStudyPhase::NextSetup()
 {
-    if (Order2D.Num() <= ++CurrentSetupIdx)
+    if (Orders.Num() <= ++CurrentSetupIdx)
     {
         // Phase already ran all Setups
         return TArray<int>();
     }
 
-    UpcomingSetup = Order2D[CurrentSetupIdx];
+    UpcomingSetup = Orders[CurrentSetupIdx];
 
     // Level ID stored in first Entry of Setup
     UpcomingLevelName = LevelNames[UpcomingSetup[0]];
@@ -119,7 +117,8 @@ TArray<int> USFStudyPhase::NextSetup()
 
 bool USFStudyPhase::ApplySettings()
 {
-    bool bSuc = true; 
+    bool bSuc = true;
+	 //starting at 1 since first setting represents the different levels
     for (int i = 1; i < Settings.Num(); i++)
     {
         bSuc &= Settings[i].Delegate.ExecuteIfBound(UpcomingSetup[i]);

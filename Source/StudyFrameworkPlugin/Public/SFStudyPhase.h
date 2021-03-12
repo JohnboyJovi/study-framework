@@ -24,7 +24,6 @@ class STUDYFRAMEWORKPLUGIN_API USFStudyPhase : public UObject
 
 #include "CoreMinimal.h"
 #include "SFDefinesPublic.h"
-#include "SharedPointer.h"
 
 #include "SFStudyPhase.generated.h"
 
@@ -111,11 +110,7 @@ private:
         TEnumAsByte<EMixingSetupOrder> TypeOfMixing = EMixingSetupOrder::RandomSetupOrder;
 
 
-    // Setups
-    UPROPERTY()
-        TArray<int> Order;          // TODO macht gar nichts ??
-
-    TArray<TArray<int>> Order2D;
+	 TArray<TArray<int>> Orders;
 
     UPROPERTY()
         TArray<int> UpcomingSetup;  
@@ -129,20 +124,11 @@ private:
     UPROPERTY()
         FString UpcomingLevelName;  
 
-    UPROPERTY()
-        int NumberOfSetups;
-
     // Spawn on Level
     UPROPERTY()
         TArray<UClass*> SpawnInThisPhaseCpp;
 
     UPROPERTY()
         TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint;
-
-
-
-
-
-public:
 
 };

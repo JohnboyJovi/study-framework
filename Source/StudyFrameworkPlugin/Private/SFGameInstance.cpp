@@ -62,7 +62,11 @@ bool USFGameInstance::StartStudy()
         return false;
     }
 
-    Participant->StartStudy();
+    if(!Participant->StartStudy())
+    {
+		 FSFUtils::LogStuff("[USFGameInstance::StartStudy()]: unable to start study.", true);
+		 return false;
+    }
 
     bStudyStarted = true;
 
@@ -235,7 +239,7 @@ void USFGameInstance::SpawnBlueprintActor(const FSFClassOfBlueprintActor Actor) 
         }
     }
 
-    FSFUtils::LogStuff("[USFFadeHandler::SpawnBlueprintActor()]: Unable to spawn blueprint actor ("
+    FSFUtils::LogStuff("[USFGameInstance::SpawnBlueprintActor()]: Unable to spawn blueprint actor ("
         + Actor.Path + "/" + Actor.ClassName + ") cannot be found!", true);
 }
 

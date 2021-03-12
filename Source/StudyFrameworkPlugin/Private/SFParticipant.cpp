@@ -158,7 +158,7 @@ bool USFParticipant::StartStudy()
     // If reload an already existing study?
     if (FindJsonFile())
     {
-        UniLog.Log("SFLog", "[USFParticipant::StartStudy()]: Json File found. Loading it now..");
+		  FSFUtils::LogStuff("[USFParticipant::StartStudy()]: Json File found. Loading it now..", false);
         return LoadJsonFile();
     }
     else
@@ -168,7 +168,7 @@ bool USFParticipant::StartStudy()
 
     if (!CheckPhases())
     {
-        UniLog.Log("SFLog", "[USFParticipant::StartStudy()]: Not al Phases valid");
+		  FSFUtils::LogStuff("[USFParticipant::StartStudy()]: Not all Phases valid", true);
         return false;
     }
 
@@ -179,8 +179,7 @@ bool USFParticipant::StartStudy()
         EntryPhase->GenerateOrder();
     }
 
-    UniLog.Log("SFLog", "[USFParticipant::StartStudy()]: Generated Phases for " 
-        + FString::FromInt(Phases.Num()) + " phases");
+	 FSFUtils::LogStuff("[USFParticipant::StartStudy()]: Generated Phases for "+ FString::FromInt(Phases.Num()) + " phases", false);
 
     // Create initial Json file
     GenerateInitialJsonFile();

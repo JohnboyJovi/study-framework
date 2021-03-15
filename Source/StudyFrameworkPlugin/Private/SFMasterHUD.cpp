@@ -20,7 +20,7 @@ void ASFMasterHUD::BeginPlay()
     Super::BeginPlay();
     if (SFWidgetClass)
     {
-        SFWidget = CreateWidget<USFWidget>(GetWorld(), SFWidgetClass);
+        SFWidget = CreateWidget<USFHUDWidget>(GetWorld(), SFWidgetClass);
         
         if (SFWidget)
         {

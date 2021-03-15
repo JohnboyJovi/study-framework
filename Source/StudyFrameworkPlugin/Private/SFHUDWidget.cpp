@@ -6,7 +6,7 @@
 #include "SFUtils.h"
 
 
-USFHUDWidget::USFWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+USFHUDWidget::USFHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 
 }
@@ -19,7 +19,7 @@ void USFHUDWidget::NativeConstruct()
 
 void USFHUDWidget::SetJsonData(TSharedPtr<FJsonObject> Data)
 {
-    if (TextBox)
+    /*if (TextBox)
     {
         if (TextBox->Visibility == ESlateVisibility::Hidden)
         {
@@ -27,12 +27,12 @@ void USFHUDWidget::SetJsonData(TSharedPtr<FJsonObject> Data)
         }
     
         TextBox->SetText(FText::FromString(FSFUtils::JsonToString(Data)));
-    }
+    }*/
 }
 
 void USFHUDWidget::SetText(FString Text)
 {
-    if (TextBox)
+    /*if (TextBox)
     {
         if (TextBox->Visibility == ESlateVisibility::Hidden)
         {
@@ -40,14 +40,14 @@ void USFHUDWidget::SetText(FString Text)
         }
     
         TextBox->SetText(FText::FromString(Text));
-    }
+    }*/
 }
 
 void USFHUDWidget::ClearWidget()
 {
-    if (TextBox)
+    /*if (TextBox)
     {
         TextBox->SetText(FText::FromString(""));
         TextBox->SetVisibility(ESlateVisibility::Hidden);
-    }
+    }*/
 }

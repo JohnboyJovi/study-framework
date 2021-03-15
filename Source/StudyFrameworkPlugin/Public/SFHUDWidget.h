@@ -35,6 +35,17 @@ public:
 
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-    class UTextBlock* TextBox;
+    class UTextBlock* StatusTextBox;
 	
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		 class UTextBlock* ParticipantTextBox;
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		 class UTextBlock* PhaseTextBox;
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		 class UTextBlock* ConditionTextBox;
+	
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		 class UButton* StartButton;
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		 class UButton* NextButton;
 };

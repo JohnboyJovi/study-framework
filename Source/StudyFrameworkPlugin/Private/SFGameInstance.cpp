@@ -8,7 +8,6 @@
 #include "SFStudyControllerActor.h"
 
 #include "SFFadeHandler.h"
-#include "SFDataGameInstance.h"
 #include "SFUtils.h"
 
 #include "EngineUtils.h"            // For Spawning in Actor in each level

@@ -7,7 +7,7 @@
 
 #include "Components/WidgetComponent.h"
 
-#include "SFWidget.h"
+#include "SFHUDWidget.h"
 
 #include "SFMasterHUD.generated.h"
 
@@ -41,11 +41,11 @@ public:
 		 void SetBackgroundColor(FLinearColor Color);
 
     UPROPERTY(EditDefaultsOnly, Category = "Interactive")
-        TSubclassOf<USFWidget> SFWidgetClass;
+        TSubclassOf<USFHUDWidget> SFWidgetClass;
 
 private:
     UPROPERTY()
-        USFWidget* SFWidget;
+        USFHUDWidget* SFWidget;
 	 UPROPERTY()
 		 FLinearColor BackgroundColor = FLinearColor::Black;
 	 void DrawBackground();

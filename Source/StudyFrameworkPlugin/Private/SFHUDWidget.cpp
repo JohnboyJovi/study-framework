@@ -1,23 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SFWidget.h"
+#include "SFHUDWidget.h"
 
 #include "SFUtils.h"
 
 
-USFWidget::USFWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+USFHUDWidget::USFWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 
 }
 
-void USFWidget::NativeConstruct()
+void USFHUDWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 }
 
 
-void USFWidget::SetJsonData(TSharedPtr<FJsonObject> Data)
+void USFHUDWidget::SetJsonData(TSharedPtr<FJsonObject> Data)
 {
     if (TextBox)
     {
@@ -30,7 +30,7 @@ void USFWidget::SetJsonData(TSharedPtr<FJsonObject> Data)
     }
 }
 
-void USFWidget::SetText(FString Text)
+void USFHUDWidget::SetText(FString Text)
 {
     if (TextBox)
     {
@@ -43,7 +43,7 @@ void USFWidget::SetText(FString Text)
     }
 }
 
-void USFWidget::ClearWidget()
+void USFHUDWidget::ClearWidget()
 {
     if (TextBox)
     {

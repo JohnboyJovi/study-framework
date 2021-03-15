@@ -11,19 +11,19 @@
 // #include "SharedPointer.h"
 
 
-#include "SFWidget.generated.h"
+#include "SFHUDWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STUDYFRAMEWORKPLUGIN_API USFWidget : public UUserWidget
+class STUDYFRAMEWORKPLUGIN_API USFHUDWidget : public UUserWidget
 {
     GENERATED_BODY()
 
 public:
 
-    USFWidget(const FObjectInitializer& ObjectInitializer);
+	USFHUDWidget(const FObjectInitializer& ObjectInitializer);
 
     virtual void NativeConstruct() override;
 

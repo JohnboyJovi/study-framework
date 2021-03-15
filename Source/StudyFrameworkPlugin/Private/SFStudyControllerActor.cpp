@@ -55,7 +55,7 @@ bool ASFStudyControllerActor::StartStudy()
 
 	GameInstance->StartStudy();
 
-    // GameInstance->UpdateHUD();
+    GameInstance->UpdateHUD();
 
     return true;
 }
@@ -75,7 +75,7 @@ bool ASFStudyControllerActor::NextSetup()
 
 	GameInstance->NextSetup();
 
-    // GameInstance->UpdateHUD();
+   GameInstance->UpdateHUD();
 
     return true;
 }

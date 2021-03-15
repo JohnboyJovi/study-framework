@@ -253,9 +253,9 @@ void USFGameInstance::OnLevelLoaded()
 void USFGameInstance::UpdateHUD()
 {
   // TODO UPDATE HUD HERE DELETED
-    // ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-    // 
-    // MasterHUD->SetJsonData(Participant->GetJsonFile());
+    ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+     
+    MasterHUD->SetJsonData(Participant->GetJsonFile());
 }
 
 

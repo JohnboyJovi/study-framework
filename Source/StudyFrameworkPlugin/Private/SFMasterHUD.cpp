@@ -2,6 +2,7 @@
 
 
 #include "SFMasterHUD.h"
+#include "SFGlobalFadeGameViewportClient.h"
 
 ASFMasterHUD::ASFMasterHUD()
 {
@@ -10,6 +11,7 @@ ASFMasterHUD::ASFMasterHUD()
 
 void ASFMasterHUD::DrawHUD()
 {
+	DrawBackground();
     Super::DrawHUD();
 }
 
@@ -20,7 +22,7 @@ void ASFMasterHUD::BeginPlay()
     {
         SFWidget = CreateWidget<USFWidget>(GetWorld(), SFWidgetClass);
         
-        if (SFWidget != nullptr && SFWidget)
+        if (SFWidget)
         {
             SFWidget->AddToViewport();
         }
@@ -54,4 +56,15 @@ void ASFMasterHUD::ClearWidget()
     {
         SFWidget->ClearWidget();
     }
+}
+
+void ASFMasterHUD::SetBackgroundColor(FLinearColor Color)
+{
+	BackgroundColor = Color;
+}
+
+void ASFMasterHUD::DrawBackground()
+{
+	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	DrawRect(BackgroundColor, 0.0f, 0.0f, ViewportSize.X, ViewportSize.Y);
 }

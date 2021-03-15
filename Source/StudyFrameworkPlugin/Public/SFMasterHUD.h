@@ -37,11 +37,17 @@ public:
     UFUNCTION()
         void ClearWidget();
 
+	 UFUNCTION()
+		 void SetBackgroundColor(FLinearColor Color);
+
     UPROPERTY(EditDefaultsOnly, Category = "Interactive")
         TSubclassOf<USFWidget> SFWidgetClass;
 
 private:
     UPROPERTY()
         USFWidget* SFWidget;
+	 UPROPERTY()
+		 FLinearColor BackgroundColor = FLinearColor::Black;
+	 void DrawBackground();
 	
 };

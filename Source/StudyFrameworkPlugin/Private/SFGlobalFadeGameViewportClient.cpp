@@ -6,6 +6,7 @@
 
 
 #include "Engine/Canvas.h"
+#include "SFMasterHUD.h"
 
 // Link to the Tutorial of the manual Viewport Client
 // https://nerivec.github.io/old-ue4-wiki/pages/global-fade-in-out.html
@@ -84,14 +85,23 @@ void USFGlobalFadeGameViewportClient::DrawScreenFade(UCanvas* Canvas)
             }
             else
             {
-                const FColor OldColor = Canvas->DrawColor;
-                FLinearColor FadeColorTmp = FadeColor;
-                FadeColorTmp.A = bToBlack ? Alpha : 1 - Alpha;
-                Canvas->DrawColor = FadeColorTmp.ToFColor(true);
-                // TheJamsh: "4.10 cannot convert directly to FColor, so need to use FLinearColor::ToFColor() :)
-                Canvas->DrawTile(Canvas->DefaultTexture, 0, 0, Canvas->ClipX, Canvas->ClipY, 0, 0,
-                                 Canvas->DefaultTexture->GetSizeX(), Canvas->DefaultTexture->GetSizeY());
-                Canvas->DrawColor = OldColor;
+					FLinearColor FadeColorTmp = FadeColor;
+					FadeColorTmp.A = bToBlack ? Alpha : 1 - Alpha;
+            	
+					ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+            	if(MasterHUD)
+            	{
+            		//if we use the HUD let it do the fading, so it can still be seen when faded out
+						MasterHUD->SetBackgroundColor(FadeColorTmp);
+            	}
+					else {
+						const FColor OldColor = Canvas->DrawColor;
+						Canvas->DrawColor = FadeColorTmp.ToFColor(true);
+						// TheJamsh: "4.10 cannot convert directly to FColor, so need to use FLinearColor::ToFColor() :)
+						Canvas->DrawTile(Canvas->DefaultTexture, 0, 0, Canvas->ClipX, Canvas->ClipY, 0, 0,
+							Canvas->DefaultTexture->GetSizeX(), Canvas->DefaultTexture->GetSizeY());
+						Canvas->DrawColor = OldColor;
+					}
             }
         }
     }

@@ -6,9 +6,6 @@
 
 class FJsonObject;
 
-DECLARE_LOG_CATEGORY_EXTERN(SFLog, Log, All);
-
-
 class FSFUtils
 {
 public:
@@ -17,11 +14,11 @@ public:
 	static void OpenMessageBox(FString Text, bool bError);
 	static FString AddExclamationMarkAroundChar(FString Text);
 
-	// Log into VALog
+	// Log into Console and errors also on Screen, works also in Shipping build in contrast to UE_LOG
 	static void LogStuff(FString Text, bool Error);
 
-	// Print to Screen
-	static void PrintToScreen(FString Text, float Time = 5.0f, FColor Color = FColor::Red);
+	// To setup the debugging logs to be used
+	static void SetupLoggingStreams();
 
     template <class T>
     static void CheckLoggingDataType(T Data);
@@ -33,10 +30,6 @@ public:
     static FString JsonToString(TSharedPtr<FJsonObject> Json);
 
     static TSharedPtr<FJsonObject> StringToJson(FString String);
-
-private:
-	static int KeyCounter;
-
 };
 
 

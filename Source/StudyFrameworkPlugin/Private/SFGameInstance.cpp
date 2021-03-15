@@ -99,7 +99,7 @@ bool USFGameInstance::NextSetup()
 
     if (NextLevelName.Equals(""))
     {
-        UniLog.Log("SFLog", "[USFGameInstance::NextSetup()]: Could not load next setup.");
+		 FSFUtils::LogStuff( "[USFGameInstance::NextSetup()]: Could not load next setup.", true);
         return false;
     }
 
@@ -149,9 +149,6 @@ void USFGameInstance::AddPhase(USFStudyPhase* Phase)
     {
         FSFUtils::LogStuff("[USFGameInstance::AddPhase()]: Study already started.", true);
     }
-
-	 //this Rename is needed, to unbind the Phase object from any other object class, so it is not garbage collected on level change
-	 Phase->Rename(*Phase->GetName(), GetTransientPackage());
 
     Participant->AddPhase(Phase);
 }

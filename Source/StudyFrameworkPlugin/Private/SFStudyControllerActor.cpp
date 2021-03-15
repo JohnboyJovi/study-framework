@@ -23,8 +23,6 @@ ASFStudyControllerActor* ASFStudyControllerActor::Manager;
 
 ASFStudyControllerActor::ASFStudyControllerActor()
 {
-    ILogStream *LogStream = UniLog.NewLogStream("SFLog", "Saved/Logs",
-        "SFLog.log", true);
     PrimaryActorTick.bCanEverTick = false;
 }
 

@@ -27,8 +27,11 @@ void USFLogger::Initialize(USFParticipant* ParticipantNew, FString JsonFilePathN
     LogName = LogNameNew;
     SaveLogName = SaveLogNameNew;
 
-    UniLog.NewLogStream(LogName, "Saved/OwnLogs/", LogName + ".log", true);
+    UniLog.NewLogStream(LogName, "Saved/OwnLogs/", LogName + ".log", true); //TODO what is the difference here?
     UniLog.NewLogStream(SaveLogName, "Saved/OwnLogs/", SaveLogName + ".log", true); // TODO Kommentar
+
+	 //initialize Log streams
+	 FSFUtils::SetupLoggingStreams();
 
     bInitialized = true;
 }

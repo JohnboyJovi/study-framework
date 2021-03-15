@@ -7,11 +7,7 @@
 #include "SFPlugin.h"
 
 #include "Json.h"
-
-
-int FSFUtils::KeyCounter = -1;
-
-DEFINE_LOG_CATEGORY(SFLog);
+#include "IUniversalLogging.h"
 
 void FSFUtils::OpenMessageBox(const FString Text, const bool bError)
 {
@@ -58,22 +54,24 @@ void FSFUtils::LogStuff(const FString Text, const bool Error)
 {
 	if (Error)
 	{
-		UE_LOG(SFLog, Error, TEXT("%s"), *Text);
-		PrintToScreen("[Error]: " + Text);
+		UniLog.Log("SFErrorLog", Text);
 	}
 	else
 	{
-		UE_LOG(SFLog, Log, TEXT("%s"), *Text);
-        PrintToScreen(Text);
+		UniLog.Log("SFLog", Text);
 	}
 }
 
-void FSFUtils::PrintToScreen(const FString Text, const float Time, const FColor Color)
+void FSFUtils::SetupLoggingStreams()
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(KeyCounter--, Time, Color, Text);
-	}
+	ILogStream* SFLog = UniLog.NewLogStream("SFLog", "Saved/Logs", "SFLog.txt", false);
+	SFLog->SetLogToDefaultLog(true);
+
+	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "Saved/Logs", "SFLog.txt", false);
+	SFErrorLog->SetLogToDefaultLog(true);
+	SFErrorLog->SetPrefix(TEXT("Error: "));
+	SFErrorLog->SetLogOnScreenOnMaster(true);
+	SFErrorLog->SetOnScreenColor(FColor::Red);
 }
 
 FString FSFUtils::SetupToString(TArray<int> Setup)

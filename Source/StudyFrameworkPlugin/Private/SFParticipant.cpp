@@ -203,7 +203,7 @@ FString USFParticipant::NextSetup()     // TODO can maybe be made a schöner func
     {
         if (CurrentPhaseIdx >= (Phases.Num() - 1)) // So there is no next phase
         {
-            UniLog.Log("SFLog", "[USFParticipant::NextSetup()]: No All setups already ran.");
+			  FSFUtils::LogStuff("[USFParticipant::NextSetup()]: All setups already ran, EndStudy()", false);
 
             GameInstance->EndStudy();
 

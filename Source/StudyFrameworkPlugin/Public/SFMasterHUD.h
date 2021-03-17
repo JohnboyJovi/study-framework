@@ -11,6 +11,7 @@
 
 #include "SFMasterHUD.generated.h"
 
+class USFParticipant;
 /**
  * 
  */
@@ -26,16 +27,15 @@ public:
 
     virtual void BeginPlay() override;
 
+	 virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
     virtual void Tick(float DeltaSeconds) override;
 
-    // UPROPERTY()
-    void SetJsonData(TSharedPtr<FJsonObject> Data);
+	 UFUNCTION()
+		 void UpdateHUD(USFParticipant* Participant, FString Status = "None");
 
-    UFUNCTION()
-        void SetText(FString Text);
-
-    UFUNCTION()
-        void ClearWidget();
+	UFUNCTION()
+		void AddLogMessage(FString Text);
 
 	 UFUNCTION()
 		 void SetBackgroundColor(FLinearColor Color);
@@ -45,7 +45,7 @@ public:
 
 private:
     UPROPERTY()
-        USFHUDWidget* SFWidget;
+        USFHUDWidget* HUDWidget;
 	 UPROPERTY()
 		 FLinearColor BackgroundColor = FLinearColor::Black;
 	 void DrawBackground();

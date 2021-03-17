@@ -8,7 +8,6 @@
 
 USFHUDWidget::USFHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-
 }
 
 void USFHUDWidget::NativeConstruct()
@@ -16,38 +15,69 @@ void USFHUDWidget::NativeConstruct()
     Super::NativeConstruct();
 }
 
-
-void USFHUDWidget::SetJsonData(TSharedPtr<FJsonObject> Data)
+void USFHUDWidget::SetParticipant(FString Text)
 {
-    /*if (TextBox)
-    {
-        if (TextBox->Visibility == ESlateVisibility::Hidden)
-        {
-            TextBox->SetVisibility(ESlateVisibility::Visible);
-        }
-    
-        TextBox->SetText(FText::FromString(FSFUtils::JsonToString(Data)));
-    }*/
+	ParticipantTextBox->SetText(FText::FromString(FString(TEXT("Participant: ")) + Text));
 }
 
-void USFHUDWidget::SetText(FString Text)
+void USFHUDWidget::SetPhase(FString Text)
 {
-    /*if (TextBox)
-    {
-        if (TextBox->Visibility == ESlateVisibility::Hidden)
-        {
-            TextBox->SetVisibility(ESlateVisibility::Visible);
-        }
-    
-        TextBox->SetText(FText::FromString(Text));
-    }*/
+	PhaseTextBox->SetText(FText::FromString(FString(TEXT("Phase: ")) + Text));
 }
+
+void USFHUDWidget::SetCondition(FString Text)
+{
+	ConditionTextBox->SetText(FText::FromString(FString(TEXT("Condition: ")) + Text));
+}
+
+void USFHUDWidget::SetStatus(FString Text)
+{
+	StatusTextBox->SetText(FText::FromString(FString(TEXT("Status: ")) + Text));
+}
+
+void USFHUDWidget::AddLogMessage(FString Text)
+{
+	if(!Text.IsEmpty())
+		LogMessages.Add(Text);
+
+	while(LogMessages.Num()>5)
+		LogMessages.RemoveAt(0);
+
+	FString LogString="";
+	for(FString Message : LogMessages)
+	{
+		LogString += Message +"\n";
+	}
+	LogsTextBox->SetText(FText::FromString(LogString));
+}
+
 
 void USFHUDWidget::ClearWidget()
 {
-    /*if (TextBox)
-    {
-        TextBox->SetText(FText::FromString(""));
-        TextBox->SetVisibility(ESlateVisibility::Hidden);
-    }*/
+	SetCondition("???");
+	SetParticipant("???");
+	SetPhase("???");
+	SetStatus("???");
+}
+
+FHUDSavedData USFHUDWidget::GetData()
+{
+	FHUDSavedData Data;
+	Data.bSet=true;
+	Data.Status = StatusTextBox->GetText().ToString();
+	Data.Participant = ParticipantTextBox->GetText().ToString();
+	Data.Phase = PhaseTextBox->GetText().ToString();
+	Data.Condition = ConditionTextBox->GetText().ToString();
+	Data.LogMessages = LogMessages;
+	return Data;
+}
+
+void USFHUDWidget::SetData(FHUDSavedData Data)
+{
+	StatusTextBox->SetText(FText::FromString(Data.Status));
+	ParticipantTextBox->SetText(FText::FromString(Data.Participant));
+	PhaseTextBox->SetText(FText::FromString(Data.Phase));
+	ConditionTextBox->SetText(FText::FromString(Data.Condition));
+	LogMessages = Data.LogMessages;
+	AddLogMessage("");
 }

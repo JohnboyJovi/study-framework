@@ -40,6 +40,8 @@ void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
     SpawnInEveryPhaseCpp.Add(ASFStudyControllerActor::StaticClass());
 
     bInitialized = true;
+
+	UpdateHUD("Wait for start");
 }
 
 
@@ -77,6 +79,8 @@ void USFGameInstance::EndStudy()
 {
     Participant->CommitData();
     Participant->EndStudy();
+
+	UpdateHUD("Study ended");
 }
 
 
@@ -104,6 +108,7 @@ bool USFGameInstance::NextCondition()
 
     // Fade to next Level
     FadeHandler->FadeToLevel(NextLevelName);
+	 UpdateHUD("Fading out");
     return true;
 }
 
@@ -133,9 +138,22 @@ void USFGameInstance::CommitData()
 
 void USFGameInstance::LogData(const FString String)
 {
-    Participant->LogData(String);
+   Participant->LogData(String);
+	LogToHUD(String);
+	//TODO: log it to HUD here?
 }
 
+void USFGameInstance::LogToHUD(FString Text)
+{
+	ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	if (MasterHUD){
+		MasterHUD->AddLogMessage(Text);
+	}
+	else
+	{
+		HUDSavedData.LogMessages.Add(Text);
+	}
+}
 
 
 // ****************************************************************** // 
@@ -245,16 +263,21 @@ void USFGameInstance::SpawnBlueprintActor(const FSFClassOfBlueprintActor Actor) 
 void USFGameInstance::OnLevelLoaded()
 {
     Participant->GetCurrentPhase()->ApplyCondition();
+	UpdateHUD("Fading In");
+}
+
+void USFGameInstance::OnFadedIn()
+{
+	//TODO: forward also to StudyContollerActor so other actors can register on it?
+	UpdateHUD("Condition Running");
 }
 
 
-
-void USFGameInstance::UpdateHUD()
+void USFGameInstance::UpdateHUD(FString Status)
 {
-  // TODO UPDATE HUD HERE DELETED
     ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-     
-    MasterHUD->SetJsonData(Participant->GetJsonFile());
+	 if (MasterHUD)
+		MasterHUD->UpdateHUD(Participant, Status);
 }
 
 

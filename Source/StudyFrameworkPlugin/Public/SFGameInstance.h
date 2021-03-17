@@ -8,6 +8,7 @@
 #include "SFDefinesPublic.h"
 #include "SFDefinesPrivate.h"
 #include "SFStudyPhase.h"
+#include "SFMasterHUD.h"
 
 #include "SFLogger.h"
 #include "SFStudyControllerActor.h"
@@ -57,6 +58,9 @@ public: // TODO check what can be protected:
     UFUNCTION()
         void LogData(const FString String);
 
+	UFUNCTION()
+		void LogToHUD(FString Text);
+
     // ****************************************************************** // 
     // ******* Prepare Study ******************************************** //
     // ****************************************************************** //
@@ -88,10 +92,15 @@ public: // TODO check what can be protected:
         void SpawnBlueprintActor(FSFClassOfBlueprintActor Actor) const;
     UFUNCTION()
         void OnLevelLoaded();
+	UFUNCTION()
+		  void OnFadedIn();
 
     UFUNCTION()
-        void UpdateHUD();       // TODO implement
+        void UpdateHUD(FString Status);
 
+
+	//this is used by the SFMasterHUD to store content between levels
+	FHUDSavedData HUDSavedData;
 
 protected:
     // Handlich Stuff

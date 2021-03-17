@@ -50,6 +50,7 @@ void USFFadeHandler::Tick()
 	case EFadeState::FadingIn:
         FSFUtils::LogStuff("[USFFadeHandler::Tick()]: Cleaning up", false);
 		GameInstance->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+		GameInstance->OnFadedIn();
 		FadeState = EFadeState::NotFading;
 		break;
 		

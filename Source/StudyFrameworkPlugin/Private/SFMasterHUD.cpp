@@ -2,7 +2,10 @@
 
 
 #include "SFMasterHUD.h"
-#include "SFGlobalFadeGameViewportClient.h"
+#include "SFGameInstance.h"
+#include "SFParticipant.h"
+#include "SFPlugin.h"
+
 
 ASFMasterHUD::ASFMasterHUD()
 {
@@ -12,7 +15,9 @@ ASFMasterHUD::ASFMasterHUD()
 void ASFMasterHUD::DrawHUD()
 {
 	DrawBackground();
-    Super::DrawHUD();
+
+	if(FSFPlugin::GetIsMaster())
+		Super::DrawHUD();
 }
 
 void ASFMasterHUD::BeginPlay()
@@ -20,13 +25,27 @@ void ASFMasterHUD::BeginPlay()
     Super::BeginPlay();
     if (SFWidgetClass)
     {
-        SFWidget = CreateWidget<USFHUDWidget>(GetWorld(), SFWidgetClass);
+		 HUDWidget = CreateWidget<USFHUDWidget>(GetWorld(), SFWidgetClass);
         
-        if (SFWidget)
+        if (HUDWidget)
         {
-            SFWidget->AddToViewport();
+			  HUDWidget->AddToViewport();
         }
     }
+	FHUDSavedData &Data = Cast<USFGameInstance>(GetGameInstance())->HUDSavedData;
+	if(Data.bSet && HUDWidget)
+	{
+		HUDWidget->SetData(Data);
+	}
+
+	
+}
+
+void ASFMasterHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if(!HUDWidget)
+		return;
+	Cast<USFGameInstance>(GetGameInstance())->HUDSavedData = HUDWidget->GetData();
 }
 
 void ASFMasterHUD::Tick(float DeltaSeconds)
@@ -34,29 +53,47 @@ void ASFMasterHUD::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 }
 
-void ASFMasterHUD::SetJsonData(TSharedPtr<FJsonObject> Data)
+void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, FString Status)
 {
-    if (SFWidget != nullptr && SFWidget)
-    {
-        SFWidget->SetJsonData(Data);
-    }
+	if(HUDWidget==nullptr)
+		return;
+
+	HUDWidget->SetStatus(Status);
+	
+	if(Participant==nullptr)
+		return;
+
+	HUDWidget->SetParticipant(Participant->GetID());
+
+	USFStudyPhase* Phase = Participant->GetCurrentPhase();
+	HUDWidget->SetPhase(Phase->GetName());
+
+	
+	TArray<int> Condition = Phase->GetCurrentCondition();
+	if(Condition.Num()==0)
+		return;
+
+	FString ConditionString = "(";
+	const TArray<FString>& Maps = Phase->GetMapNames();
+	const int MapIndex = Condition[0];
+	ConditionString += FPaths::GetBaseFilename(Maps[MapIndex]);
+	const TArray<FSFStudyFactor>& Factors =  Phase->GetFactors();
+	for(int FactorIndex = 0; FactorIndex< Factors.Num(); ++FactorIndex)
+	{
+		const FSFStudyFactor Factor = Factors[FactorIndex];
+		ConditionString+=Factor.Name+": "+FString::FromInt(Condition[FactorIndex+1])+" ";
+		
+	}
+	ConditionString += ")";
+	HUDWidget->SetCondition(ConditionString);
+	
 }
 
-void ASFMasterHUD::SetText(FString Text)
+void ASFMasterHUD::AddLogMessage(FString Text)
 {
-    if (SFWidget != nullptr && SFWidget)
-    {
-        SFWidget->SetText(Text);
-    }
+	HUDWidget->AddLogMessage(Text);
 }
 
-void ASFMasterHUD::ClearWidget()
-{
-    if (SFWidget != nullptr && SFWidget)
-    {
-        SFWidget->ClearWidget();
-    }
-}
 
 void ASFMasterHUD::SetBackgroundColor(FLinearColor Color)
 {

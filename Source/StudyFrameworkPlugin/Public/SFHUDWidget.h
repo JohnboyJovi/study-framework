@@ -13,6 +13,18 @@
 
 #include "SFHUDWidget.generated.h"
 
+USTRUCT()
+struct FHUDSavedData
+{
+	GENERATED_BODY()
+	FString Status;
+	FString Participant;
+	FString Phase;
+	FString Condition;
+	TArray<FString> LogMessages;
+	bool bSet=false;
+};
+
 /**
  * 
  */
@@ -28,24 +40,36 @@ public:
     virtual void NativeConstruct() override;
 
     
-    void SetJsonData(TSharedPtr<FJsonObject> Data);
-    void SetText(FString Text);
+    void SetParticipant(FString Text);
+	 void SetPhase(FString Text);
+	 void SetCondition(FString Text);
+	 void SetStatus(FString Text);
+
+	 void AddLogMessage(FString Text);
 
     void ClearWidget();
 
+	 FHUDSavedData GetData();
+	 void SetData(FHUDSavedData Data);
+	
+private:
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+    UPROPERTY(EditAnywhere, meta = (BindWidget))
     class UTextBlock* StatusTextBox;
 	
-	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	 UPROPERTY(EditAnywhere, meta = (BindWidget))
 		 class UTextBlock* ParticipantTextBox;
-	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	 UPROPERTY(EditAnywhere, meta = (BindWidget))
 		 class UTextBlock* PhaseTextBox;
-	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	 UPROPERTY(EditAnywhere, meta = (BindWidget))
 		 class UTextBlock* ConditionTextBox;
+
+	TArray<FString> LogMessages;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+		 class UTextBlock* LogsTextBox;
 	
-	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	 UPROPERTY(EditAnywhere, meta = (BindWidget))
 		 class UButton* StartButton;
-	 UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	 UPROPERTY(EditAnywhere, meta = (BindWidget))
 		 class UButton* NextButton;
 };

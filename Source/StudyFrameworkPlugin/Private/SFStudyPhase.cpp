@@ -7,14 +7,14 @@ USFStudyPhase::USFStudyPhase()
 {
 }
 
-void USFStudyPhase::AddStudySetting(FSFStudySetting Setting)
+void USFStudyPhase::AddStudyFactor(FSFStudyFactor Factor)
 {
-    Settings.Add(Setting);
+    Factors.Add(Factor);
 }
 
-void USFStudyPhase::AddLevel(const FString Name)
+void USFStudyPhase::AddMap(const FString Name)
 {
-    LevelNames.Add(Name);
+	MapNames.Add(Name);
 }
 
 void USFStudyPhase::AddActorForEveryLevelInThisPhaseCpp(UClass* Actor)
@@ -44,9 +44,9 @@ void USFStudyPhase::SetSettingsMixing(EMixingSetupOrder MixingType)
 
 bool USFStudyPhase::PhaseValid()
 {
-	if(LevelNames.Num()==0)
+	if(MapNames.Num()==0)
 	{
-		FSFUtils::LogStuff("Phase " + GetName() + " is invalid, since no level is set!", true);
+		FSFUtils::LogStuff("Phase " + GetName() + " is invalid, since no map is set!", true);
 		return false;
 	}
 	return true;
@@ -54,12 +54,12 @@ bool USFStudyPhase::PhaseValid()
 
 bool USFStudyPhase::GenerateOrder()
 {
-    const int NumberOfSettings = Settings.Num();
+    const int NumberOfFactors = Factors.Num();
 
-    int NumberOfConditions = LevelNames.Num();
-    for (int i = 0; i < Settings.Num(); i++)
+    int NumberOfConditions = MapNames.Num();
+    for (int i = 0; i < Factors.Num(); i++)
     {
-		 NumberOfConditions *= Settings[i].Count;
+		 NumberOfConditions *= Factors[i].Count;
     }
 
 	 Orders.Empty();
@@ -67,19 +67,19 @@ bool USFStudyPhase::GenerateOrder()
 
 	 //TODO: not randomized yet, so add that!
 	 TArray<int> Order;
-	 Order.Init(-1, NumberOfSettings + 1); //invalid entries; +1 for level
-	 for(int LevelIndex=0; LevelIndex<LevelNames.Num(); ++LevelIndex)
+	 Order.Init(-1, NumberOfFactors + 1); //invalid entries; +1 for level
+	 for(int MapIndex=0; MapIndex<MapNames.Num(); ++MapIndex)
 	 {
-		 Order[0] = LevelIndex;
-		 for (int SettingIndex = 0; SettingIndex < NumberOfSettings; ++SettingIndex)
+		 Order[0] = MapIndex;
+		 for (int FactorIndex = 0; FactorIndex < NumberOfFactors; ++FactorIndex)
 		 {
-			 for (int SettingLevel = 0; SettingLevel < Settings[SettingIndex].Count; ++SettingLevel)
+			 for (int FactorLevel = 0; FactorLevel < Factors[FactorIndex].Count; ++FactorLevel)
 			 {
-				 Order[SettingIndex + 1] = SettingLevel;
+				 Order[FactorIndex + 1] = FactorLevel;
 				 Orders.Add(Order);
 			 }
 		 }
-	 	if(NumberOfSettings==0)
+	 	if(NumberOfFactors==0)
 	 	{
 			Orders.Add(Order); //add it anyways if we have a phase without settings and only levels
 	 	}
@@ -99,40 +99,40 @@ bool USFStudyPhase::GenerateOrder()
     return true;
 }
 
-TArray<int> USFStudyPhase::NextSetup()
+TArray<int> USFStudyPhase::NextCondition()
 {
-    if (Orders.Num() <= ++CurrentSetupIdx)
+    if (Orders.Num() <= ++CurrentCondtitionIdx)
     {
         // Phase already ran all Setups
         return TArray<int>();
     }
 
-    UpcomingSetup = Orders[CurrentSetupIdx];
+    UpcomingCondition = Orders[CurrentCondtitionIdx];
 
     // Level ID stored in first Entry of Setup
-    UpcomingLevelName = LevelNames[UpcomingSetup[0]];
+    UpcomingMapName = MapNames[UpcomingCondition[0]];
 
-    return UpcomingSetup;
+    return UpcomingCondition;
 }
 
-bool USFStudyPhase::ApplySettings()
+bool USFStudyPhase::ApplyCondition()
 {
     bool bSuc = true;
-	 //starting at 1 since first setting represents the different levels
-    for (int i = 1; i < Settings.Num(); i++)
+	 //starting at 1 since first factor represents the different levels
+    for (int i = 1; i < Factors.Num(); i++)
     {
-        bSuc &= Settings[i].Delegate.ExecuteIfBound(UpcomingSetup[i]);
+        bSuc &= Factors[i].Delegate.ExecuteIfBound(UpcomingCondition[i]);
     }
 
-    CurrentSetup = UpcomingSetup;
-    UpcomingSetup.Empty();
+    CurrentCondition = UpcomingCondition;
+    UpcomingCondition.Empty();
     
     return bSuc;
 }
 
 FString USFStudyPhase::GetUpcomingLevelName() const
 {
-    return UpcomingLevelName;
+    return UpcomingMapName;
 }
 
 TArray<UClass*> USFStudyPhase::GetSpawnActorsCpp() const
@@ -145,24 +145,33 @@ TArray<FSFClassOfBlueprintActor> USFStudyPhase::GetSpawnActorsBlueprint() const
     return SpawnInThisPhaseBlueprint;
 }
 
-TArray<int> USFStudyPhase::GetSetupNumArray()
+TArray<int> USFStudyPhase::GetFactorsLevelCount()
 {
     TArray<int> Array;
-    for (auto Entry : Settings)
+    for (auto Factor : Factors)
     {
-        Array.Add(Entry.Count);
+        Array.Add(Factor.Count);
     }
     return Array;
 }
 
-TArray<FString> USFStudyPhase::GetSetupOrderArrayString()
+TArray<FString> USFStudyPhase::GetOrderStrings()
 {
     return TArray<FString>();
 }
 
-TArray<int> USFStudyPhase::GetCurrentSetup()
+TArray<int> USFStudyPhase::GetCurrentCondition()
 {
-    TArray<int> Tmp = CurrentSetup;
-    return CurrentSetup;
+    return CurrentCondition;
+}
+
+const TArray<FString>& USFStudyPhase::GetMapNames() const
+{
+	return MapNames;
+}
+
+const TArray<FSFStudyFactor>& USFStudyPhase::GetFactors() const
+{
+	return Factors;
 }
 

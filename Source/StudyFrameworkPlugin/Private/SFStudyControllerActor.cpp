@@ -59,7 +59,7 @@ bool ASFStudyControllerActor::StartStudy()
     return true;
 }
 
-bool ASFStudyControllerActor::NextSetup()
+bool ASFStudyControllerActor::NextCondition()
 {
     if (!GameInstance->IsStarted())
     {
@@ -67,7 +67,7 @@ bool ASFStudyControllerActor::NextSetup()
         return false;
     }
 
-	GameInstance->NextSetup();
+	GameInstance->NextCondition();
 
     return true;
 }

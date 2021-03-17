@@ -33,7 +33,7 @@ public:
     bool LoadJsonFile();       // TODO implement Participant::LoadJsonFile()
 
     bool StartStudy();
-    FString NextSetup();
+    FString NextCondition();
     void EndStudy();            // TODO implement Participant::EndStudy()
 
     void AddPhase(USFStudyPhase* PhaseNew);
@@ -67,7 +67,7 @@ protected:
 
 
     UPROPERTY()
-        TArray<int> UpcomingSetup;
+        TArray<int> UpcomingCondition;
 
     UPROPERTY()
         TArray<USFStudyPhase*> Phases;

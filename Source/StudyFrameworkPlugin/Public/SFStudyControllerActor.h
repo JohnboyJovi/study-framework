@@ -41,7 +41,7 @@ public:
         bool StartStudy();                                          // TODO implement Start Study()
 
     UFUNCTION(BlueprintCallable)
-        bool NextSetup();
+        bool NextCondition();
 
 
     UFUNCTION(BlueprintCallable)     // TODO Kommentar

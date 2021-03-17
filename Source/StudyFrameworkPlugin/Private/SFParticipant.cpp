@@ -24,7 +24,7 @@ USFParticipant::~USFParticipant()
 
 void USFParticipant::SaveDataArray(FString Where, TArray<FString> Data)
 {
-    TArray<int> CurrentSetup = CurrentPhase->GetCurrentSetup();
+    TArray<int> CurrentSetup = CurrentPhase->GetCurrentCondition();
 
     FString Setup = FSFUtils::SetupToString(CurrentSetup);
 
@@ -99,7 +99,7 @@ void USFParticipant::GenerateInitialJsonFile()
         TSharedPtr<FJsonObject> JsonTmpData = MakeShared<FJsonObject>();
 
         // Setup
-        TArray<int> SetupInt = Phases[i]->GetSetupNumArray();
+        TArray<int> SetupInt = Phases[i]->GetFactorsLevelCount();
         TArray<TSharedPtr<FJsonValue>> Setup;
         for (auto Entry : SetupInt)
         {
@@ -109,7 +109,7 @@ void USFParticipant::GenerateInitialJsonFile()
         JsonTmpPhases->SetArrayField("Setup", Setup);
 
         // Order
-        TArray<FString> OrderFString = Phases[i]->GetSetupOrderArrayString();
+        TArray<FString> OrderFString = Phases[i]->GetOrderStrings();
         TArray<TSharedPtr<FJsonValue>> Order;
         for (auto Entry : OrderFString)
         {
@@ -194,16 +194,16 @@ bool USFParticipant::StartStudy()
     return true;
 }
 
-FString USFParticipant::NextSetup()     // TODO can maybe be made a schöner function with different if phase finished logic
+FString USFParticipant::NextCondition()     // TODO can maybe be made a schöner function with different if phase finished logic
 {
     // Get next Setup
-    UpcomingSetup = CurrentPhase->NextSetup();
+    UpcomingCondition = CurrentPhase->NextCondition();
 
-    if (UpcomingSetup.Num() == 0)
+    if (UpcomingCondition.Num() == 0)
     {
         if (CurrentPhaseIdx >= (Phases.Num() - 1)) // So there is no next phase
         {
-			  FSFUtils::LogStuff("[USFParticipant::NextSetup()]: All setups already ran, EndStudy()", false);
+			  FSFUtils::LogStuff("[USFParticipant::NextCondition()]: All setups already ran, EndStudy()", false);
 
             GameInstance->EndStudy();
 
@@ -213,7 +213,7 @@ FString USFParticipant::NextSetup()     // TODO can maybe be made a schöner func
         {
             CurrentPhase = Phases[++CurrentPhaseIdx];
 
-            UpcomingSetup = CurrentPhase->NextSetup();
+            UpcomingCondition = CurrentPhase->NextCondition();
         }
     }
 

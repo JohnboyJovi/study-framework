@@ -42,7 +42,7 @@ public: // TODO check what can be protected:
     UFUNCTION()
         void EndStudy();    // TODO implement EndStudy()
     UFUNCTION()
-        bool NextSetup();
+        bool NextCondition();
     UFUNCTION()
         bool IsStarted() const;
 

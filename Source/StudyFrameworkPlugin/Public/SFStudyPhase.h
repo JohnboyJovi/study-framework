@@ -1,25 +1,3 @@
-/*
-#pragma once
-
-#include "CoreMinimal.h"
-#include "SFDefinesPublic.h"
-
-#include "SharedPointer.h"
-
-
-#include "SFStudyPhase.generated.h"
-
-
-
-
-UCLASS()
-class STUDYFRAMEWORKPLUGIN_API USFStudyPhase : public UObject
-{
-    GENERATED_BODY()
-
-
-*/
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -36,9 +14,9 @@ public:
     USFStudyPhase();   
 
     UFUNCTION()
-        void AddStudySetting(FSFStudySetting Setting);
+        void AddStudyFactor(FSFStudyFactor Setting);
     UFUNCTION()
-        void AddLevel(FString Name);
+        void AddMap(FString Name);
 
 
     UFUNCTION()
@@ -61,10 +39,10 @@ public:
 
     // Prepare everything for next setup and load map.
     UFUNCTION()
-        TArray<int> NextSetup();                           // TODO implement NextSetup()
+        TArray<int> NextCondition();                           // TODO implement NextCondition()
 
     UFUNCTION()
-        bool ApplySettings();
+        bool ApplyCondition();
 
     // Getter
 
@@ -78,23 +56,28 @@ public:
         TArray<FSFClassOfBlueprintActor> GetSpawnActorsBlueprint() const;
 
     UFUNCTION()
-        TArray<int> GetSetupNumArray();
+        TArray<int> GetFactorsLevelCount();
 
     UFUNCTION()
-        TArray<FString> GetSetupOrderArrayString();     // TODO implement
+        TArray<FString> GetOrderStrings();     // TODO implement
 
     UFUNCTION()
-        TArray<int> GetCurrentSetup();
+        TArray<int> GetCurrentCondition();
 
-    
+	 UFUNCTION()
+		 const TArray<FString>& GetMapNames() const;
+
+	 UFUNCTION()
+		 const TArray<FSFStudyFactor>& GetFactors() const ;
 
 
 private:
-    UPROPERTY()
-        TArray<FSFStudySetting> Settings;
 
     UPROPERTY()
-        TArray<FString> LevelNames;
+        TArray<FString> MapNames;
+
+	 UPROPERTY()
+		 TArray<FSFStudyFactor> Factors;
 
 
     // Repititions
@@ -109,20 +92,20 @@ private:
     UPROPERTY()
         TEnumAsByte<EMixingSetupOrder> TypeOfMixing = EMixingSetupOrder::RandomSetupOrder;
 
-
+	 //per condition the order array holds first the index of the map and then levels of each factor
 	 TArray<TArray<int>> Orders;
 
     UPROPERTY()
-        TArray<int> UpcomingSetup;  
+        TArray<int> UpcomingCondition;  
 
     UPROPERTY()
-        TArray<int> CurrentSetup;   
+        TArray<int> CurrentCondition;   
 
     UPROPERTY()
-        int CurrentSetupIdx = -1;
+        int CurrentCondtitionIdx = -1;
 
     UPROPERTY()
-        FString UpcomingLevelName;  
+        FString UpcomingMapName;  
 
     // Spawn on Level
     UPROPERTY()

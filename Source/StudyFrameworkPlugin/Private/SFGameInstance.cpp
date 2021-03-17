@@ -69,7 +69,7 @@ bool USFGameInstance::StartStudy()
 
     bStudyStarted = true;
 
-    NextSetup();
+    NextCondition();
     return true;
 }
 
@@ -82,23 +82,23 @@ void USFGameInstance::EndStudy()
 
 
 
-bool USFGameInstance::NextSetup()
+bool USFGameInstance::NextCondition()
 {
     // Check if is already fading
     if (FadeHandler->GetIsFading())
     {
-        FSFUtils::LogStuff("[USFGameInstance::NextSetup()]: Already Fading between levels", true);
+        FSFUtils::LogStuff("[USFGameInstance::NextCondition()]: Already Fading between levels", true);
         return false;
     }
 
     // Commit data at SFLogger
     Participant->CommitData();
 
-    FString NextLevelName = Participant->NextSetup();
+    FString NextLevelName = Participant->NextCondition();
 
     if (NextLevelName.Equals(""))
     {
-		 FSFUtils::LogStuff( "[USFGameInstance::NextSetup()]: Could not load next setup.", true);
+		 FSFUtils::LogStuff( "[USFGameInstance::NextCondition()]: Could not load next setup.", true);
         return false;
     }
 
@@ -244,7 +244,7 @@ void USFGameInstance::SpawnBlueprintActor(const FSFClassOfBlueprintActor Actor) 
 
 void USFGameInstance::OnLevelLoaded()
 {
-    Participant->GetCurrentPhase()->ApplySettings();
+    Participant->GetCurrentPhase()->ApplyCondition();
 }
 
 

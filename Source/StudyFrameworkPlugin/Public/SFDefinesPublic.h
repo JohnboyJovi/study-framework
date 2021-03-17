@@ -52,7 +52,7 @@ DECLARE_DELEGATE_OneParam(FFactorChangeDelegate, int);
 
 
 USTRUCT()
-struct FSFStudySetting
+struct FSFStudyFactor
 {
 	GENERATED_BODY()
 
@@ -63,7 +63,7 @@ struct FSFStudySetting
     FFactorChangeDelegate	Delegate;
 
     // // TODO struct operators needed?
-	// bool operator==(FSFStudySetting const & Other) const {
+	// bool operator==(FSFStudyFactor const & Other) const {
 	// 	return this->Name == Other.Name;
 	// }
     // 

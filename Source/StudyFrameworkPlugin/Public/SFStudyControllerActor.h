@@ -44,17 +44,14 @@ public:
         bool NextSetup();
 
 
-    UFUNCTION()     // TODO Kommentar
+    UFUNCTION(BlueprintCallable)     // TODO Kommentar
         void SaveDataArray(const FString DataName, TArray<FString> Data);
 
-    UFUNCTION()// TODO Kommentar
+    UFUNCTION(BlueprintCallable)// TODO Kommentar
         void SaveData(const FString DataName, FString Data);        // TODO ??
 
-    UFUNCTION()// TODO Kommentar
+    UFUNCTION(BlueprintCallable)// TODO Kommentar
         void LogData(const FString String);                         // TODO Difference here?
-
-    UFUNCTION()// TODO Kommentar
-        void UpdateHUD();
 
   
     // ****************************************************************** // 
@@ -91,11 +88,6 @@ public:
         static ASFStudyControllerActor* GetCurrentControllerActor();
 
 protected:
-
-    // TODO need CheckGameInstance()?
-    UFUNCTION()
-        bool CheckGameInstance();
-
 
     static ASFStudyControllerActor* Manager;
 

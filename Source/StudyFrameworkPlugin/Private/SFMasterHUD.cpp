@@ -4,7 +4,9 @@
 #include "SFMasterHUD.h"
 #include "SFGameInstance.h"
 #include "SFParticipant.h"
+#include "SFStudyControllerActor.h"
 #include "SFPlugin.h"
+#include "SFUtils.h"
 
 
 ASFMasterHUD::ASFMasterHUD()
@@ -38,6 +40,8 @@ void ASFMasterHUD::BeginPlay()
 		HUDWidget->SetData(Data);
 	}
 
+	HUDWidget->GetStartButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnStartButtonPressed);
+	HUDWidget->GetNextButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnNextButtonPressed);
 	
 }
 
@@ -105,3 +109,33 @@ void ASFMasterHUD::DrawBackground()
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	DrawRect(BackgroundColor, 0.0f, 0.0f, ViewportSize.X, ViewportSize.Y);
 }
+
+void ASFMasterHUD::OnStartButtonPressed()
+{
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASFStudyControllerActor::StaticClass(),Actors);
+	if(Actors.Num()!=1)
+	{
+		FSFUtils::LogStuff("No unambigous study Controller Actor found, cannot use start button", true);
+		return;
+	}
+
+	ASFStudyControllerActor* Controller = Cast<ASFStudyControllerActor>(Actors[0]);
+	Controller->StartStudy();
+	
+}
+
+void ASFMasterHUD::OnNextButtonPressed()
+{
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASFStudyControllerActor::StaticClass(),Actors);
+	if(Actors.Num()!=1)
+	{
+		FSFUtils::LogStuff("No unambigous study Controller Actor found, cannot use next button", true);
+		return;
+	}
+
+	ASFStudyControllerActor* Controller = Cast<ASFStudyControllerActor>(Actors[0]);
+	Controller->NextCondition();
+}
+

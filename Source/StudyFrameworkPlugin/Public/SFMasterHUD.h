@@ -43,6 +43,11 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Interactive")
         TSubclassOf<USFHUDWidget> SFWidgetClass;
 
+	UFUNCTION()
+	void OnStartButtonPressed();
+	UFUNCTION()
+	void OnNextButtonPressed();
+
 private:
     UPROPERTY()
         USFHUDWidget* HUDWidget;

@@ -51,6 +51,9 @@ public:
 
 	 FHUDSavedData GetData();
 	 void SetData(FHUDSavedData Data);
+
+	 UButton* GetStartButton();
+	 UButton* GetNextButton();
 	
 private:
 

@@ -81,3 +81,13 @@ void USFHUDWidget::SetData(FHUDSavedData Data)
 	LogMessages = Data.LogMessages;
 	AddLogMessage("");
 }
+
+UButton* USFHUDWidget::GetStartButton()
+{
+	return StartButton;
+}
+
+UButton* USFHUDWidget::GetNextButton()
+{
+	return NextButton;
+}

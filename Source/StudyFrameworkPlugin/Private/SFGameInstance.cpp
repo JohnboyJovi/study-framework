@@ -268,7 +268,9 @@ void USFGameInstance::OnLevelLoaded()
 
 void USFGameInstance::OnFadedIn()
 {
-	//TODO: forward also to StudyContollerActor so other actors can register on it?
+
+	OnFadedInDelegate.Broadcast();
+	
 	UpdateHUD("Condition Running");
 }
 

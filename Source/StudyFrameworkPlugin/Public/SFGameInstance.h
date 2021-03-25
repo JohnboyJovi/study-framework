@@ -19,6 +19,8 @@
 
 class USFFadeHandler;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFadedInDelegate);
+
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFGameInstance : public UGameInstance
 {
@@ -94,6 +96,16 @@ public: // TODO check what can be protected:
         void OnLevelLoaded();
 	UFUNCTION()
 		  void OnFadedIn();
+
+	 // ****************************************************************** // 
+    // *******   Delegates   ******************************************** //
+    // ****************************************************************** //
+	
+	UPROPERTY(BlueprintAssignable)
+	 FOnFadedInDelegate OnFadedInDelegate;
+
+
+	
 
     UFUNCTION()
         void UpdateHUD(FString Status);

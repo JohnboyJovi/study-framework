@@ -33,7 +33,7 @@ void USFStudyPhase::SetRepetitions(int Num, EPhaseRepetitionType Type)
     TypeOfRepetition = Type;
 	 if(TypeOfRepetition!= EPhaseRepetitionType::SameOrder)
 	 {
-		 FSFUtils::LogStuff("Currently only SameOrder repetitions supported! Please implement in USFStudyPhase::GenerateOrder().", true);
+		 FSFUtils::Log("Currently only SameOrder repetitions supported! Please implement in USFStudyPhase::GenerateOrder().", true);
 	 }
 }
 
@@ -46,7 +46,7 @@ bool USFStudyPhase::PhaseValid()
 {
 	if(MapNames.Num()==0)
 	{
-		FSFUtils::LogStuff("Phase " + GetName() + " is invalid, since no map is set!", true);
+		FSFUtils::Log("Phase " + GetName() + " is invalid, since no map is set!", true);
 		return false;
 	}
 	return true;

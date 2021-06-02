@@ -11,11 +11,10 @@ class FSFUtils
 public:
 
 	// Open Message Box with Text. bool error expresses whether to use excl. marks ++ //
-	static void OpenMessageBox(FString Text, bool bError);
-	static FString AddExclamationMarkAroundChar(FString Text);
+	static void OpenMessageBox(FString Text, bool bError = _CMP_FALSE_OS);
 
 	// Log into Console and errors also on Screen, works also in Shipping build in contrast to UE_LOG
-	static void LogStuff(FString Text, bool Error);
+	static void Log(FString Text, bool Error = false);
 
 	// To setup the debugging logs to be used
 	static void SetupLoggingStreams();

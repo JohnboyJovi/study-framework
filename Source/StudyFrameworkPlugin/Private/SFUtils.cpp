@@ -8,57 +8,32 @@
 
 #include "Json.h"
 #include "IUniversalLogging.h"
+#include "MessageDialog.h"
 
-void FSFUtils::OpenMessageBox(const FString Text, const bool bError)
+void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 {
 	if (!FSFPlugin::GetIsMaster())
 	{
 		return;
 	}
-	
-	FString TrueStatement;
-	if (bError)
-	{
-		TrueStatement = "TRUE";
-	}
-	else
-	{
-		TrueStatement = "FALSE";
-	}
-	
-	LogStuff("[FVAUtils::OpenMessageBox(ERROR = " + TrueStatement + ")]: Opening Message Box with message: " + Text, bError);
 
-	if (bError)
-	{
-		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(AddExclamationMarkAroundChar(Text)));
-	}
-	else
-	{
-		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Text));
-	}
+	Log(FString("[FVAUtils::OpenMessageBox(ERROR = ") + (bError?"TRUE":"FALSE") + ")]: Opening Message Box with message: " + Text, bError);
+
+	FText Title = FText::FromString(FString(bError?"ERROR":"Message"));
+	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Text), &Title);
 
 }
 
 
-FString FSFUtils::AddExclamationMarkAroundChar(const FString Text)
-{
-	size_t Length = Text.Len();
-	FString ReturnedString = FString("!!!!!");
-	ReturnedString.Append(Text).Append("!!!!!");
-
-	return ReturnedString;
-}
-
-
-void FSFUtils::LogStuff(const FString Text, const bool Error)
+void FSFUtils::Log(const FString Text, const bool Error /*=false*/)
 {
 	if (Error)
 	{
-		UniLog.Log("SFErrorLog", Text);
+		UniLog.Log(Text, "SFErrorLog");
 	}
 	else
 	{
-		UniLog.Log("SFLog", Text);
+		UniLog.Log(Text, "SFLog");
 	}
 }
 

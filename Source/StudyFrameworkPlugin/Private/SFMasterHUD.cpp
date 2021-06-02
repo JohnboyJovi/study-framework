@@ -116,7 +116,7 @@ void ASFMasterHUD::OnStartButtonPressed()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASFStudyControllerActor::StaticClass(),Actors);
 	if(Actors.Num()!=1)
 	{
-		FSFUtils::LogStuff("No unambigous study Controller Actor found, cannot use start button", true);
+		FSFUtils::Log("No unambigous study Controller Actor found, cannot use start button", true);
 		return;
 	}
 
@@ -131,7 +131,7 @@ void ASFMasterHUD::OnNextButtonPressed()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASFStudyControllerActor::StaticClass(),Actors);
 	if(Actors.Num()!=1)
 	{
-		FSFUtils::LogStuff("No unambigous study Controller Actor found, cannot use next button", true);
+		FSFUtils::Log("No unambigous study Controller Actor found, cannot use next button", true);
 		return;
 	}
 

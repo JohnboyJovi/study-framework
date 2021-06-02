@@ -59,13 +59,13 @@ bool USFGameInstance::StartStudy()
 {
     if (bStudyStarted)
     {
-        FSFUtils::LogStuff("[USFGameInstance::StartStudy()]: Study already started.", true);
+        FSFUtils::Log("[USFGameInstance::StartStudy()]: Study already started.", true);
         return false;
     }
 
     if(!Participant->StartStudy())
     {
-		 FSFUtils::LogStuff("[USFGameInstance::StartStudy()]: unable to start study.", true);
+		 FSFUtils::Log("[USFGameInstance::StartStudy()]: unable to start study.", true);
 		 return false;
     }
 
@@ -91,7 +91,7 @@ bool USFGameInstance::NextCondition()
     // Check if is already fading
     if (FadeHandler->GetIsFading())
     {
-        FSFUtils::LogStuff("[USFGameInstance::NextCondition()]: Already Fading between levels", true);
+        FSFUtils::Log("[USFGameInstance::NextCondition()]: Already Fading between levels", true);
         return false;
     }
 
@@ -102,7 +102,7 @@ bool USFGameInstance::NextCondition()
 
     if (NextLevelName.Equals(""))
     {
-		 FSFUtils::LogStuff( "[USFGameInstance::NextCondition()]: Could not load next setup.", true);
+		 FSFUtils::Log( "[USFGameInstance::NextCondition()]: Could not load next setup.", true);
         return false;
     }
 
@@ -164,7 +164,7 @@ void USFGameInstance::AddPhase(USFStudyPhase* Phase)
 {
     if (bStudyStarted)
     {
-        FSFUtils::LogStuff("[USFGameInstance::AddPhase()]: Study already started.", true);
+        FSFUtils::Log("[USFGameInstance::AddPhase()]: Study already started.", true);
     }
 
     Participant->AddPhase(Phase);
@@ -256,7 +256,7 @@ void USFGameInstance::SpawnBlueprintActor(const FSFClassOfBlueprintActor Actor) 
         }
     }
 
-    FSFUtils::LogStuff("[USFGameInstance::SpawnBlueprintActor()]: Unable to spawn blueprint actor ("
+    FSFUtils::Log("[USFGameInstance::SpawnBlueprintActor()]: Unable to spawn blueprint actor ("
         + Actor.Path + "/" + Actor.ClassName + ") cannot be found!", true);
 }
 

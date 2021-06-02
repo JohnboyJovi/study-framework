@@ -138,7 +138,7 @@ void USFParticipant::GenerateInitialJsonFile()
 
     FString JsonAsString = FSFUtils::JsonToString(MainJsonObject);
 
-    FSFUtils::LogStuff(JsonAsString, false);
+    FSFUtils::Log(JsonAsString, false);
 }
 
 bool USFParticipant::FindJsonFile()
@@ -158,7 +158,7 @@ bool USFParticipant::StartStudy()
     // If reload an already existing study?
     if (FindJsonFile())
     {
-		  FSFUtils::LogStuff("[USFParticipant::StartStudy()]: Json File found. Loading it now..", false);
+		  FSFUtils::Log("[USFParticipant::StartStudy()]: Json File found. Loading it now..", false);
         return LoadJsonFile();
     }
     else
@@ -168,7 +168,7 @@ bool USFParticipant::StartStudy()
 
     if (!CheckPhases())
     {
-		  FSFUtils::LogStuff("[USFParticipant::StartStudy()]: Not all Phases valid", true);
+		  FSFUtils::Log("[USFParticipant::StartStudy()]: Not all Phases valid", true);
         return false;
     }
 
@@ -179,7 +179,7 @@ bool USFParticipant::StartStudy()
         EntryPhase->GenerateOrder();
     }
 
-	 FSFUtils::LogStuff("[USFParticipant::StartStudy()]: Generated Phases for "+ FString::FromInt(Phases.Num()) + " phases", false);
+	 FSFUtils::Log("[USFParticipant::StartStudy()]: Generated Phases for "+ FString::FromInt(Phases.Num()) + " phases", false);
 
     // Create initial Json file
     GenerateInitialJsonFile();
@@ -203,7 +203,7 @@ FString USFParticipant::NextCondition()     // TODO can maybe be made a schöner 
     {
         if (CurrentPhaseIdx >= (Phases.Num() - 1)) // So there is no next phase
         {
-			  FSFUtils::LogStuff("[USFParticipant::NextCondition()]: All setups already ran, EndStudy()", false);
+			  FSFUtils::Log("[USFParticipant::NextCondition()]: All setups already ran, EndStudy()", false);
 
             GameInstance->EndStudy();
 

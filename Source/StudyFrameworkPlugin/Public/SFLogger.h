@@ -2,8 +2,8 @@
 
 
 #include "CoreMinimal.h"
-#include "JsonObject.h"
-#include "SharedPointer.h"
+#include "Dom/JsonObject.h"
+#include "Templates/SharedPointer.h"
 
 class USFParticipant;
 class USFGameInstance;

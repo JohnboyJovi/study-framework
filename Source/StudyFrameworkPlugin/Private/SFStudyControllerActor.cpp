@@ -34,7 +34,7 @@ void ASFStudyControllerActor::BeginPlay()
 	GameInstance = Cast<USFGameInstance>(GetGameInstance());
 	if(GameInstance == nullptr)
 	{
-		FSFUtils::OpenMessageBox("GameInstance is not set to USFGameInstance, Stufy Framework will not work", true);
+		FSFUtils::OpenMessageBox("GameInstance is not set to USFGameInstance, Study Framework will not work", true);
 	}
 }
 
@@ -50,7 +50,7 @@ bool ASFStudyControllerActor::StartStudy()
 {
     if (GameInstance->IsStarted())
     {
-        FSFUtils::LogStuff("[ASFManagerActor::StartStudy()]: Study already started", false);
+        FSFUtils::Log("[ASFManagerActor::StartStudy()]: Study already started", false);
         return false;
     }
 
@@ -63,7 +63,7 @@ bool ASFStudyControllerActor::NextCondition()
 {
     if (!GameInstance->IsStarted())
     {
-        FSFUtils::LogStuff("[ASFManagerActor::NextCondition()]: Study not started yet", false);
+        FSFUtils::Log("[ASFManagerActor::NextCondition()]: Study not started yet", false);
         return false;
     }
 
@@ -78,7 +78,7 @@ bool ASFStudyControllerActor::AddPhase(USFStudyPhase* Phase)
 {
     if (GameInstance->IsStarted())
     {
-        FSFUtils::LogStuff("[ASFManagerActor::AddPhase()]: Study already started", false);
+        FSFUtils::Log("[ASFManagerActor::AddPhase()]: Study already started", false);
         return false;
     }
 
@@ -95,7 +95,7 @@ bool ASFStudyControllerActor::AddActorForEachLevelCpp(UClass* Actor)
 {
     if (GameInstance->IsStarted())
     {
-        FSFUtils::LogStuff("[ASFManagerActor::AddActorForEachLevel()]: Study already started", false);
+        FSFUtils::Log("[ASFManagerActor::AddActorForEachLevel()]: Study already started", false);
         return false;
     }
     
@@ -110,7 +110,7 @@ bool ASFStudyControllerActor::AddActorForEachLevelBlueprint(FSFClassOfBlueprintA
 {
     if (GameInstance->IsStarted())
     {
-        FSFUtils::LogStuff("[ASFManagerActor::AddActorForEachLevel()]: Study already started", false);
+        FSFUtils::Log("[ASFManagerActor::AddActorForEachLevel()]: Study already started", false);
         return false;
     }
 
@@ -138,7 +138,7 @@ bool ASFStudyControllerActor::SetInitialFadedOut(bool bFadedOut)
 {
     if (GameInstance->IsStarted())
     {
-        FSFUtils::LogStuff("[ASFManagerActor::SetInitialFadedOut()]: Study already started", false);
+        FSFUtils::Log("[ASFManagerActor::SetInitialFadedOut()]: Study already started", false);
         return false;
     }
 
@@ -187,7 +187,7 @@ void ASFStudyControllerActor::Initialize(FString ParticipantID, FString JsonFile
 
     if (!GameInstance)
     {
-        FSFUtils::LogStuff("[ASFManagerActor::BeginPlay()]: Could not get Game Instance correctly", true);
+        FSFUtils::Log("[ASFManagerActor::BeginPlay()]: Could not get Game Instance correctly", true);
     }
 
     if (!GameInstance->IsInitialized())

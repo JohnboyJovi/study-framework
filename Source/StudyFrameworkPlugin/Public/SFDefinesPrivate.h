@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Class.h"
 
 #include "SFDefinesPrivate.generated.h"
 

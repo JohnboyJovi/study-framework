@@ -1,5 +1,3 @@
-
-
 #include "SFLogger.h"
 #include "SFUtils.h"
 #include "SFGameInstance.h"
@@ -13,171 +11,163 @@
 
 USFLogger::USFLogger()
 {
-    MainJsonObject = MakeShared<FJsonObject>();
+	MainJsonObject = MakeShared<FJsonObject>();
 
-    return;
+	return;
 }
 
 
-
-void USFLogger::Initialize(USFParticipant* ParticipantNew, FString JsonFilePathNew, FString LogNameNew, FString SaveLogNameNew)
+void USFLogger::Initialize(USFParticipant* ParticipantNew, FString JsonFilePathNew, FString LogNameNew,
+                           FString SaveLogNameNew)
 {
-    Participant = ParticipantNew;
-    JsonFilePath = JsonFilePathNew;
-    LogName = LogNameNew;
-    SaveLogName = SaveLogNameNew;
+	Participant = ParticipantNew;
+	JsonFilePath = JsonFilePathNew;
+	LogName = LogNameNew;
+	SaveLogName = SaveLogNameNew;
 
-    UniLog.NewLogStream(LogName, "Saved/OwnLogs/", LogName + ".log", true); //TODO what is the difference here?
-    UniLog.NewLogStream(SaveLogName, "Saved/OwnLogs/", SaveLogName + ".log", true); // TODO Kommentar
+	ILogStream* LogStream = UniLog.NewLogStream(LogName, "Saved/OwnLogs/", LogName + ".log", true);//TODO what is the difference here?
+	LogStream = UniLog.NewLogStream(SaveLogName, "Saved/OwnLogs/", SaveLogName + ".log", true); // TODO Kommentar
 
-	 //initialize Log streams
-	 FSFUtils::SetupLoggingStreams();
+	//initialize Log streams
+	FSFUtils::SetupLoggingStreams();
 
-    bInitialized = true;
+	bInitialized = true;
 }
-
-
-
 
 
 void USFLogger::SaveJsonFile(TSharedPtr<FJsonObject> Json)
 {
-
 }
 
 void USFLogger::LogData(FString String)
 {
-    if (!bInitialized)
-    {
-        FSFUtils::LogStuff("[USFLogger::LogData()]: Not initialized yet", false);
-        return;
-    }
+	if (!bInitialized)
+	{
+		FSFUtils::Log("[USFLogger::LogData()]: Not initialized yet", false);
+		return;
+	}
 
-    UniLog.Log(String, LogName);
+	UniLog.Log(String, LogName);
 }
 
 
-void USFLogger::SaveData(const FString NameOfData, FString Data, const int PhaseIdx, const FString Setup) 
+void USFLogger::SaveData(const FString NameOfData, FString Data, const int PhaseIdx, const FString Setup)
 {
-    TArray<FString> DataArray;
+	TArray<FString> DataArray;
 
-    DataArray.Add(Data);
+	DataArray.Add(Data);
 
-    SaveDataArray(NameOfData, DataArray, PhaseIdx, Setup);
+	SaveDataArray(NameOfData, DataArray, PhaseIdx, Setup);
 }
 
 void USFLogger::SaveDataArray(FString NameOfData, TArray<FString> Data, int PhaseIdx, FString Setup)
 {
-    if (!bInitialized)
-    {
-        FSFUtils::LogStuff("[USFLogger::SaveData()]: Not initialized yet", false);
-        return;
-    }
+	if (!bInitialized)
+	{
+		FSFUtils::Log("[USFLogger::SaveData()]: Not initialized yet", false);
+		return;
+	}
 
-    /*
-     + Phases (object)
-     +     Num (Int)
-     +         5 (Value)
-     +     1 (object)
-     +         Setup (Array)
-     +             2_2_2 (Value)
-     +         Order (FString Array)
-     +             1_1,1_2,2_1,2_2 (Value)
+	/*
+	 + Phases (object)
+	 +     Num (Int)
+	 +         5 (Value)
+	 +     1 (object)
+	 +         Setup (Array)
+	 +             2_2_2 (Value)
+	 +         Order (FString Array)
+	 +             1_1,1_2,2_1,2_2 (Value)
 
-     + "Data": (object)
-     +     "Phase_1": (object)
-     +         "1_1": (object)
-     -             "NameOfData": (Array)
-     >                  1,2,3,4,5 (Value)
-    */
+	 + "Data": (object)
+	 +     "Phase_1": (object)
+	 +         "1_1": (object)
+	 -             "NameOfData": (Array)
+	 >                  1,2,3,4,5 (Value)
+	*/
 
-    TSharedPtr<FJsonObject> Json = MainJsonObject->GetObjectField("Data")
-        ->GetObjectField(FString::FromInt(PhaseIdx))
-        ->GetObjectField(Setup);
+	TSharedPtr<FJsonObject> Json = MainJsonObject->GetObjectField("Data")
+	                                             ->GetObjectField(FString::FromInt(PhaseIdx))
+	                                             ->GetObjectField(Setup);
 
-    TArray<TSharedPtr<FJsonValue>> Array;
-    TArray<FString> ArrayFString;
+	TArray<TSharedPtr<FJsonValue>> Array;
+	TArray<FString> ArrayFString;
 
-    if (Json->HasField(NameOfData))
-    {
-        Json->TryGetStringArrayField(NameOfData, ArrayFString);
-    }
+	if (Json->HasField(NameOfData))
+	{
+		Json->TryGetStringArrayField(NameOfData, ArrayFString);
+	}
 
-    ArrayFString.Append(Data);
+	ArrayFString.Append(Data);
 
-    for (auto Entry : ArrayFString)
-    {
-        TSharedPtr<FJsonValueString> DataJson = MakeShared<FJsonValueString>(Entry);
-        Array.Add(DataJson);
-    }
+	for (auto Entry : ArrayFString)
+	{
+		TSharedPtr<FJsonValueString> DataJson = MakeShared<FJsonValueString>(Entry);
+		Array.Add(DataJson);
+	}
 
-    Json->SetArrayField(NameOfData, Array);
+	Json->SetArrayField(NameOfData, Array);
 
-    FString DataString = Data[0];
-    for (int i = 1; i < Data.Num(); i++)
-    {
-        DataString = DataString + ", " + Data[i];
-    }
+	FString DataString = Data[0];
+	for (int i = 1; i < Data.Num(); i++)
+	{
+		DataString = DataString + ", " + Data[i];
+	}
 
 
-    LogData("[SaveData]: {" + NameOfData + "}, [Data]: {" + DataString + "}");
+	LogData("[SaveData]: {" + NameOfData + "}, [Data]: {" + DataString + "}");
 }
 
 void USFLogger::CommitData()
 {
-    if (!bInitialized)
-    {
-        FSFUtils::LogStuff("[USFLogger::CommitData()]: Not initialized yet", false);
-        return;
-    }
+	if (!bInitialized)
+	{
+		FSFUtils::Log("[USFLogger::CommitData()]: Not initialized yet", false);
+		return;
+	}
 
-    FString SavedFolder = FPaths::ProjectSavedDir();
+	FString SavedFolder = FPaths::ProjectSavedDir();
 
-    FString JsonFile = SavedFolder + JsonFilePath + Participant->GetID() + ".txt";
-    FString JsonFileTmp = SavedFolder + JsonFilePath + Participant->GetID() + "_tmp.txt";
+	FString JsonFile = SavedFolder + JsonFilePath + Participant->GetID() + ".txt";
+	FString JsonFileTmp = SavedFolder + JsonFilePath + Participant->GetID() + "_tmp.txt";
 
-    bool Success = true;
+	bool Success = true;
 
-    // Get String from Json
-    FString JsonString;
-    TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
-    FJsonSerializer::Serialize(MainJsonObject.ToSharedRef(), Writer);
+	// Get String from Json
+	FString JsonString;
+	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
+	FJsonSerializer::Serialize(MainJsonObject.ToSharedRef(), Writer);
 
-    // Log it in a extra log
-    UniLog.Log(JsonString, SaveLogName);
+	// Log it in a extra log
+	UniLog.Log(JsonString, SaveLogName);
 
-    // Write to File_Tmp
-    if (!FFileHelper::SaveStringToFile(JsonString, *JsonFileTmp))
-    {
-        Success = false;
-    }
+	// Write to File_Tmp
+	if (!FFileHelper::SaveStringToFile(JsonString, *JsonFileTmp))
+	{
+		Success = false;
+	}
 
-    // Make Tmp file the actual file
-    if(IFileManager::Get().FileExists(*JsonFile))
-    {
-        if (!IFileManager::Get().Delete(*JsonFile))
-        {
-            Success = false;
-            FSFUtils::LogStuff("[USFLogger::CommitData()]: Could not delete old json", true);
-        }
-    }
-    else
-    {
-        FSFUtils::LogStuff("[USFLogger::CommitData()]: Could not find old json " + JsonFile, false);
-    }
+	// Make Tmp file the actual file
+	if (IFileManager::Get().FileExists(*JsonFile))
+	{
+		if (!IFileManager::Get().Delete(*JsonFile))
+		{
+			Success = false;
+			FSFUtils::Log("[USFLogger::CommitData()]: Could not delete old json", true);
+		}
+	}
+	else
+	{
+		FSFUtils::Log("[USFLogger::CommitData()]: Could not find old json " + JsonFile, false);
+	}
 
-    if (!IFileManager::Get().Move(*JsonFile, *JsonFileTmp))
-    {
-        Success = false;
-        FSFUtils::LogStuff("[USFLogger::CommitData()]: Could not rename new json " + JsonFileTmp, true);
-    }
-
+	if (!IFileManager::Get().Move(*JsonFile, *JsonFileTmp))
+	{
+		Success = false;
+		FSFUtils::Log("[USFLogger::CommitData()]: Could not rename new json " + JsonFileTmp, true);
+	}
 }
 
 TSharedPtr<FJsonObject> USFLogger::GetJsonFile()
 {
-    return MainJsonObject;
+	return MainJsonObject;
 }
-
-
-

@@ -15,8 +15,7 @@ void FSFPlugin::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
-	bIsMaster = IDisplayCluster::Get().GetClusterMgr() != nullptr && IDisplayCluster::Get().GetClusterMgr()->IsMaster();
-
+	bIsMaster = IDisplayCluster::Get().GetOperationMode() != EDisplayClusterOperationMode::Cluster || IDisplayCluster::Get().GetClusterMgr()->IsMaster();
 
 }
 

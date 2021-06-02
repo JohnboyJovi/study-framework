@@ -2,13 +2,11 @@
 
 #include "SFUtils.h"
 
-#include "Engine/Engine.h"
-#include "LogMacros.h"
+#include "Misc/MessageDialog.h"
 #include "SFPlugin.h"
 
 #include "Json.h"
 #include "IUniversalLogging.h"
-#include "MessageDialog.h"
 
 void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 {

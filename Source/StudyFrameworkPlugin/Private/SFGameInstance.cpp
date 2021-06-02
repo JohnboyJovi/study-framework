@@ -13,11 +13,19 @@
 #include "EngineUtils.h"            // For Spawning in Actor in each level
 #include "IUniversalLogging.h"
 #include "SFMasterHUD.h"
+#include "SFGlobalFadeGameViewportClient.h"
 
 
 // ****************************************************************** // 
 // ******* Initialization ******************************************* //
 // ****************************************************************** //
+
+void USFGameInstance::Init()
+{
+	Super::Init();
+
+	GEngine->GameViewportClientClass = USFGlobalFadeGameViewportClient::StaticClass();
+}
 
 void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
 {

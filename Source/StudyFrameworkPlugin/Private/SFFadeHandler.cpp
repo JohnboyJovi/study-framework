@@ -204,21 +204,3 @@ void USFFadeHandler::SetTimerForNextTick(const float TimeToWait)
 }
 
 
-/* // TODO get rid of?
-void USFFadeHandler::OnNewLevelLoaded()
-{
-	//spawn a InputHandler Blueprint Actor in the new level, to get input into our gameinstance
-	SpawnBlueprintActor(TEXT("/Game/Logic"), TEXT("InputHandler"));
-
-	AVirtualRealityPawn* vr_pawn = dynamic_cast<AVirtualRealityPawn*>(GameInstance->GetWorld()->GetFirstPlayerController()->GetPawn());
-	if (vr_pawn) {
-		//vr_pawn->NavigationMode = EVRNavigationModes::nav_mode_fly;
-		vr_pawn->NavigationMode = EVRNavigationModes::nav_mode_none;
-	}
-	else {
-		// UniLog.Log("Error: No VirtualRealityPawn found in level, unable to deactivate flying!", "DebugLog");
-	}
-
-}
-*/
-

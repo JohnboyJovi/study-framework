@@ -21,7 +21,7 @@ public:
     void Tick();
 
 	void FadeToLevel(FString LevelName, bool bStartFadedOut = false);
-    void FadeIn();
+   void FadeIn();
 	float FadeTimeRemaining() const;
 
 
@@ -36,7 +36,7 @@ public:
 
 
 private:
-	void SetTimerForNextTick(float TimeToWait = 0.0001f);		// Starts Tick Function in x sec
+	void SetTimerForNextTick(float TimeToWait = 0.0f);		// Starts Tick Function in x sec
 
 	void Fade(float Duration, bool bToBlack) const;
 
@@ -57,9 +57,8 @@ private:
     UPROPERTY()
         bool bIsFadedOut = true;
 
-    UPROPERTY() // TODO UPROPERTY --> UENUM
+    UPROPERTY() 
         TEnumAsByte<EFadeState> FadeState = EFadeState::NotFading;
-
 
     UPROPERTY()
         FLinearColor FadeColor = FLinearColor::Black;

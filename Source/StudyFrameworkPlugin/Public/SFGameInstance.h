@@ -29,6 +29,9 @@ class STUDYFRAMEWORKPLUGIN_API USFGameInstance : public UGameInstance
    
 public: // TODO check what can be protected:
 
+	//override UGameInstance init
+	void Init() override;
+
     // ****************************************************************** // 
     // ******* Initialization ******************************************* //
     // ****************************************************************** //

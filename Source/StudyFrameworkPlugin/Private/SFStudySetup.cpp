@@ -17,13 +17,12 @@ USFStudyPhase* USFStudySetup::AddStudyPhase(FString PhaseName)
 bool USFStudySetup::CheckPhases()
 {
 	for (auto EntryPhase : Phases)
-    {
-        if (!EntryPhase->PhaseValid())
-        {
-            return false;
-        }
-    }
+	{
+		if (!EntryPhase->PhaseValid())
+		{
+			return false;
+		}
+	}
 
-    return true;
+	return true;
 }
-

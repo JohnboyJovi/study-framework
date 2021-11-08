@@ -22,7 +22,7 @@ struct FHUDSavedData
 	FString Phase;
 	FString Condition;
 	TArray<FString> LogMessages;
-	bool bSet=false;
+	bool bSet = false;
 };
 
 /**
@@ -31,48 +31,48 @@ struct FHUDSavedData
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFHUDWidget : public UUserWidget
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 
 	USFHUDWidget(const FObjectInitializer& ObjectInitializer);
 
-    virtual void NativeConstruct() override;
+	virtual void NativeConstruct() override;
 
-    
-    void SetParticipant(FString Text);
-	 void SetPhase(FString Text);
-	 void SetCondition(FString Text);
-	 void SetStatus(FString Text);
 
-	 void AddLogMessage(FString Text);
+	void SetParticipant(FString Text);
+	void SetPhase(FString Text);
+	void SetCondition(FString Text);
+	void SetStatus(FString Text);
 
-    void ClearWidget();
+	void AddLogMessage(FString Text);
 
-	 FHUDSavedData GetData();
-	 void SetData(FHUDSavedData Data);
+	void ClearWidget();
 
-	 UButton* GetStartButton();
-	 UButton* GetNextButton();
-	
+	FHUDSavedData GetData();
+	void SetData(FHUDSavedData Data);
+
+	UButton* GetStartButton();
+	UButton* GetNextButton();
+
 private:
 
-    UPROPERTY(EditAnywhere, meta = (BindWidget))
-    class UTextBlock* StatusTextBox;
-	
-	 UPROPERTY(EditAnywhere, meta = (BindWidget))
-		 class UTextBlock* ParticipantTextBox;
-	 UPROPERTY(EditAnywhere, meta = (BindWidget))
-		 class UTextBlock* PhaseTextBox;
-	 UPROPERTY(EditAnywhere, meta = (BindWidget))
-		 class UTextBlock* ConditionTextBox;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UTextBlock* StatusTextBox;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UTextBlock* ParticipantTextBox;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UTextBlock* PhaseTextBox;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UTextBlock* ConditionTextBox;
 
 	TArray<FString> LogMessages;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-		 class UTextBlock* LogsTextBox;
-	
-	 UPROPERTY(EditAnywhere, meta = (BindWidget))
-		 class UButton* StartButton;
-	 UPROPERTY(EditAnywhere, meta = (BindWidget))
-		 class UButton* NextButton;
+	class UTextBlock* LogsTextBox;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UButton* StartButton;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UButton* NextButton;
 };

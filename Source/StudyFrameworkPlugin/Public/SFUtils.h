@@ -19,16 +19,16 @@ public:
 	// To setup the debugging logs to be used
 	static void SetupLoggingStreams();
 
-    template <class T>
-    static void CheckLoggingDataType(T Data);
+	template <class T>
+	static void CheckLoggingDataType(T Data);
 
 
-    static FString SetupToString(TArray<int> Setup);
+	static FString SetupToString(TArray<int> Setup);
 
 
-    static FString JsonToString(TSharedPtr<FJsonObject> Json);
+	static FString JsonToString(TSharedPtr<FJsonObject> Json);
 
-    static TSharedPtr<FJsonObject> StringToJson(FString String);
+	static TSharedPtr<FJsonObject> StringToJson(FString String);
 };
 
 
@@ -36,14 +36,14 @@ public:
 template <class T>
 void FSFUtils::CheckLoggingDataType(T Data)
 {
-    static_assert(
-        std::is_same<T, float>::value ||
-        std::is_same<T, bool>::value ||
-        std::is_same<T, FString>::value ||
-        std::is_same<T, int>::value ||
-        std::is_same<T, TArray<float>>::value ||
-        std::is_same<T, TArray<bool>>::value ||
-        std::is_same<T, TArray<FString>>::value ||
-        std::is_same<T, TArray<int>>::value,
-        "Not correct Type!!");
+	static_assert(
+		std::is_same<T, float>::value ||
+		std::is_same<T, bool>::value ||
+		std::is_same<T, FString>::value ||
+		std::is_same<T, int>::value ||
+		std::is_same<T, TArray<float>>::value ||
+		std::is_same<T, TArray<bool>>::value ||
+		std::is_same<T, TArray<FString>>::value ||
+		std::is_same<T, TArray<int>>::value,
+		"Not correct Type!!");
 }

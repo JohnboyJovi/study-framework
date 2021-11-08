@@ -15,11 +15,11 @@ void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 		return;
 	}
 
-	Log(FString("[FVAUtils::OpenMessageBox(ERROR = ") + (bError?"TRUE":"FALSE") + ")]: Opening Message Box with message: " + Text, bError);
+	Log(FString("[FVAUtils::OpenMessageBox(ERROR = ") + (bError ? "TRUE" : "FALSE") +
+	    ")]: Opening Message Box with message: " + Text, bError);
 
-	FText Title = FText::FromString(FString(bError?"ERROR":"Message"));
+	FText Title = FText::FromString(FString(bError ? "ERROR" : "Message"));
 	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Text), &Title);
-
 }
 
 
@@ -49,36 +49,37 @@ void FSFUtils::SetupLoggingStreams()
 
 FString FSFUtils::SetupToString(TArray<int> Setup)
 {
-    if (Setup.Num() == 0)
-    {
-        return "";
-    }
+	if (Setup.Num() == 0)
+	{
+		return "";
+	}
 
-    FString Output = FString::FromInt(Setup[0]);
-    for (int i = 1; i < Setup.Num(); i++)
-    {
-        Output = Output + "_" + FString::FromInt(Setup[i]);
-    }
+	FString Output = FString::FromInt(Setup[0]);
+	for (int i = 1; i < Setup.Num(); i++)
+	{
+		Output = Output + "_" + FString::FromInt(Setup[i]);
+	}
 
-    return Output;
+	return Output;
 }
 
 FString FSFUtils::JsonToString(TSharedPtr<FJsonObject> Json)
 {
-    FString OutputString;
-    TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
-    FJsonSerializer::Serialize(Json.ToSharedRef(), Writer);
+	FString OutputString;
+	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(Json.ToSharedRef(), Writer);
 
-    return OutputString;
+	return OutputString;
 }
 
 TSharedPtr<FJsonObject> FSFUtils::StringToJson(FString String)
 {
-    TSharedPtr<FJsonObject> Json = MakeShareable(new FJsonObject());
-    TSharedRef<TJsonReader<TCHAR>> Reader = FJsonStringReader::Create(String);
-    FJsonSerializer::Deserialize(Reader, Json);
+	TSharedPtr<FJsonObject> Json = MakeShareable(new FJsonObject());
+	TSharedRef<TJsonReader<TCHAR>> Reader = FJsonStringReader::Create(String);
+	FJsonSerializer::Deserialize(Reader, Json);
 
-    return Json;
+	return Json;
 }
+
 /*
  */

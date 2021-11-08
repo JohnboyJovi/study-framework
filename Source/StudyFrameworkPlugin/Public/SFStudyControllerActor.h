@@ -15,89 +15,83 @@ class ASFPlayerController;
 class USFGameInstance;
 
 
-
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API ASFStudyControllerActor : public AActor // TODO rename StudyManager?
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    // Sets default values for this actor's properties
+	// Sets default values for this actor's properties
 protected:
-    // Called when the game starts or when spawned
-    virtual void BeginPlay() override;
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
 public:
-    ASFStudyControllerActor();
+	ASFStudyControllerActor();
 
-    virtual void Tick(float DeltaTime) override;
-
-
-    // ****************************************************************** // 
-    // ******* Control Study ******************************************** //
-    // ****************************************************************** //
-
-    UFUNCTION(BlueprintCallable)
-        bool StartStudy();                                          // TODO implement Start Study()
-
-    UFUNCTION(BlueprintCallable)
-        bool NextCondition();
+	virtual void Tick(float DeltaTime) override;
 
 
-    UFUNCTION(BlueprintCallable)     // TODO Kommentar
-        void SaveDataArray(const FString DataName, TArray<FString> Data);
+	// ****************************************************************** // 
+	// ******* Control Study ******************************************** //
+	// ****************************************************************** //
 
-    UFUNCTION(BlueprintCallable)// TODO Kommentar
-        void SaveData(const FString DataName, FString Data);        // TODO ??
+	UFUNCTION(BlueprintCallable)
+	bool StartStudy(); // TODO implement Start Study()
 
-    UFUNCTION(BlueprintCallable)// TODO Kommentar
-        void LogData(const FString String);                         // TODO Difference here?
-
-  
-    // ****************************************************************** // 
-    // ******* Prepare Study ******************************************** //
-    // ****************************************************************** //
-
-    UFUNCTION()
-        void Initialize(FString ParticipantID, FString JsonFilePath);
+	UFUNCTION(BlueprintCallable)
+	bool NextCondition();
 
 
-    UFUNCTION()
-        bool AddPhase(USFStudyPhase* Phase);
+	UFUNCTION(BlueprintCallable) // TODO Kommentar
+	void SaveDataArray(const FString DataName, TArray<FString> Data);
 
-    // Each Level Load
-    UFUNCTION()
-        bool AddActorForEachLevelCpp(UClass* Actor);
-    UFUNCTION()
-        bool AddActorForEachLevelBlueprint(FSFClassOfBlueprintActor Actor);
+	UFUNCTION(BlueprintCallable) // TODO Kommentar
+	void SaveData(const FString DataName, FString Data); // TODO ??
 
-    // Fading
-    UFUNCTION()
-        void SetFadeColor(FLinearColor Color);
-    UFUNCTION()
-        void SetFadeDuration(float FadeDuration);
-    UFUNCTION()
-        void SetFadedOutDuration(float FadeOutWait);
-    UFUNCTION()
-        bool SetInitialFadedOut(bool bFadedOut);
+	UFUNCTION(BlueprintCallable) // TODO Kommentar
+	void LogData(const FString String); // TODO Difference here?
 
 
+	// ****************************************************************** // 
+	// ******* Prepare Study ******************************************** //
+	// ****************************************************************** //
 
-    // TODO implement GetCurrentControllerActor to work non static
-    UFUNCTION()
-        static ASFStudyControllerActor* GetCurrentControllerActor();
+	UFUNCTION()
+	void Initialize(FString ParticipantID, FString JsonFilePath);
+
+
+	UFUNCTION()
+	bool AddPhase(USFStudyPhase* Phase);
+
+	// Each Level Load
+	UFUNCTION()
+	bool AddActorForEachLevelCpp(UClass* Actor);
+	UFUNCTION()
+	bool AddActorForEachLevelBlueprint(FSFClassOfBlueprintActor Actor);
+
+	// Fading
+	UFUNCTION()
+	void SetFadeColor(FLinearColor Color);
+	UFUNCTION()
+	void SetFadeDuration(float FadeDuration);
+	UFUNCTION()
+	void SetFadedOutDuration(float FadeOutWait);
+	UFUNCTION()
+	bool SetInitialFadedOut(bool bFadedOut);
+
+
+	// TODO implement GetCurrentControllerActor to work non static
+	UFUNCTION()
+	static ASFStudyControllerActor* GetCurrentControllerActor();
 
 protected:
 
-    static ASFStudyControllerActor* Manager;
+	static ASFStudyControllerActor* Manager;
 
-    UPROPERTY()
-        USFGameInstance* GameInstance;
+	UPROPERTY()
+	USFGameInstance* GameInstance;
 
-    UPROPERTY()
-        bool bInitialized = false;
-
-
+	UPROPERTY()
+	bool bInitialized = false;
 };
-
-

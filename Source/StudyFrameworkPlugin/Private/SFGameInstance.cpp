@@ -29,25 +29,25 @@ void USFGameInstance::Init()
 
 void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
 {
-    if (bInitialized)
-    {
-        return;
-    }
+	if (bInitialized)
+	{
+		return;
+	}
 
-    // FadeHandler
-    FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
-    FadeHandler->AddToRoot();                   // TODO What is that?
-    FadeHandler->SetGameInstance(this);
-    FadeHandler->SetInitialFadedOut(false);
+	// FadeHandler
+	FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
+	FadeHandler->AddToRoot(); // TODO What is that?
+	FadeHandler->SetGameInstance(this);
+	FadeHandler->SetInitialFadedOut(false);
 
-    // Participant
-    Participant = NewObject<USFParticipant>(GetTransientPackage(), FName(*ParticipantID));
-    Participant->Initialize(ParticipantID, JsonFilePath, this);
+	// Participant
+	Participant = NewObject<USFParticipant>(GetTransientPackage(), FName(*ParticipantID));
+	Participant->Initialize(ParticipantID, JsonFilePath, this);
 
-    // TODO Check if necessary
-    SpawnInEveryPhaseCpp.Add(ASFStudyControllerActor::StaticClass());
+	// TODO Check if necessary
+	SpawnInEveryPhaseCpp.Add(ASFStudyControllerActor::StaticClass());
 
-    bInitialized = true;
+	bInitialized = true;
 
 	UpdateHUD("Wait for start");
 }
@@ -55,7 +55,7 @@ void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
 
 bool USFGameInstance::IsInitialized() const
 {
-    return bInitialized;
+	return bInitialized;
 }
 
 
@@ -65,88 +65,86 @@ bool USFGameInstance::IsInitialized() const
 
 bool USFGameInstance::StartStudy()
 {
-    if (bStudyStarted)
-    {
-        FSFUtils::Log("[USFGameInstance::StartStudy()]: Study already started.", true);
-        return false;
-    }
+	if (bStudyStarted)
+	{
+		FSFUtils::Log("[USFGameInstance::StartStudy()]: Study already started.", true);
+		return false;
+	}
 
-    if(!Participant->StartStudy())
-    {
-		 FSFUtils::Log("[USFGameInstance::StartStudy()]: unable to start study.", true);
-		 return false;
-    }
+	if (!Participant->StartStudy())
+	{
+		FSFUtils::Log("[USFGameInstance::StartStudy()]: unable to start study.", true);
+		return false;
+	}
 
-    bStudyStarted = true;
+	bStudyStarted = true;
 
-    NextCondition();
-    return true;
+	NextCondition();
+	return true;
 }
 
 void USFGameInstance::EndStudy()
 {
-    Participant->CommitData();
-    Participant->EndStudy();
+	Participant->CommitData();
+	Participant->EndStudy();
 
 	UpdateHUD("Study ended");
 }
 
 
-
-
 bool USFGameInstance::NextCondition()
 {
-    // Check if is already fading
-    if (FadeHandler->GetIsFading())
-    {
-        FSFUtils::Log("[USFGameInstance::NextCondition()]: Already Fading between levels", true);
-        return false;
-    }
+	// Check if is already fading
+	if (FadeHandler->GetIsFading())
+	{
+		FSFUtils::Log("[USFGameInstance::NextCondition()]: Already Fading between levels", true);
+		return false;
+	}
 
-    // Commit data at SFLogger
-    Participant->CommitData();
+	// Commit data at SFLogger
+	Participant->CommitData();
 
-    FString NextLevelName = Participant->NextCondition();
+	FString NextLevelName = Participant->NextCondition();
 
-    if (NextLevelName.Equals(""))
-    {
-		 FSFUtils::Log( "[USFGameInstance::NextCondition()]: Could not load next setup.", true);
-        return false;
-    }
+	if (NextLevelName.Equals(""))
+	{
+		FSFUtils::Log("[USFGameInstance::NextCondition()]: Could not load next setup.", true);
+		return false;
+	}
 
-    // Fade to next Level
-    FadeHandler->FadeToLevel(NextLevelName);
-	 UpdateHUD("Fading out");
-    return true;
+	// Fade to next Level
+	FadeHandler->FadeToLevel(NextLevelName);
+	UpdateHUD("Fading out");
+	return true;
 }
 
 bool USFGameInstance::IsStarted() const
 {
-    return bStudyStarted;
+	return bStudyStarted;
 }
 
 
 void USFGameInstance::SaveData(const FString Where, FString Data)
 {
-    TArray<FString> DataArray;
-    DataArray.Add(Data);
+	TArray<FString> DataArray;
+	DataArray.Add(Data);
 
-    SaveDataArray(Where, DataArray);
+	SaveDataArray(Where, DataArray);
 }
 
 void USFGameInstance::SaveDataArray(const FString Where, TArray<FString> Data)
 {
-    Participant->SaveDataArray(Where, Data);
+	Participant->SaveDataArray(Where, Data);
 }
 
 void USFGameInstance::CommitData()
 {
-    Participant->CommitData();
+	Participant->CommitData();
 }
 
 void USFGameInstance::LogData(const FString String)
 {
-   Participant->LogData(String);
+	Participant->LogData(String);
 	LogToHUD(String);
 	//TODO: log it to HUD here?
 }
@@ -154,7 +152,8 @@ void USFGameInstance::LogData(const FString String)
 void USFGameInstance::LogToHUD(FString Text)
 {
 	ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-	if (MasterHUD){
+	if (MasterHUD)
+	{
 		MasterHUD->AddLogMessage(Text);
 	}
 	else
@@ -170,45 +169,44 @@ void USFGameInstance::LogToHUD(FString Text)
 
 void USFGameInstance::AddPhase(USFStudyPhase* Phase)
 {
-    if (bStudyStarted)
-    {
-        FSFUtils::Log("[USFGameInstance::AddPhase()]: Study already started.", true);
-    }
+	if (bStudyStarted)
+	{
+		FSFUtils::Log("[USFGameInstance::AddPhase()]: Study already started.", true);
+	}
 
-    Participant->AddPhase(Phase);
+	Participant->AddPhase(Phase);
 }
 
 void USFGameInstance::AddActorForEveryLevelInEveryPhaseCpp(UClass* Actor)
 {
-    SpawnInEveryPhaseCpp.Add(Actor);
+	SpawnInEveryPhaseCpp.Add(Actor);
 }
 
 void USFGameInstance::AddActorForEveryLevelInEveryPhaseBlueprint(const FSFClassOfBlueprintActor Actor)
 {
-    SpawnInEveryPhaseBlueprint.Add(Actor);
+	SpawnInEveryPhaseBlueprint.Add(Actor);
 }
 
 
 void USFGameInstance::SetFadeColor(const FLinearColor Color)
 {
-    FadeHandler->SetFadeColor(Color);
+	FadeHandler->SetFadeColor(Color);
 }
 
 void USFGameInstance::SetFadeDuration(const float FadeDuration)
 {
-    FadeHandler->SetFadeDuration(FadeDuration);
+	FadeHandler->SetFadeDuration(FadeDuration);
 }
 
 void USFGameInstance::SetFadedOutDuration(const float FadeOutWait)
 {
-    FadeHandler->SetFadedOutDuration(FadeOutWait);
+	FadeHandler->SetFadedOutDuration(FadeOutWait);
 }
 
 void USFGameInstance::SetInitialFadedOut(const bool bFadedOut)
 {
-    FadeHandler->SetInitialFadedOut(bFadedOut);
+	FadeHandler->SetInitialFadedOut(bFadedOut);
 }
-
 
 
 // ****************************************************************** // 
@@ -217,77 +215,75 @@ void USFGameInstance::SetInitialFadedOut(const bool bFadedOut)
 
 void USFGameInstance::SpawnAllActorsForLevel()
 {
-    // Spawn all for every level
-    for (auto EntryC : SpawnInEveryPhaseCpp)
-    {
-        GetWorld()->SpawnActor(EntryC);
-    }
+	// Spawn all for every level
+	for (auto EntryC : SpawnInEveryPhaseCpp)
+	{
+		GetWorld()->SpawnActor(EntryC);
+	}
 
-    for (auto EntryBlueprint : SpawnInEveryPhaseBlueprint)
-    {
-        SpawnBlueprintActor(EntryBlueprint);
-    }
+	for (auto EntryBlueprint : SpawnInEveryPhaseBlueprint)
+	{
+		SpawnBlueprintActor(EntryBlueprint);
+	}
 
-    // Spawn all level specific actor
-    TArray<UClass*> SpawnInThisPhaseCpp = Participant->GetCurrentPhase()->GetSpawnActorsCpp();
-    for (auto EntryC : SpawnInThisPhaseCpp)
-    {
-        GetWorld()->SpawnActor(EntryC);
-    }
+	// Spawn all level specific actor
+	TArray<UClass*> SpawnInThisPhaseCpp = Participant->GetCurrentPhase()->GetSpawnActorsCpp();
+	for (auto EntryC : SpawnInThisPhaseCpp)
+	{
+		GetWorld()->SpawnActor(EntryC);
+	}
 
-    TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint = Participant->GetCurrentPhase()->GetSpawnActorsBlueprint();
-    for (auto EntryBlueprint : SpawnInThisPhaseBlueprint)
-    {
-        SpawnBlueprintActor(EntryBlueprint);
-    }
+	TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint = Participant
+	                                                             ->GetCurrentPhase()->GetSpawnActorsBlueprint();
+	for (auto EntryBlueprint : SpawnInThisPhaseBlueprint)
+	{
+		SpawnBlueprintActor(EntryBlueprint);
+	}
 }
 
 void USFGameInstance::SpawnBlueprintActor(const FSFClassOfBlueprintActor Actor) const
 {
-    FString ClassNameC = Actor.ClassName;
-    ClassNameC.Append(FString("_C"));
+	FString ClassNameC = Actor.ClassName;
+	ClassNameC.Append(FString("_C"));
 
-    TArray<UObject*> TmpArray;
+	TArray<UObject*> TmpArray;
 
-    if (EngineUtils::FindOrLoadAssetsByPath(*Actor.Path, TmpArray, EngineUtils::ATL_Class))
-    {
-        for (int i = 0; i < TmpArray.Num(); ++i)
-        {
-            UObject* Tmp = TmpArray[i];
-            if (Tmp == nullptr || (!dynamic_cast<UClass*>(Tmp)) || (Tmp->GetName().Compare(ClassNameC) != 0))
-            {
-                continue;
-            }
+	if (EngineUtils::FindOrLoadAssetsByPath(*Actor.Path, TmpArray, EngineUtils::ATL_Class))
+	{
+		for (int i = 0; i < TmpArray.Num(); ++i)
+		{
+			UObject* Tmp = TmpArray[i];
+			if (Tmp == nullptr || (!dynamic_cast<UClass*>(Tmp)) || (Tmp->GetName().Compare(ClassNameC) != 0))
+			{
+				continue;
+			}
 
-            GetWorld()->SpawnActor(dynamic_cast<UClass*>(Tmp));
-            return;
-        }
-    }
+			GetWorld()->SpawnActor(dynamic_cast<UClass*>(Tmp));
+			return;
+		}
+	}
 
-    FSFUtils::Log("[USFGameInstance::SpawnBlueprintActor()]: Unable to spawn blueprint actor ("
-        + Actor.Path + "/" + Actor.ClassName + ") cannot be found!", true);
+	FSFUtils::Log("[USFGameInstance::SpawnBlueprintActor()]: Unable to spawn blueprint actor ("
+	              + Actor.Path + "/" + Actor.ClassName + ") cannot be found!", true);
 }
 
 void USFGameInstance::OnLevelLoaded()
 {
-    Participant->GetCurrentPhase()->ApplyCondition();
+	Participant->GetCurrentPhase()->ApplyCondition();
 	UpdateHUD("Fading In");
 }
 
 void USFGameInstance::OnFadedIn()
 {
-
 	OnFadedInDelegate.Broadcast();
-	
+
 	UpdateHUD("Condition Running");
 }
 
 
 void USFGameInstance::UpdateHUD(FString Status)
 {
-    ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-	 if (MasterHUD)
+	ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	if (MasterHUD)
 		MasterHUD->UpdateHUD(Participant, Status);
 }
-
-

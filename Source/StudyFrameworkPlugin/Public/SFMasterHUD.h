@@ -18,30 +18,30 @@ class USFParticipant;
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API ASFMasterHUD : public AHUD
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    ASFMasterHUD();
+	ASFMasterHUD();
 
-    virtual void DrawHUD() override;
+	virtual void DrawHUD() override;
 
-    virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
 
-	 virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-    virtual void Tick(float DeltaSeconds) override;
-
-	 UFUNCTION()
-		 void UpdateHUD(USFParticipant* Participant, FString Status = "None");
+	virtual void Tick(float DeltaSeconds) override;
 
 	UFUNCTION()
-		void AddLogMessage(FString Text);
+	void UpdateHUD(USFParticipant* Participant, FString Status = "None");
 
-	 UFUNCTION()
-		 void SetBackgroundColor(FLinearColor Color);
+	UFUNCTION()
+	void AddLogMessage(FString Text);
 
-    UPROPERTY(EditDefaultsOnly, Category = "Interactive")
-        TSubclassOf<USFHUDWidget> SFWidgetClass;
+	UFUNCTION()
+	void SetBackgroundColor(FLinearColor Color);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Interactive")
+	TSubclassOf<USFHUDWidget> SFWidgetClass;
 
 	UFUNCTION()
 	void OnStartButtonPressed();
@@ -49,10 +49,9 @@ public:
 	void OnNextButtonPressed();
 
 private:
-    UPROPERTY()
-        USFHUDWidget* HUDWidget;
-	 UPROPERTY()
-		 FLinearColor BackgroundColor = FLinearColor::Black;
-	 void DrawBackground();
-	
+	UPROPERTY()
+	USFHUDWidget* HUDWidget;
+	UPROPERTY()
+	FLinearColor BackgroundColor = FLinearColor::Black;
+	void DrawBackground();
 };

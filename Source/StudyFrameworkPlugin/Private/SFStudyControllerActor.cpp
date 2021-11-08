@@ -23,16 +23,16 @@ ASFStudyControllerActor* ASFStudyControllerActor::Manager;
 
 ASFStudyControllerActor::ASFStudyControllerActor()
 {
-    PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 
 void ASFStudyControllerActor::BeginPlay()
 {
-    Super::BeginPlay();
+	Super::BeginPlay();
 
 	GameInstance = Cast<USFGameInstance>(GetGameInstance());
-	if(GameInstance == nullptr)
+	if (GameInstance == nullptr)
 	{
 		FSFUtils::OpenMessageBox("GameInstance is not set to USFGameInstance, Study Framework will not work", true);
 	}
@@ -41,164 +41,155 @@ void ASFStudyControllerActor::BeginPlay()
 void ASFStudyControllerActor::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-
 
 
 bool ASFStudyControllerActor::StartStudy()
 {
-    if (GameInstance->IsStarted())
-    {
-        FSFUtils::Log("[ASFManagerActor::StartStudy()]: Study already started", false);
-        return false;
-    }
+	if (GameInstance->IsStarted())
+	{
+		FSFUtils::Log("[ASFManagerActor::StartStudy()]: Study already started", false);
+		return false;
+	}
 
 	GameInstance->StartStudy();
 
-    return true;
+	return true;
 }
 
 bool ASFStudyControllerActor::NextCondition()
 {
-    if (!GameInstance->IsStarted())
-    {
-        FSFUtils::Log("[ASFManagerActor::NextCondition()]: Study not started yet", false);
-        return false;
-    }
+	if (!GameInstance->IsStarted())
+	{
+		FSFUtils::Log("[ASFManagerActor::NextCondition()]: Study not started yet", false);
+		return false;
+	}
 
 	GameInstance->NextCondition();
 
-    return true;
+	return true;
 }
-
 
 
 bool ASFStudyControllerActor::AddPhase(USFStudyPhase* Phase)
 {
-    if (GameInstance->IsStarted())
-    {
-        FSFUtils::Log("[ASFManagerActor::AddPhase()]: Study already started", false);
-        return false;
-    }
+	if (GameInstance->IsStarted())
+	{
+		FSFUtils::Log("[ASFManagerActor::AddPhase()]: Study already started", false);
+		return false;
+	}
 
-    GameInstance->AddPhase(Phase);
+	GameInstance->AddPhase(Phase);
 
-    return true;
+	return true;
 }
-
-
-
 
 
 bool ASFStudyControllerActor::AddActorForEachLevelCpp(UClass* Actor)
 {
-    if (GameInstance->IsStarted())
-    {
-        FSFUtils::Log("[ASFManagerActor::AddActorForEachLevel()]: Study already started", false);
-        return false;
-    }
-    
+	if (GameInstance->IsStarted())
+	{
+		FSFUtils::Log("[ASFManagerActor::AddActorForEachLevel()]: Study already started", false);
+		return false;
+	}
 
-    GameInstance->AddActorForEveryLevelInEveryPhaseCpp(Actor);
 
-    return true;
+	GameInstance->AddActorForEveryLevelInEveryPhaseCpp(Actor);
+
+	return true;
 }
 
 
 bool ASFStudyControllerActor::AddActorForEachLevelBlueprint(FSFClassOfBlueprintActor Actor)
 {
-    if (GameInstance->IsStarted())
-    {
-        FSFUtils::Log("[ASFManagerActor::AddActorForEachLevel()]: Study already started", false);
-        return false;
-    }
+	if (GameInstance->IsStarted())
+	{
+		FSFUtils::Log("[ASFManagerActor::AddActorForEachLevel()]: Study already started", false);
+		return false;
+	}
 
-    GameInstance->AddActorForEveryLevelInEveryPhaseBlueprint(Actor);
+	GameInstance->AddActorForEveryLevelInEveryPhaseBlueprint(Actor);
 
-    return true;
+	return true;
 }
 
 void ASFStudyControllerActor::SetFadeColor(const FLinearColor Color)
 {
-    GameInstance->SetFadeColor(Color);
+	GameInstance->SetFadeColor(Color);
 }
 
 void ASFStudyControllerActor::SetFadeDuration(float FadeDuration)
 {
-    GameInstance->SetFadeDuration(FadeDuration);
+	GameInstance->SetFadeDuration(FadeDuration);
 }
 
 void ASFStudyControllerActor::SetFadedOutDuration(float FadeOutWait)
 {
-    GameInstance->SetFadedOutDuration(FadeOutWait);
+	GameInstance->SetFadedOutDuration(FadeOutWait);
 }
 
 bool ASFStudyControllerActor::SetInitialFadedOut(bool bFadedOut)
 {
-    if (GameInstance->IsStarted())
-    {
-        FSFUtils::Log("[ASFManagerActor::SetInitialFadedOut()]: Study already started", false);
-        return false;
-    }
+	if (GameInstance->IsStarted())
+	{
+		FSFUtils::Log("[ASFManagerActor::SetInitialFadedOut()]: Study already started", false);
+		return false;
+	}
 
-    GameInstance->SetInitialFadedOut(bFadedOut);
+	GameInstance->SetInitialFadedOut(bFadedOut);
 
-    return true;
+	return true;
 }
-
 
 
 ASFStudyControllerActor* ASFStudyControllerActor::GetCurrentControllerActor()
 {
-    return Manager;
+	return Manager;
 }
 
 void ASFStudyControllerActor::SaveDataArray(const FString DataName, TArray<FString> Data)
 {
-    GameInstance->SaveDataArray(DataName, Data);
+	GameInstance->SaveDataArray(DataName, Data);
 
-    GameInstance->CommitData();
+	GameInstance->CommitData();
 }
 
 void ASFStudyControllerActor::SaveData(const FString DataName, FString Data)
 {
-    GameInstance->SaveData(DataName, Data);
+	GameInstance->SaveData(DataName, Data);
 
-    GameInstance->CommitData();
+	GameInstance->CommitData();
 }
 
 void ASFStudyControllerActor::LogData(const FString String)
 {
-    GameInstance->LogData(String);
-	
+	GameInstance->LogData(String);
 }
 
 void ASFStudyControllerActor::Initialize(FString ParticipantID, FString JsonFilePath)
 {
-    if (bInitialized)
-    {
-        return;
-    }
+	if (bInitialized)
+	{
+		return;
+	}
 
-    Manager = this;
+	Manager = this;
 
-    GameInstance = Cast<USFGameInstance>(GetGameInstance());
+	GameInstance = Cast<USFGameInstance>(GetGameInstance());
 
-    if (!GameInstance)
-    {
-        FSFUtils::Log("[ASFManagerActor::BeginPlay()]: Could not get Game Instance correctly", true);
-    }
+	if (!GameInstance)
+	{
+		FSFUtils::Log("[ASFManagerActor::BeginPlay()]: Could not get Game Instance correctly", true);
+	}
 
-    if (!GameInstance->IsInitialized())
-    {
-        GameInstance->Initialize(ParticipantID, JsonFilePath);
-    }
+	if (!GameInstance->IsInitialized())
+	{
+		GameInstance->Initialize(ParticipantID, JsonFilePath);
+	}
 
-    APlayerController* Controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	APlayerController* Controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-    GameInstance->Initialize(ParticipantID, JsonFilePath);
+	GameInstance->Initialize(ParticipantID, JsonFilePath);
 
-    bInitialized = true;
-
+	bInitialized = true;
 }

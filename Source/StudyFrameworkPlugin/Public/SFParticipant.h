@@ -19,62 +19,54 @@ UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFParticipant : public UObject
 {
 	GENERATED_BODY()
-	
+
 public:
 	USFParticipant();
 	~USFParticipant();
 
-	bool Initialize(FString IdNew, FString JsonFilePath, USFGameInstance* GameInstanceNew, 
-        FString LogName = "NormalLog", FString SaveDataLogName = "SaveLog");
+	bool Initialize(FString IdNew, FString JsonFilePath, USFGameInstance* GameInstanceNew,
+	                FString LogName = "NormalLog", FString SaveDataLogName = "SaveLog");
 
-    void GenerateInitialJsonFile(); // TODO implement GenerateInitialJsonFile()
+	void GenerateInitialJsonFile(); // TODO implement GenerateInitialJsonFile()
 
-    bool FindJsonFile();       // TODO implement Participant::FindJsonFile()
-    bool LoadJsonFile();       // TODO implement Participant::LoadJsonFile()
+	bool FindJsonFile(); // TODO implement Participant::FindJsonFile()
+	bool LoadJsonFile(); // TODO implement Participant::LoadJsonFile()
 
-    bool StartStudy();
-    FString NextCondition();
-    void EndStudy();            // TODO implement Participant::EndStudy()
+	bool StartStudy();
+	FString NextCondition();
+	void EndStudy(); // TODO implement Participant::EndStudy()
 
-    void AddPhase(USFStudyPhase* PhaseNew);
-    bool CheckPhases();
-
-
-    void SaveDataArray(FString Where, TArray<FString> Data);
-    void LogData(FString Data);
-    void CommitData();              // TODO need CommitData()?
+	void SaveDataArray(FString Where, TArray<FString> Data);
+	void LogData(FString Data);
+	void CommitData(); // TODO need CommitData()?
 
 
-    TSharedPtr<FJsonObject> GetJsonFile();
-    USFStudyPhase* GetCurrentPhase();
-    int GetCurrentPhaseIdx();
-    FString GetID();
+	TSharedPtr<FJsonObject> GetJsonFile();
+	USFStudyPhase* GetCurrentPhase();
+	int GetCurrentPhaseIdx();
+	FString GetID();
 
 
 protected:
-    UPROPERTY()
-        FString ParticipantID;
+	UPROPERTY()
+	FString ParticipantID;
 
 
-    TSharedPtr<FJsonObject> MainJsonObject;
+	TSharedPtr<FJsonObject> MainJsonObject;
 
 
-    UPROPERTY()
-	    USFGameInstance* GameInstance; 
+	UPROPERTY()
+	USFGameInstance* GameInstance;
 
-    UPROPERTY()
-        USFLogger* Logger;
-
-
-    UPROPERTY()
-        TArray<int> UpcomingCondition;
-
-    UPROPERTY()
-        TArray<USFStudyPhase*> Phases;
-    UPROPERTY()
-        USFStudyPhase* CurrentPhase;
-    UPROPERTY()
-        int CurrentPhaseIdx;
+	UPROPERTY()
+	USFLogger* Logger;
 
 
+	UPROPERTY()
+	TArray<int> UpcomingCondition;
+
+	UPROPERTY()
+	USFStudyPhase* CurrentPhase;
+	UPROPERTY()
+	int CurrentPhaseIdx;
 };

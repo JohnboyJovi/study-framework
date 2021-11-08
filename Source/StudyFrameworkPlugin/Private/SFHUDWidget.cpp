@@ -12,7 +12,7 @@ USFHUDWidget::USFHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(
 
 void USFHUDWidget::NativeConstruct()
 {
-    Super::NativeConstruct();
+	Super::NativeConstruct();
 }
 
 void USFHUDWidget::SetParticipant(FString Text)
@@ -37,16 +37,16 @@ void USFHUDWidget::SetStatus(FString Text)
 
 void USFHUDWidget::AddLogMessage(FString Text)
 {
-	if(!Text.IsEmpty())
+	if (!Text.IsEmpty())
 		LogMessages.Add(Text);
 
-	while(LogMessages.Num()>5)
+	while (LogMessages.Num() > 5)
 		LogMessages.RemoveAt(0);
 
-	FString LogString="";
-	for(FString Message : LogMessages)
+	FString LogString = "";
+	for (FString Message : LogMessages)
 	{
-		LogString += Message +"\n";
+		LogString += Message + "\n";
 	}
 	LogsTextBox->SetText(FText::FromString(LogString));
 }
@@ -63,7 +63,7 @@ void USFHUDWidget::ClearWidget()
 FHUDSavedData USFHUDWidget::GetData()
 {
 	FHUDSavedData Data;
-	Data.bSet=true;
+	Data.bSet = true;
 	Data.Status = StatusTextBox->GetText().ToString();
 	Data.Participant = ParticipantTextBox->GetText().ToString();
 	Data.Phase = PhaseTextBox->GetText().ToString();

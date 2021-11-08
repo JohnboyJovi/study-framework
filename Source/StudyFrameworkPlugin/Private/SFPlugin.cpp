@@ -15,8 +15,8 @@ void FSFPlugin::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
-	bIsMaster = IDisplayCluster::Get().GetOperationMode() != EDisplayClusterOperationMode::Cluster || IDisplayCluster::Get().GetClusterMgr()->IsMaster();
-
+	bIsMaster = IDisplayCluster::Get().GetOperationMode() != EDisplayClusterOperationMode::Cluster || IDisplayCluster::
+		Get().GetClusterMgr()->IsMaster();
 }
 
 void FSFPlugin::ShutdownModule()
@@ -31,5 +31,5 @@ bool FSFPlugin::GetIsMaster()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FSFPlugin, StudyFrameworkPlugin)

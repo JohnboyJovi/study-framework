@@ -8,110 +8,109 @@
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFStudyPhase : public UObject
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    USFStudyPhase();   
+	USFStudyPhase();
 
-    UFUNCTION()
-        void AddStudyFactor(FSFStudyFactor Setting);
-    UFUNCTION()
-        void AddMap(FString Name);
-
-
-    UFUNCTION()
-        void AddActorForEveryLevelInThisPhaseCpp(UClass* Actor);
-    UFUNCTION()
-        void AddActorForEveryLevelInThisPhaseBlueprint(FSFClassOfBlueprintActor Actor);
+	UFUNCTION()
+	void AddStudyFactor(FSFStudyFactor Setting);
+	UFUNCTION()
+	void AddMap(FString Name);
 
 
-    UFUNCTION()
-        void SetRepetitions(int Num, EPhaseRepetitionType RepetitionType);
-    UFUNCTION()
-        void SetSettingsMixing(EMixingSetupOrder MixingType);
+	UFUNCTION()
+	void AddActorForEveryLevelInThisPhaseCpp(UClass* Actor);
+	UFUNCTION()
+	void AddActorForEveryLevelInThisPhaseBlueprint(FSFClassOfBlueprintActor Actor);
 
 
-    UFUNCTION()
-        bool PhaseValid();                          // TODO implement PhaseValid()
+	UFUNCTION()
+	void SetRepetitions(int Num, EPhaseRepetitionType RepetitionType);
+	UFUNCTION()
+	void SetSettingsMixing(EMixingSetupOrder MixingType);
 
-    UFUNCTION()
-        bool GenerateOrder();                       // TODO implement GenerateOrder()
 
-    // Prepare everything for next setup and load map.
-    UFUNCTION()
-        TArray<int> NextCondition();                           // TODO implement NextCondition()
+	UFUNCTION()
+	bool PhaseValid(); // TODO implement PhaseValid()
 
-    UFUNCTION()
-        bool ApplyCondition();
+	UFUNCTION()
+	bool GenerateOrder(); // TODO implement GenerateOrder()
 
-    // Getter
+	// Prepare everything for next setup and load map.
+	UFUNCTION()
+	TArray<int> NextCondition(); // TODO implement NextCondition()
 
-    UFUNCTION()
-        FString GetUpcomingLevelName() const;
+	UFUNCTION()
+	bool ApplyCondition();
 
-    UFUNCTION()
-        TArray<UClass*> GetSpawnActorsCpp() const;
+	// Getter
 
-    UFUNCTION()
-        TArray<FSFClassOfBlueprintActor> GetSpawnActorsBlueprint() const;
+	UFUNCTION()
+	FString GetUpcomingLevelName() const;
 
-    UFUNCTION()
-        TArray<int> GetFactorsLevelCount();
+	UFUNCTION()
+	TArray<UClass*> GetSpawnActorsCpp() const;
 
-    UFUNCTION()
-        TArray<FString> GetOrderStrings();     // TODO implement
+	UFUNCTION()
+	TArray<FSFClassOfBlueprintActor> GetSpawnActorsBlueprint() const;
 
-    UFUNCTION()
-        TArray<int> GetCurrentCondition();
+	UFUNCTION()
+	TArray<int> GetFactorsLevelCount();
 
-	 UFUNCTION()
-		 const TArray<FString>& GetMapNames() const;
+	UFUNCTION()
+	TArray<FString> GetOrderStrings(); // TODO implement
 
-	 UFUNCTION()
-		 const TArray<FSFStudyFactor>& GetFactors() const ;
+	UFUNCTION()
+	TArray<int> GetCurrentCondition();
+
+	UFUNCTION()
+	const TArray<FString>& GetMapNames() const;
+
+	UFUNCTION()
+	const TArray<FSFStudyFactor>& GetFactors() const;
 
 
 private:
 
-    UPROPERTY()
-        TArray<FString> MapNames;
+	UPROPERTY()
+	TArray<FString> MapNames;
 
-	 UPROPERTY()
-		 TArray<FSFStudyFactor> Factors;
-
-
-    // Repititions
-    UPROPERTY()
-        int NumberOfRepetitions = 1;
-
-    UPROPERTY()
-        TEnumAsByte<EPhaseRepetitionType> TypeOfRepetition = EPhaseRepetitionType::SameOrder;
+	UPROPERTY()
+	TArray<FSFStudyFactor> Factors;
 
 
-    // Mixing Stuff
-    UPROPERTY()
-        TEnumAsByte<EMixingSetupOrder> TypeOfMixing = EMixingSetupOrder::RandomSetupOrder;
+	// Repititions
+	UPROPERTY()
+	int NumberOfRepetitions = 1;
 
-	 //per condition the order array holds first the index of the map and then levels of each factor
-	 TArray<TArray<int>> Orders;
+	UPROPERTY()
+	TEnumAsByte<EPhaseRepetitionType> TypeOfRepetition = EPhaseRepetitionType::SameOrder;
 
-    UPROPERTY()
-        TArray<int> UpcomingCondition;  
 
-    UPROPERTY()
-        TArray<int> CurrentCondition;   
+	// Mixing Stuff
+	UPROPERTY()
+	TEnumAsByte<EMixingSetupOrder> TypeOfMixing = EMixingSetupOrder::RandomSetupOrder;
 
-    UPROPERTY()
-        int CurrentCondtitionIdx = -1;
+	//per condition the order array holds first the index of the map and then levels of each factor
+	TArray<TArray<int>> Orders;
 
-    UPROPERTY()
-        FString UpcomingMapName;  
+	UPROPERTY()
+	TArray<int> UpcomingCondition;
 
-    // Spawn on Level
-    UPROPERTY()
-        TArray<UClass*> SpawnInThisPhaseCpp;
+	UPROPERTY()
+	TArray<int> CurrentCondition;
 
-    UPROPERTY()
-        TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint;
+	UPROPERTY()
+	int CurrentCondtitionIdx = -1;
 
+	UPROPERTY()
+	FString UpcomingMapName;
+
+	// Spawn on Level
+	UPROPERTY()
+	TArray<UClass*> SpawnInThisPhaseCpp;
+
+	UPROPERTY()
+	TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint;
 };

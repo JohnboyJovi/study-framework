@@ -14,60 +14,56 @@ class USFStudyPhase;
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFLogger : public UObject
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    USFLogger();
+	USFLogger();
 
-    UFUNCTION()
-        void Initialize(USFParticipant* ParticipantNew, FString JsonFilePathNew, FString LogNameNew, FString SaveLogNameNew);
+	UFUNCTION()
+	void Initialize(USFParticipant* ParticipantNew, FString JsonFilePathNew, FString LogNameNew, FString SaveLogNameNew);
 
-    // UFUNCTION()
-    //     void InitializeJsonFile(TArray<USFStudyPhase*> Phases);
-
-
-    void SaveJsonFile(TSharedPtr<FJsonObject> Json);        // TODO implement
+	// UFUNCTION()
+	//     void InitializeJsonFile(TArray<USFStudyPhase*> Phases);
 
 
+	void SaveJsonFile(TSharedPtr<FJsonObject> Json); // TODO implement
 
-    UFUNCTION()
-        void LogData(FString String);
 
-    UFUNCTION()
-        void SaveData(FString NameOfData, FString Data, int PhaseIdx, FString Setup);       // TODO get rid of?
+	UFUNCTION()
+	void LogData(FString String);
 
-    UFUNCTION()
-        void SaveDataArray(FString NameOfData, TArray<FString> Data, int PhaseIdx, FString Setup);
+	UFUNCTION()
+	void SaveData(FString NameOfData, FString Data, int PhaseIdx, FString Setup); // TODO get rid of?
 
-    UFUNCTION()
-        void CommitData();          // TODO Make sure the path is only the path
+	UFUNCTION()
+	void SaveDataArray(FString NameOfData, TArray<FString> Data, int PhaseIdx, FString Setup);
 
-    TSharedPtr<FJsonObject> GetJsonFile();
+	UFUNCTION()
+	void CommitData(); // TODO Make sure the path is only the path
+
+	TSharedPtr<FJsonObject> GetJsonFile();
 
 protected:
 
-    TSharedPtr<FJsonObject> MainJsonObject; // TODO does it need to be initialized?
+	TSharedPtr<FJsonObject> MainJsonObject; // TODO does it need to be initialized?
 
-    UPROPERTY()
-        USFParticipant* Participant;
-        
-
-    UPROPERTY()
-        FString JsonFilePath;
-
-    UPROPERTY()
-        FString LogName = "DataLog";
-
-    UPROPERTY()
-        FString SaveLogName = "SaveLog";
+	UPROPERTY()
+	USFParticipant* Participant;
 
 
-    UPROPERTY()
-        bool bInitialized = false;
+	UPROPERTY()
+	FString JsonFilePath;
 
-    // UPROPERTY()
-    //     USFGameInstance* GameInstance; // TODO actually needed?
+	UPROPERTY()
+	FString LogName = "DataLog";
+
+	UPROPERTY()
+	FString SaveLogName = "SaveLog";
 
 
+	UPROPERTY()
+	bool bInitialized = false;
+
+	// UPROPERTY()
+	//     USFGameInstance* GameInstance; // TODO actually needed?
 };
-

@@ -31,23 +31,6 @@ void USFParticipant::SaveDataArray(FString Where, TArray<FString> Data)
     Logger->SaveDataArray(Where, Data, CurrentPhaseIdx, Setup);
 }
 
-void USFParticipant::AddPhase(USFStudyPhase* PhaseNew)
-{
-    Phases.Add(PhaseNew);
-}
-
-bool USFParticipant::CheckPhases()
-{
-    for (auto EntryPhase : Phases)
-    {
-        if (!EntryPhase->PhaseValid())
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
 
 bool USFParticipant::Initialize(FString IdNew, FString JsonFilePath, USFGameInstance* GameInstanceNew, FString LogName, FString SaveDataLogName)
 {

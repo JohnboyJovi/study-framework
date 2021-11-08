@@ -17,11 +17,12 @@ USFParticipant::~USFParticipant()
 
 void USFParticipant::SaveDataArray(FString Where, TArray<FString> Data)
 {
-	TArray<int> CurrentSetup = CurrentPhase->GetCurrentCondition();
+	//TODO: what is this used for???
+	TArray<FString> CurrentCondtion = CurrentPhase->GetCurrentCondition();
 
-	FString Setup = FSFUtils::SetupToString(CurrentSetup);
+	FString ConditionString = FSFUtils::ConditionToString(CurrentCondtion);
 
-	Logger->SaveDataArray(Where, Data, CurrentPhaseIdx, Setup);
+	Logger->SaveDataArray(Where, Data, CurrentPhaseIdx, ConditionString);
 }
 
 

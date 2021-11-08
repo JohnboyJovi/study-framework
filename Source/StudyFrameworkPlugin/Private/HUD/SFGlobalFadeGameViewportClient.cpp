@@ -1,12 +1,12 @@
 // Copyright 2015 Moritz Wundke. All Rights Reserved.
 // Released under MIT
 
-#include "SFGlobalFadeGameViewportClient.h"
+#include "HUD/SFGlobalFadeGameViewportClient.h"
 #include "SFUtils.h"
 
 
 #include "Engine/Canvas.h"
-#include "SFMasterHUD.h"
+#include "HUD/SFMasterHUD.h"
 
 // Link to the Tutorial of the manual Viewport Client
 // https://nerivec.github.io/old-ue4-wiki/pages/global-fade-in-out.html

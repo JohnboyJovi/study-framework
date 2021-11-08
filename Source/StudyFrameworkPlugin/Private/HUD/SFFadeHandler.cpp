@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SFFadeHandler.h"
+#include "HUD/SFFadeHandler.h"
 
 
 #include "EditorWidgets/Public/EditorWidgets.h"
@@ -10,7 +10,7 @@
 #include "SFUtils.h"
 
 #include "TimerManager.h"						// For Tick Timer
-#include "SFGlobalFadeGameViewportClient.h"		// For Fade
+#include "HUD/SFGlobalFadeGameViewportClient.h"		// For Fade
 
 
 void USFFadeHandler::Tick()

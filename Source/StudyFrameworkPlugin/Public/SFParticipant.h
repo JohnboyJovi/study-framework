@@ -59,7 +59,7 @@ protected:
 	UPROPERTY()
 	USFStudySetup* StudySetup;
 	UPROPERTY()
-	TArray<int> UpcomingCondition;
+	TArray<FString> UpcomingCondition;
 	UPROPERTY()
 	USFStudyPhase* CurrentPhase;
 	UPROPERTY()

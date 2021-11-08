@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "SFDefines.h"
 
+#include "SFStudyFactor.h"
+
 #include "SFStudyPhase.generated.h"
 
 UCLASS()
@@ -14,7 +16,7 @@ public:
 	USFStudyPhase();
 
 	UFUNCTION()
-	void AddStudyFactor(FSFStudyFactor Setting);
+	USFStudyFactor* AddStudyFactor(FString FactorName, TArray<FString> FactorLevels);
 	UFUNCTION()
 	void AddMap(FString Name);
 
@@ -39,7 +41,7 @@ public:
 
 	// Prepare everything for next setup and load map.
 	UFUNCTION()
-	TArray<int> NextCondition(); // TODO implement NextCondition()
+	TArray<FString> NextCondition(); // TODO implement NextCondition()
 
 	UFUNCTION()
 	bool ApplyCondition();
@@ -62,22 +64,24 @@ public:
 	TArray<FString> GetOrderStrings(); // TODO implement
 
 	UFUNCTION()
-	TArray<int> GetCurrentCondition();
+	TArray<FString> GetCurrentCondition();
 
 	UFUNCTION()
 	const TArray<FString>& GetMapNames() const;
 
 	UFUNCTION()
-	const TArray<FSFStudyFactor>& GetFactors() const;
+	const TArray<USFStudyFactor*> GetFactors() const;
 
 
 private:
+
+	void CreateAllOrdersRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices);
 
 	UPROPERTY()
 	TArray<FString> MapNames;
 
 	UPROPERTY()
-	TArray<FSFStudyFactor> Factors;
+	TArray<USFStudyFactor*> Factors;
 
 
 	// Repititions
@@ -93,13 +97,13 @@ private:
 	TEnumAsByte<EMixingSetupOrder> TypeOfMixing = EMixingSetupOrder::RandomSetupOrder;
 
 	//per condition the order array holds first the index of the map and then levels of each factor
-	TArray<TArray<int>> Orders;
+	TArray<TArray<FString>> Orders;
 
 	UPROPERTY()
-	TArray<int> UpcomingCondition;
+	TArray<FString> UpcomingCondition;
 
 	UPROPERTY()
-	TArray<int> CurrentCondition;
+	TArray<FString> CurrentCondition;
 
 	UPROPERTY()
 	int CurrentCondtitionIdx = -1;
@@ -114,3 +118,5 @@ private:
 	UPROPERTY()
 	TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint;
 };
+
+

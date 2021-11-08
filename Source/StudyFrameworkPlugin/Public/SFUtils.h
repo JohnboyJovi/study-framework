@@ -23,7 +23,7 @@ public:
 	static void CheckLoggingDataType(T Data);
 
 
-	static FString SetupToString(TArray<int> Setup);
+	static FString ConditionToString(TArray<FString> Condition);
 
 
 	static FString JsonToString(TSharedPtr<FJsonObject> Json);

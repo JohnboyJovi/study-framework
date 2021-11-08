@@ -47,17 +47,12 @@ void FSFUtils::SetupLoggingStreams()
 	SFErrorLog->SetOnScreenColor(FColor::Red);
 }
 
-FString FSFUtils::SetupToString(TArray<int> Setup)
+FString FSFUtils::ConditionToString(TArray<FString> Condition)
 {
-	if (Setup.Num() == 0)
+	FString Output = Condition[0];
+	for (int i = 1; i < Condition.Num(); i++)
 	{
-		return "";
-	}
-
-	FString Output = FString::FromInt(Setup[0]);
-	for (int i = 1; i < Setup.Num(); i++)
-	{
-		Output = Output + "_" + FString::FromInt(Setup[i]);
+		Output = Output + "_" + Condition[i];
 	}
 
 	return Output;

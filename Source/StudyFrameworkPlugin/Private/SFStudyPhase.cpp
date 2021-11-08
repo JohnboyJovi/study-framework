@@ -7,9 +7,13 @@ USFStudyPhase::USFStudyPhase()
 {
 }
 
-void USFStudyPhase::AddStudyFactor(FSFStudyFactor Factor)
+USFStudyFactor* USFStudyPhase::AddStudyFactor(FString FactorName, TArray<FString> FactorLevels)
 {
+	USFStudyFactor* Factor = NewObject<USFStudyFactor>(this, FName(FactorName));
+	Factor->FactorName = FactorName;
+	Factor->Levels = FactorLevels;
 	Factors.Add(Factor);
+	return Factor;
 }
 
 void USFStudyPhase::AddMap(const FString Name)
@@ -60,30 +64,28 @@ bool USFStudyPhase::GenerateOrder()
 	int NumberOfConditions = MapNames.Num();
 	for (int i = 0; i < Factors.Num(); i++)
 	{
-		NumberOfConditions *= Factors[i].Count;
+		NumberOfConditions *= Factors[i]->Levels.Num();
 	}
 
 	Orders.Empty();
-	Orders.Reserve(NumberOfConditions); //so we have enough space, it is still empty, however
+	Orders.Reserve(NumberOfRepetitions * NumberOfConditions); //so we have enough space, it is still empty, however
 
 	//TODO: not randomized yet, so add that!
-	TArray<int> Order;
-	Order.Init(-1, NumberOfFactors + 1); //invalid entries; +1 for level
-	for (int MapIndex = 0; MapIndex < MapNames.Num(); ++MapIndex)
+	TArray<TArray<int>> OrdersIndices;
+	OrdersIndices.Reserve(NumberOfConditions);
+	CreateAllOrdersRecursively(0, {}, OrdersIndices);
+
+	TArray<FString> Order;
+	Order.Reserve(NumberOfFactors + 1); //Map is first in the order
+	for (TArray<int> OrderIndices : OrdersIndices)
 	{
-		Order[0] = MapIndex;
-		for (int FactorIndex = 0; FactorIndex < NumberOfFactors; ++FactorIndex)
+		Order.Empty();
+		Order.Add(MapNames[OrderIndices[0]]);
+		for (int i = 1; i < OrderIndices.Num(); ++i)
 		{
-			for (int FactorLevel = 0; FactorLevel < Factors[FactorIndex].Count; ++FactorLevel)
-			{
-				Order[FactorIndex + 1] = FactorLevel;
-				Orders.Add(Order);
-			}
+			Order.Add(Factors[i - 1]->Levels[OrderIndices[i]]);
 		}
-		if (NumberOfFactors == 0)
-		{
-			Orders.Add(Order); //add it anyways if we have a phase without settings and only levels
-		}
+		Orders.Add(Order);
 	}
 
 
@@ -100,18 +102,18 @@ bool USFStudyPhase::GenerateOrder()
 	return true;
 }
 
-TArray<int> USFStudyPhase::NextCondition()
+TArray<FString> USFStudyPhase::NextCondition()
 {
 	if (Orders.Num() <= ++CurrentCondtitionIdx)
 	{
 		// Phase already ran all Setups
-		return TArray<int>();
+		return TArray<FString>();
 	}
 
 	UpcomingCondition = Orders[CurrentCondtitionIdx];
 
 	// Level ID stored in first Entry of Setup
-	UpcomingMapName = MapNames[UpcomingCondition[0]];
+	UpcomingMapName = UpcomingCondition[0];
 
 	return UpcomingCondition;
 }
@@ -119,11 +121,13 @@ TArray<int> USFStudyPhase::NextCondition()
 bool USFStudyPhase::ApplyCondition()
 {
 	bool bSuc = true;
+
+	//TODO: should we trigger something here?
 	//starting at 1 since first factor represents the different levels
-	for (int i = 1; i < Factors.Num(); i++)
+	/*for (int i = 1; i < Factors.Num(); i++)
 	{
 		bSuc &= Factors[i].Delegate.ExecuteIfBound(UpcomingCondition[i]);
-	}
+	}*/
 
 	CurrentCondition = UpcomingCondition;
 	UpcomingCondition.Empty();
@@ -151,7 +155,7 @@ TArray<int> USFStudyPhase::GetFactorsLevelCount()
 	TArray<int> Array;
 	for (auto Factor : Factors)
 	{
-		Array.Add(Factor.Count);
+		Array.Add(Factor->Levels.Num());
 	}
 	return Array;
 }
@@ -161,7 +165,7 @@ TArray<FString> USFStudyPhase::GetOrderStrings()
 	return TArray<FString>();
 }
 
-TArray<int> USFStudyPhase::GetCurrentCondition()
+TArray<FString> USFStudyPhase::GetCurrentCondition()
 {
 	return CurrentCondition;
 }
@@ -171,7 +175,30 @@ const TArray<FString>& USFStudyPhase::GetMapNames() const
 	return MapNames;
 }
 
-const TArray<FSFStudyFactor>& USFStudyPhase::GetFactors() const
+const TArray<USFStudyFactor*> USFStudyPhase::GetFactors() const
 {
 	return Factors;
+}
+
+void USFStudyPhase::CreateAllOrdersRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices)
+{
+	if (Index > Factors.Num())
+	{
+		OrdersIndices.Add(OrderPart);
+		return;
+	}
+
+	int NumOfFactors = MapNames.Num();
+	if (Index != 0)
+	{
+		//iterate through factors, not the maps which is always the first in the orderIndices
+		NumOfFactors = Factors[Index - 1]->Levels.Num();
+	}
+
+	for (int i = 0; i < NumOfFactors; ++i)
+	{
+		TArray<int> Order = OrderPart;
+		Order.Add(i);
+		CreateAllOrdersRecursively(Index + 1, Order, OrdersIndices);
+	}
 }

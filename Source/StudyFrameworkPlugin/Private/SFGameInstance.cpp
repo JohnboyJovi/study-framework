@@ -5,13 +5,12 @@
 
 #include <string>
 
-#include "SFFadeHandler.h"
+#include "HUD/SFFadeHandler.h"
 #include "SFUtils.h"
 
 #include "EngineUtils.h"            // For Spawning in Actor in each level
-#include "IUniversalLogging.h"
-#include "SFMasterHUD.h"
-#include "SFGlobalFadeGameViewportClient.h"
+#include "HUD/SFMasterHUD.h"
+#include "HUD/SFGlobalFadeGameViewportClient.h"
 
 USFGameInstance* USFGameInstance::Instance = nullptr;
 
@@ -56,8 +55,6 @@ void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
 	Participant->Initialize(ParticipantID, JsonFilePath);
 
 	bInitialized = true;
-
-	UpdateHUD("Wait for start");
 }
 
 

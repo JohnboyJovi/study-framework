@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SFMasterHUD.h"
+#include "HUD/SFMasterHUD.h"
 #include "SFGameInstance.h"
 #include "SFParticipant.h"
 #include "SFPlugin.h"
@@ -40,6 +40,8 @@ void ASFMasterHUD::BeginPlay()
 
 	HUDWidget->GetStartButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnStartButtonPressed);
 	HUDWidget->GetNextButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnNextButtonPressed);
+
+	HUDWidget->SetStatus("Wait for start");
 }
 
 void ASFMasterHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -70,19 +72,17 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, FString Status)
 	HUDWidget->SetPhase(Phase->GetName());
 
 
-	TArray<int> Condition = Phase->GetCurrentCondition();
+	TArray<FString> Condition = Phase->GetCurrentCondition();
 	if (Condition.Num() == 0)
 		return;
 
 	FString ConditionString = "(";
-	const TArray<FString>& Maps = Phase->GetMapNames();
-	const int MapIndex = Condition[0];
-	ConditionString += FPaths::GetBaseFilename(Maps[MapIndex]);
-	const TArray<FSFStudyFactor>& Factors = Phase->GetFactors();
+	ConditionString += FPaths::GetBaseFilename(Condition[0]);
+	const TArray<USFStudyFactor*>& Factors = Phase->GetFactors();
 	for (int FactorIndex = 0; FactorIndex < Factors.Num(); ++FactorIndex)
 	{
-		const FSFStudyFactor Factor = Factors[FactorIndex];
-		ConditionString += Factor.Name + ": " + FString::FromInt(Condition[FactorIndex + 1]) + " ";
+		const USFStudyFactor* Factor = Factors[FactorIndex];
+		ConditionString += Factor->FactorName + ": " + Condition[FactorIndex + 1] + " ";
 	}
 	ConditionString += ")";
 	HUDWidget->SetCondition(ConditionString);

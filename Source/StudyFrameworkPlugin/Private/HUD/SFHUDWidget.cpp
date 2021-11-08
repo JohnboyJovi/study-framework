@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SFHUDWidget.h"
+#include "HUD/SFHUDWidget.h"
 
 #include "SFUtils.h"
 

@@ -47,17 +47,3 @@ enum EFadeState
 	FadingIn = 4 UMETA(DisplayName = "Fading In")
 };
 
-DECLARE_DELEGATE_OneParam(FFactorChangeDelegate, int);
-
-
-USTRUCT()
-struct FSFStudyFactor
-{
-	GENERATED_BODY()
-
-	FString Name = "";
-
-	int Count = 1;
-
-	FFactorChangeDelegate Delegate;
-};

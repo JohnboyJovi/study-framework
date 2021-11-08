@@ -6,7 +6,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "SFStudySetup.h"
-#include "SFMasterHUD.h"
+#include "HUD/SFMasterHUD.h"
 #include "SFDefines.h"
 
 #include "SFGameInstance.generated.h"

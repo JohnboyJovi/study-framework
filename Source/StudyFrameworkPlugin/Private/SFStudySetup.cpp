@@ -7,7 +7,7 @@ USFStudySetup::USFStudySetup()
 {
 }
 
-USFStudyPhase* USFStudySetup::AddStudyPhase(FString PhaseName)
+USFStudyPhase* USFStudySetup::AddStudyPhase(FName PhaseName)
 {
 	USFStudyPhase* Phase = NewObject<USFStudyPhase>(GetTransientPackage(), PhaseName);
 	Phases.Add(Phase);
@@ -25,4 +25,14 @@ bool USFStudySetup::CheckPhases()
 	}
 
 	return true;
+}
+
+int USFStudySetup::GetNumberOfPhases()
+{
+	return Phases.Num();
+}
+
+USFStudyPhase* USFStudySetup::GetPhase(int Index)
+{
+	return Phases[Index];
 }

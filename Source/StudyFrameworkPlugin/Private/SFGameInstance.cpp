@@ -5,8 +5,6 @@
 
 #include <string>
 
-#include "SFStudyControllerActor.h"
-
 #include "SFFadeHandler.h"
 #include "SFUtils.h"
 
@@ -14,6 +12,8 @@
 #include "IUniversalLogging.h"
 #include "SFMasterHUD.h"
 #include "SFGlobalFadeGameViewportClient.h"
+
+USFGameInstance* USFGameInstance::Instance = nullptr;
 
 
 // ****************************************************************** // 
@@ -25,6 +25,17 @@ void USFGameInstance::Init()
 	Super::Init();
 
 	GEngine->GameViewportClientClass = USFGlobalFadeGameViewportClient::StaticClass();
+
+	Instance=this;
+}
+
+USFGameInstance* USFGameInstance::Get()
+{
+	if (Instance == nullptr)
+	{
+		FSFUtils::OpenMessageBox("GameInstance is not set to USFGameInstance, Study Framework will not work", true);
+	}
+	return Instance;
 }
 
 void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
@@ -42,10 +53,7 @@ void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
 
 	// Participant
 	Participant = NewObject<USFParticipant>(GetTransientPackage(), FName(*ParticipantID));
-	Participant->Initialize(ParticipantID, JsonFilePath, this);
-
-	// TODO Check if necessary
-	SpawnInEveryPhaseCpp.Add(ASFStudyControllerActor::StaticClass());
+	Participant->Initialize(ParticipantID, JsonFilePath);
 
 	bInitialized = true;
 
@@ -71,7 +79,12 @@ bool USFGameInstance::StartStudy()
 		return false;
 	}
 
-	if (!Participant->StartStudy())
+	if(!StudySetup)
+	{
+		FSFUtils::OpenMessageBox("[USFGameInstance::StartStudy()]: Not StudySetup specified. Please do so.", true);
+	}
+
+	if (!Participant->StartStudy(StudySetup))
 	{
 		FSFUtils::Log("[USFGameInstance::StartStudy()]: unable to start study.", true);
 		return false;
@@ -167,14 +180,25 @@ void USFGameInstance::LogToHUD(FString Text)
 // ******* Prepare Study ******************************************** //
 // ****************************************************************** //
 
-void USFGameInstance::AddPhase(USFStudyPhase* Phase)
+USFStudySetup* USFGameInstance::CreateNewStudySetup()
 {
 	if (bStudyStarted)
 	{
-		FSFUtils::Log("[USFGameInstance::AddPhase()]: Study already started.", true);
+		FSFUtils::Log("[USFGameInstance::CreateNewStudySetup()]: Study already started.", true);
 	}
 
-	Participant->AddPhase(Phase);
+	StudySetup =  NewObject<USFStudySetup>(GetTransientPackage(), "StudySetup");
+	return StudySetup;
+}
+
+USFStudySetup* USFGameInstance::GetStudySetup()
+{
+	return StudySetup;
+}
+
+void USFGameInstance::LoadStudySetupFromJson()
+{
+	FSFUtils::OpenMessageBox("USFGameInstance::LoadStudySetupFromJson not implemented!", true);
 }
 
 void USFGameInstance::AddActorForEveryLevelInEveryPhaseCpp(UClass* Actor)

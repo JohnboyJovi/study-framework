@@ -5,14 +5,9 @@
 #include "SFParticipant.h"
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "SFDefinesPublic.h"
-#include "SFDefinesPrivate.h"
-#include "SFStudyPhase.h"
+#include "SFStudySetup.h"
 #include "SFMasterHUD.h"
-
-#include "SFLogger.h"
-#include "SFStudyControllerActor.h"
-
+#include "SFDefines.h"
 
 #include "SFGameInstance.generated.h"
 
@@ -31,6 +26,8 @@ public: // TODO check what can be protected:
 	//override UGameInstance init
 	void Init() override;
 
+	static USFGameInstance* Get();
+
 	// ****************************************************************** // 
 	// ******* Initialization ******************************************* //
 	// ****************************************************************** //
@@ -42,13 +39,13 @@ public: // TODO check what can be protected:
 	// ****************************************************************** // 
 	// ******* Control Study ******************************************** //
 	// ****************************************************************** //
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	bool StartStudy();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void EndStudy(); // TODO implement EndStudy()
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	bool NextCondition();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	bool IsStarted() const;
 
 
@@ -69,7 +66,13 @@ public: // TODO check what can be protected:
 	// ******* Prepare Study ******************************************** //
 	// ****************************************************************** //
 	UFUNCTION()
-	void AddPhase(USFStudyPhase* Phase);
+	USFStudySetup* CreateNewStudySetup();
+	UFUNCTION()
+	USFStudySetup* GetStudySetup();
+
+	//TODO: create this!
+	UFUNCTION()
+	void LoadStudySetupFromJson();
 
 	UFUNCTION()
 	void AddActorForEveryLevelInEveryPhaseCpp(UClass* Actor);
@@ -115,9 +118,13 @@ public: // TODO check what can be protected:
 	FHUDSavedData HUDSavedData;
 
 protected:
-	// Handlich Stuff
+
 	UPROPERTY()
-	USFParticipant* Participant;
+	USFStudySetup* StudySetup = nullptr;
+	UPROPERTY()
+	USFParticipant* Participant = nullptr;
+
+
 	UPROPERTY()
 	USFFadeHandler* FadeHandler;
 
@@ -132,4 +139,7 @@ protected:
 	bool bInitialized = false;
 	UPROPERTY()
 	bool bStudyStarted = false;
+
+	//singleton object of this class, to easier access it
+	static USFGameInstance* Instance;
 };

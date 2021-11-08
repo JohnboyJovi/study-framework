@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Dom/JsonObject.h"
-#include "SFDefinesPublic.h"
+#include "SFStudySetup.h"
 #include "SFStudyPhase.h"
 
 
@@ -24,15 +24,12 @@ public:
 	USFParticipant();
 	~USFParticipant();
 
-	bool Initialize(FString IdNew, FString JsonFilePath, USFGameInstance* GameInstanceNew,
-	                FString LogName = "NormalLog", FString SaveDataLogName = "SaveLog");
+	bool Initialize(FString IdNew, FString JsonFilePath, FString LogName = "NormalLog",
+	                FString SaveDataLogName = "SaveLog");
 
-	void GenerateInitialJsonFile(); // TODO implement GenerateInitialJsonFile()
+	void GenerateExecutionJsonFile(); // TODO implement GenerateExecutionJsonFile()
 
-	bool FindJsonFile(); // TODO implement Participant::FindJsonFile()
-	bool LoadJsonFile(); // TODO implement Participant::LoadJsonFile()
-
-	bool StartStudy();
+	bool StartStudy(USFStudySetup* StudySetup);
 	FString NextCondition();
 	void EndStudy(); // TODO implement Participant::EndStudy()
 
@@ -56,15 +53,13 @@ protected:
 
 
 	UPROPERTY()
-	USFGameInstance* GameInstance;
-
-	UPROPERTY()
 	USFLogger* Logger;
 
 
 	UPROPERTY()
+	USFStudySetup* StudySetup;
+	UPROPERTY()
 	TArray<int> UpcomingCondition;
-
 	UPROPERTY()
 	USFStudyPhase* CurrentPhase;
 	UPROPERTY()

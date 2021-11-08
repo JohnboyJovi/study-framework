@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SFDefinesPublic.h"
+#include "SFDefines.h"
 
 #include "SFStudyPhase.generated.h"
 

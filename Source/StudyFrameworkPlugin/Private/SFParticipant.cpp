@@ -4,14 +4,7 @@
 #include "SFParticipant.h"
 
 #include "SFGameInstance.h"
-
 #include "SFLogger.h"
-
-#include <string>
-
-
-#include "IUniversalLogging.h"
-#include "Engine/Engine.h"
 #include "SFUtils.h"
 
 USFParticipant::USFParticipant()
@@ -32,12 +25,9 @@ void USFParticipant::SaveDataArray(FString Where, TArray<FString> Data)
 }
 
 
-bool USFParticipant::Initialize(FString IdNew, FString JsonFilePath, USFGameInstance* GameInstanceNew, FString LogName,
-                                FString SaveDataLogName)
+bool USFParticipant::Initialize(FString IdNew, FString JsonFilePath, FString LogName, FString SaveDataLogName)
 {
 	ParticipantID = IdNew;
-
-	GameInstance = GameInstanceNew;
 
 	// TODO initialize Logger!!!
 	Logger = NewObject<USFLogger>();
@@ -46,7 +36,7 @@ bool USFParticipant::Initialize(FString IdNew, FString JsonFilePath, USFGameInst
 	return true;
 }
 
-void USFParticipant::GenerateInitialJsonFile()
+void USFParticipant::GenerateExecutionJsonFile()
 {
 	// Create initial Json File
 	/*
@@ -71,7 +61,7 @@ void USFParticipant::GenerateInitialJsonFile()
 	TSharedPtr<FJsonObject> JsonPhases = MakeShared<FJsonObject>();
 	TSharedPtr<FJsonObject> JsonData = MakeShared<FJsonObject>();
 
-	const int NumPhases = Phases.Num();
+	const int NumPhases = StudySetup->GetNumberOfPhases();
 
 	JsonPhases->SetNumberField("NumberOfPhases", NumPhases);
 
@@ -82,8 +72,10 @@ void USFParticipant::GenerateInitialJsonFile()
 		TSharedPtr<FJsonObject> JsonTmpPhases = MakeShared<FJsonObject>();
 		TSharedPtr<FJsonObject> JsonTmpData = MakeShared<FJsonObject>();
 
+		USFStudyPhase* Phase = StudySetup->GetPhase(i);
+
 		// Setup
-		TArray<int> SetupInt = Phases[i]->GetFactorsLevelCount();
+		TArray<int> SetupInt = Phase->GetFactorsLevelCount();
 		TArray<TSharedPtr<FJsonValue>> Setup;
 		for (auto Entry : SetupInt)
 		{
@@ -93,7 +85,7 @@ void USFParticipant::GenerateInitialJsonFile()
 		JsonTmpPhases->SetArrayField("Setup", Setup);
 
 		// Order
-		TArray<FString> OrderFString = Phases[i]->GetOrderStrings();
+		TArray<FString> OrderFString = Phase->GetOrderStrings();
 		TArray<TSharedPtr<FJsonValue>> Order;
 		for (auto Entry : OrderFString)
 		{
@@ -124,31 +116,19 @@ void USFParticipant::GenerateInitialJsonFile()
 	FSFUtils::Log(JsonAsString, false);
 }
 
-bool USFParticipant::FindJsonFile()
+bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 {
-	return false;
-}
-
-bool USFParticipant::LoadJsonFile()
-{
-	// TODO set CurrentPhase 
-	// TODO set CurrentPhaseIdx 
-	return false;
-}
-
-bool USFParticipant::StartStudy()
-{
+	//TODO: recover from crashed run?
 	// If reload an already existing study?
-	if (FindJsonFile())
+	/*if (FindJsonFile())
 	{
 		FSFUtils::Log("[USFParticipant::StartStudy()]: Json File found. Loading it now..", false);
 		return LoadJsonFile();
-	}
-	else
-	{
-	}
+	}*/
 
-	if (!CheckPhases())
+	StudySetup = InStudySetup;
+
+	if (!StudySetup->CheckPhases())
 	{
 		FSFUtils::Log("[USFParticipant::StartStudy()]: Not all Phases valid", true);
 		return false;
@@ -156,22 +136,24 @@ bool USFParticipant::StartStudy()
 
 
 	// Setup order
-	for (auto EntryPhase : Phases)
+	for (int PhaseIndex = 0; PhaseIndex < StudySetup->GetNumberOfPhases(); ++PhaseIndex)
 	{
-		EntryPhase->GenerateOrder();
+		StudySetup->GetPhase(PhaseIndex)->GenerateOrder();
 	}
 
-	FSFUtils::Log("[USFParticipant::StartStudy()]: Generated Phases for " + FString::FromInt(Phases.Num()) + " phases",
-	              false);
+	FSFUtils::Log(
+		"[USFParticipant::StartStudy()]: Generated Phases for " + FString::FromInt(StudySetup->GetNumberOfPhases()) +
+		" phases",
+		false);
 
 	// Create initial Json file
-	GenerateInitialJsonFile();
+	GenerateExecutionJsonFile();
 
 	// And save it
 	Logger->SaveJsonFile(MainJsonObject);
 
 	// Set first phase
-	CurrentPhase = Phases[0];
+	CurrentPhase = StudySetup->GetPhase(0);
 	CurrentPhaseIdx = 0;
 
 	return true;
@@ -185,17 +167,17 @@ FString USFParticipant::NextCondition()
 
 	if (UpcomingCondition.Num() == 0)
 	{
-		if (CurrentPhaseIdx >= (Phases.Num() - 1)) // So there is no next phase
+		if (CurrentPhaseIdx >= (StudySetup->GetNumberOfPhases() - 1)) // So there is no next phase
 		{
 			FSFUtils::Log("[USFParticipant::NextCondition()]: All setups already ran, EndStudy()", false);
 
-			GameInstance->EndStudy();
+			USFGameInstance::Get()->EndStudy();
 
 			return "";
 		}
 		else
 		{
-			CurrentPhase = Phases[++CurrentPhaseIdx];
+			CurrentPhase = StudySetup->GetPhase(++CurrentPhaseIdx);
 
 			UpcomingCondition = CurrentPhase->NextCondition();
 		}

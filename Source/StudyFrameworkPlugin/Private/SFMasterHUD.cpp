@@ -4,7 +4,6 @@
 #include "SFMasterHUD.h"
 #include "SFGameInstance.h"
 #include "SFParticipant.h"
-#include "SFStudyControllerActor.h"
 #include "SFPlugin.h"
 #include "SFUtils.h"
 
@@ -108,28 +107,10 @@ void ASFMasterHUD::DrawBackground()
 
 void ASFMasterHUD::OnStartButtonPressed()
 {
-	TArray<AActor*> Actors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASFStudyControllerActor::StaticClass(), Actors);
-	if (Actors.Num() != 1)
-	{
-		FSFUtils::Log("No unambigous study Controller Actor found, cannot use start button", true);
-		return;
-	}
-
-	ASFStudyControllerActor* Controller = Cast<ASFStudyControllerActor>(Actors[0]);
-	Controller->StartStudy();
+	USFGameInstance::Get()->StartStudy();
 }
 
 void ASFMasterHUD::OnNextButtonPressed()
 {
-	TArray<AActor*> Actors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASFStudyControllerActor::StaticClass(), Actors);
-	if (Actors.Num() != 1)
-	{
-		FSFUtils::Log("No unambigous study Controller Actor found, cannot use next button", true);
-		return;
-	}
-
-	ASFStudyControllerActor* Controller = Cast<ASFStudyControllerActor>(Actors[0]);
-	Controller->NextCondition();
+	USFGameInstance::Get()->NextCondition();
 }

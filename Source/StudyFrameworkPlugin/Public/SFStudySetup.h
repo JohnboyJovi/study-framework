@@ -15,10 +15,16 @@ public:
 	USFStudySetup();
 
 	UFUNCTION()
-	USFStudyPhase* AddStudyPhase(FString PhaseName);
+	USFStudyPhase* AddStudyPhase(FName PhaseName);
 
 	UFUNCTION()
 	bool CheckPhases();
+
+	UFUNCTION()
+	int GetNumberOfPhases();
+
+	UFUNCTION()
+	USFStudyPhase* GetPhase(int Index);
 
 protected:
 	UPROPERTY()

@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/World.h"
 
-#include "SFDefinesPublic.h"
+#include "SFDefines.h"
 
 class USFGameInstance;
 class APlayerCameraManager;

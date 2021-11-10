@@ -21,6 +21,13 @@ void USFStudyPhase::AddMap(const FString Name)
 	MapNames.Add(Name);
 }
 
+void USFStudyPhase::AddDependentVariable(FString Name)
+{
+	USFDependentVariable* Variable = NewObject<USFDependentVariable>(this, FName(Name));
+	Variable->Name = Name;
+	DependentVariables.Add(Variable);
+}
+
 void USFStudyPhase::AddActorForEveryLevelInThisPhaseCpp(UClass* Actor)
 {
 	SpawnInThisPhaseCpp.Add(Actor);

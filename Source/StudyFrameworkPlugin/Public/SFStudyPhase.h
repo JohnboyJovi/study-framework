@@ -4,6 +4,7 @@
 #include "SFDefines.h"
 
 #include "SFStudyFactor.h"
+#include "SFDependentVariable.h"
 
 #include "SFStudyPhase.generated.h"
 
@@ -15,10 +16,16 @@ class STUDYFRAMEWORKPLUGIN_API USFStudyPhase : public UObject
 public:
 	USFStudyPhase();
 
+	//
+	// Setting up the Study Phase
+	//
+	
 	UFUNCTION()
 	USFStudyFactor* AddStudyFactor(FString FactorName, TArray<FString> FactorLevels);
 	UFUNCTION()
 	void AddMap(FString Name);
+	UFUNCTION()
+	void AddDependentVariable(FString Name);
 
 
 	UFUNCTION()
@@ -33,6 +40,8 @@ public:
 	void SetSettingsMixing(EMixingSetupOrder MixingType);
 
 
+	
+
 	UFUNCTION()
 	bool PhaseValid(); // TODO implement PhaseValid()
 
@@ -46,8 +55,10 @@ public:
 	UFUNCTION()
 	bool ApplyCondition();
 
+	//
 	// Getter
-
+	//
+	
 	UFUNCTION()
 	FString GetUpcomingLevelName() const;
 
@@ -82,6 +93,9 @@ private:
 
 	UPROPERTY()
 	TArray<USFStudyFactor*> Factors;
+
+	UPROPERTY()
+	TArray<USFDependentVariable*> DependentVariables;
 
 
 	// Repititions

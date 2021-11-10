@@ -35,15 +35,3 @@ enum EPhaseRepetitionType // Hier nur withinMap first? Rename into Repition orde
 	SameOrder = 0 UMETA(DisplayName = "Same Order"),
 	DifferentOrder = 1 UMETA(DisplayName = "Different Order")
 };
-
-// TODO Maybe better in Private Defines?
-UENUM()
-enum EFadeState
-{
-	NotFading = 0 UMETA(DisplayName = "Not Fading"),
-	FadingOut = 1 UMETA(DisplayName = "Fading Out"),
-	WaitForLevelLoaded = 2 UMETA(DisplayName = "Wait for Level Loaded"),
-	WaitForTimerFadedOut = 3 UMETA(DisplayName = "Wait for Timer Faded Out"),
-	FadingIn = 4 UMETA(DisplayName = "Fading In")
-};
-

@@ -63,7 +63,4 @@ protected:
 
 	UPROPERTY()
 	bool bInitialized = false;
-
-	// UPROPERTY()
-	//     USFGameInstance* GameInstance; // TODO actually needed?
 };

@@ -1,12 +1,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SFDefines.h"
 
 #include "SFStudyFactor.h"
+#include "SFMapFactor.h"
 #include "SFDependentVariable.h"
 
 #include "SFStudyPhase.generated.h"
+
+UENUM()
+enum class EPhaseRepetitionType : uint8
+{
+	SameOrder = 0 UMETA(DisplayName = "Repeat all conditions in the same order again NumberOfRepetitions times"),
+	DifferentOrder = 1 UMETA(DisplayName = "Each repetition block is shuffeled, but 2nd repetitions are only done after each condition was seen once, and so on"),
+	FullyRandom = 2 UMETA(DisplayName = "Repeat all conditions NumberOfRepetitions times, but in an arbitrary order")
+};
 
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFStudyPhase : public UObject
@@ -16,102 +24,93 @@ class STUDYFRAMEWORKPLUGIN_API USFStudyPhase : public UObject
 public:
 	USFStudyPhase();
 
-	//
-	// Setting up the Study Phase
-	//
+	// ****************************************************************** // 
+	// ******* Setting up the Study Phase ******************************* //
+	// ****************************************************************** //
 	
 	UFUNCTION()
-	USFStudyFactor* AddStudyFactor(FString FactorName, TArray<FString> FactorLevels);
+	USFStudyFactor* AddStudyFactor(FString FactorName, const TArray<FString>& FactorLevels);
 	UFUNCTION()
-	void AddMap(FString Name);
+	USFMapFactor* AddMapFactor(const TArray<FString>& FactorLevels);
 	UFUNCTION()
 	void AddDependentVariable(FString Name);
 
 
 	UFUNCTION()
-	void AddActorForEveryLevelInThisPhaseCpp(UClass* Actor);
+	void AddActorForEveryMapInThisPhase(TSubclassOf<AActor> Actor);
 	UFUNCTION()
-	void AddActorForEveryLevelInThisPhaseBlueprint(FSFClassOfBlueprintActor Actor);
+	void AddBlueprintActorForEveryMapInThisPhase(const FString& BlueprintPath, const FString& BlueprintName);
 
 
 	UFUNCTION()
 	void SetRepetitions(int Num, EPhaseRepetitionType RepetitionType);
-	UFUNCTION()
-	void SetSettingsMixing(EMixingSetupOrder MixingType);
 
-
+	// ****************************************************************** // 
+	// ******* Executing the Study Phase ******************************** //
+	// ****************************************************************** //
 	
+	UFUNCTION()
+	bool PhaseValid() const;
 
 	UFUNCTION()
-	bool PhaseValid(); // TODO implement PhaseValid()
-
-	UFUNCTION()
-	bool GenerateOrder(); // TODO implement GenerateOrder()
+	bool GenerateConditions(); 
 
 	// Prepare everything for next setup and load map.
 	UFUNCTION()
-	TArray<FString> NextCondition(); // TODO implement NextCondition()
+	TArray<FString> NextCondition();
 
 	UFUNCTION()
 	bool ApplyCondition();
 
-	//
-	// Getter
-	//
+	// ****************************************************************** // 
+	// ******* Getter for the Study Phase ******************************* //
+	// ****************************************************************** //
 	
 	UFUNCTION()
 	FString GetUpcomingLevelName() const;
 
 	UFUNCTION()
-	TArray<UClass*> GetSpawnActorsCpp() const;
-
-	UFUNCTION()
-	TArray<FSFClassOfBlueprintActor> GetSpawnActorsBlueprint() const;
+	TArray<TSubclassOf<AActor>> GetSpawnActors() const;
 
 	UFUNCTION()
 	TArray<int> GetFactorsLevelCount();
 
 	UFUNCTION()
-	TArray<FString> GetOrderStrings(); // TODO implement
-
-	UFUNCTION()
-	TArray<FString> GetCurrentCondition();
-
-	UFUNCTION()
-	const TArray<FString>& GetMapNames() const;
+	TArray<FString> GetCurrentCondition() const;
 
 	UFUNCTION()
 	const TArray<USFStudyFactor*> GetFactors() const;
 
+	TSharedPtr<FJsonObject> GetAsJson() const;
 
-private:
-
-	void CreateAllOrdersRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices);
-
-	UPROPERTY()
-	TArray<FString> MapNames;
-
-	UPROPERTY()
+protected:
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<USFStudyFactor*> Factors;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<USFDependentVariable*> DependentVariables;
 
-
-	// Repititions
-	UPROPERTY()
+	// Repetitions
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int NumberOfRepetitions = 1;
 
-	UPROPERTY()
-	TEnumAsByte<EPhaseRepetitionType> TypeOfRepetition = EPhaseRepetitionType::SameOrder;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	EPhaseRepetitionType TypeOfRepetition = EPhaseRepetitionType::SameOrder;
 
+	// Spawn in every level once loaded
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TArray<TSubclassOf<AActor>> SpawnInEveryMapOfThisPhase;
 
-	// Mixing Stuff
-	UPROPERTY()
-	TEnumAsByte<EMixingSetupOrder> TypeOfMixing = EMixingSetupOrder::RandomSetupOrder;
+private:
+	void CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices);
 
-	//per condition the order array holds first the index of the map and then levels of each factor
-	TArray<TArray<FString>> Orders;
+	bool ContainsAMapFactor() const;
+	USFMapFactor* GetMapFactor() const;
+	int GetMapFactorIndex() const;
+
+	//UPROPERTY() not possible, nested containers not supported
+	TArray<TArray<FString>> Conditions;
 
 	UPROPERTY()
 	TArray<FString> UpcomingCondition;
@@ -124,13 +123,6 @@ private:
 
 	UPROPERTY()
 	FString UpcomingMapName;
-
-	// Spawn on Level
-	UPROPERTY()
-	TArray<UClass*> SpawnInThisPhaseCpp;
-
-	UPROPERTY()
-	TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint;
 };
 
 

@@ -59,7 +59,7 @@ void USFParticipant::GenerateExecutionJsonFile()
 
 	MainJsonObject = MakeShared<FJsonObject>();
 
-	TSharedPtr<FJsonObject> JsonPhases = MakeShared<FJsonObject>();
+	/*TSharedPtr<FJsonObject> JsonPhases = MakeShared<FJsonObject>();
 	TSharedPtr<FJsonObject> JsonData = MakeShared<FJsonObject>();
 
 	const int NumPhases = StudySetup->GetNumberOfPhases();
@@ -86,7 +86,7 @@ void USFParticipant::GenerateExecutionJsonFile()
 		JsonTmpPhases->SetArrayField("Setup", Setup);
 
 		// Order
-		TArray<FString> OrderFString = Phase->GetOrderStrings();
+		TArray<FString> OrderFString = FString::Join(Phase->GetOrderStrings();
 		TArray<TSharedPtr<FJsonValue>> Order;
 		for (auto Entry : OrderFString)
 		{
@@ -114,7 +114,9 @@ void USFParticipant::GenerateExecutionJsonFile()
 
 	FString JsonAsString = FSFUtils::JsonToString(MainJsonObject);
 
-	FSFUtils::Log(JsonAsString, false);
+	FSFUtils::Log(JsonAsString, false);*/
+
+	//TODO: recreate!
 }
 
 bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
@@ -139,7 +141,7 @@ bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 	// Setup order
 	for (int PhaseIndex = 0; PhaseIndex < StudySetup->GetNumberOfPhases(); ++PhaseIndex)
 	{
-		StudySetup->GetPhase(PhaseIndex)->GenerateOrder();
+		StudySetup->GetPhase(PhaseIndex)->GenerateConditions();
 	}
 
 	FSFUtils::Log(

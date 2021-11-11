@@ -3,8 +3,6 @@
 #include "CoreMinimal.h"
 #include "Engine/World.h"
 
-#include "SFDefines.h"
-
 class USFGameInstance;
 class APlayerCameraManager;
 

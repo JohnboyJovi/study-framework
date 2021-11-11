@@ -82,7 +82,7 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, FString Status)
 	for (int FactorIndex = 0; FactorIndex < Factors.Num(); ++FactorIndex)
 	{
 		const USFStudyFactor* Factor = Factors[FactorIndex];
-		ConditionString += Factor->FactorName + ": " + Condition[FactorIndex + 1] + " ";
+		ConditionString += Factor->FactorName + ": " + Condition[FactorIndex] + " ";
 	}
 	ConditionString += ")";
 	HUDWidget->SetCondition(ConditionString);

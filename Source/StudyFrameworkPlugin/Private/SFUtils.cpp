@@ -3,9 +3,13 @@
 #include "SFUtils.h"
 
 #include "Misc/MessageDialog.h"
+#include "Misc/FileHelper.h"
+
+#include "EngineUtils.h"            // For Spawning in Actor in each level
+#include "Json.h"
+
 #include "SFPlugin.h"
 
-#include "Json.h"
 #include "IUniversalLogging.h"
 
 void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
@@ -74,6 +78,42 @@ TSharedPtr<FJsonObject> FSFUtils::StringToJson(FString String)
 	FJsonSerializer::Deserialize(Reader, Json);
 
 	return Json;
+}
+
+void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName)
+{
+	FFileHelper::SaveStringToFile(JsonToString(Json), *(FPaths::ProjectSavedDir() + FilenName));
+}
+
+TSubclassOf<AActor> FSFUtils::GetBlueprintClass(FString BlueprintName, FString BlueprintPath)
+{
+	BlueprintName.Append(FString("_C"));
+
+	TArray<UObject*> TmpArray;
+
+	if (EngineUtils::FindOrLoadAssetsByPath(*BlueprintPath, TmpArray, EngineUtils::ATL_Class))
+	{
+		for (int i = 0; i < TmpArray.Num(); ++i)
+		{
+			UObject* Tmp = TmpArray[i];
+			if (Tmp == nullptr || (!dynamic_cast<UClass*>(Tmp)) || (Tmp->GetName().Compare(BlueprintName) != 0))
+			{
+				continue;
+			}
+
+			if (Cast<AActor>(Tmp) == nullptr)
+			{
+				FSFUtils::Log("[FSFUtils::GetBlueprintClass)]: blueprint actor ("
+				              + BlueprintPath + "/" + BlueprintName + ") is not a subclass of AActor!", true);
+				return nullptr;
+			}
+
+			return Tmp->GetClass();
+		}
+	}
+	FSFUtils::Log("[FSFUtils::GetBlueprintClass)]: Cannot find blueprint actor ("
+	              + BlueprintPath + "/" + BlueprintName + ")!", true);
+	return nullptr;
 }
 
 /*

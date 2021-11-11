@@ -3,14 +3,11 @@
 
 #include "SFGameInstance.h"
 
-#include <string>
-
 #include "HUD/SFFadeHandler.h"
-#include "SFUtils.h"
-
-#include "EngineUtils.h"            // For Spawning in Actor in each level
 #include "HUD/SFMasterHUD.h"
 #include "HUD/SFGlobalFadeGameViewportClient.h"
+
+#include "SFUtils.h"
 
 USFGameInstance* USFGameInstance::Instance = nullptr;
 
@@ -198,16 +195,11 @@ void USFGameInstance::LoadStudySetupFromJson()
 	FSFUtils::OpenMessageBox("USFGameInstance::LoadStudySetupFromJson not implemented!", true);
 }
 
-void USFGameInstance::AddActorForEveryLevelInEveryPhaseCpp(UClass* Actor)
+void USFGameInstance::SaveStudySetupToJson(FString Filename) const
 {
-	SpawnInEveryPhaseCpp.Add(Actor);
+	TSharedPtr<FJsonObject> Json = StudySetup->GetAsJson();
+	FSFUtils::WriteJsonToFile(Json, Filename);
 }
-
-void USFGameInstance::AddActorForEveryLevelInEveryPhaseBlueprint(const FSFClassOfBlueprintActor Actor)
-{
-	SpawnInEveryPhaseBlueprint.Add(Actor);
-}
-
 
 void USFGameInstance::SetFadeColor(const FLinearColor Color)
 {
@@ -237,55 +229,17 @@ void USFGameInstance::SetInitialFadedOut(const bool bFadedOut)
 void USFGameInstance::SpawnAllActorsForLevel()
 {
 	// Spawn all for every level
-	for (auto EntryC : SpawnInEveryPhaseCpp)
+	for (auto EntryC : SpawnInEveryPhase)
 	{
 		GetWorld()->SpawnActor(EntryC);
-	}
-
-	for (auto EntryBlueprint : SpawnInEveryPhaseBlueprint)
-	{
-		SpawnBlueprintActor(EntryBlueprint);
 	}
 
 	// Spawn all level specific actor
-	TArray<UClass*> SpawnInThisPhaseCpp = Participant->GetCurrentPhase()->GetSpawnActorsCpp();
-	for (auto EntryC : SpawnInThisPhaseCpp)
+	TArray<TSubclassOf<AActor>> SpawnInThisPhase = Participant->GetCurrentPhase()->GetSpawnActors();
+	for (auto EntryC : SpawnInThisPhase)
 	{
 		GetWorld()->SpawnActor(EntryC);
 	}
-
-	TArray<FSFClassOfBlueprintActor> SpawnInThisPhaseBlueprint = Participant
-	                                                             ->GetCurrentPhase()->GetSpawnActorsBlueprint();
-	for (auto EntryBlueprint : SpawnInThisPhaseBlueprint)
-	{
-		SpawnBlueprintActor(EntryBlueprint);
-	}
-}
-
-void USFGameInstance::SpawnBlueprintActor(const FSFClassOfBlueprintActor Actor) const
-{
-	FString ClassNameC = Actor.ClassName;
-	ClassNameC.Append(FString("_C"));
-
-	TArray<UObject*> TmpArray;
-
-	if (EngineUtils::FindOrLoadAssetsByPath(*Actor.Path, TmpArray, EngineUtils::ATL_Class))
-	{
-		for (int i = 0; i < TmpArray.Num(); ++i)
-		{
-			UObject* Tmp = TmpArray[i];
-			if (Tmp == nullptr || (!dynamic_cast<UClass*>(Tmp)) || (Tmp->GetName().Compare(ClassNameC) != 0))
-			{
-				continue;
-			}
-
-			GetWorld()->SpawnActor(dynamic_cast<UClass*>(Tmp));
-			return;
-		}
-	}
-
-	FSFUtils::Log("[USFGameInstance::SpawnBlueprintActor()]: Unable to spawn blueprint actor ("
-	              + Actor.Path + "/" + Actor.ClassName + ") cannot be found!", true);
 }
 
 void USFGameInstance::OnLevelLoaded()

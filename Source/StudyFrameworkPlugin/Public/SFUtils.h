@@ -19,31 +19,14 @@ public:
 	// To setup the debugging logs to be used
 	static void SetupLoggingStreams();
 
-	template <class T>
-	static void CheckLoggingDataType(T Data);
-
-
 	static FString ConditionToString(TArray<FString> Condition);
 
 
 	static FString JsonToString(TSharedPtr<FJsonObject> Json);
-
 	static TSharedPtr<FJsonObject> StringToJson(FString String);
+
+	static void WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName);
+
+	static TSubclassOf<AActor> GetBlueprintClass(FString BlueprintName, FString BlueprintPath);
 };
 
-
-// TODO is this nec?
-template <class T>
-void FSFUtils::CheckLoggingDataType(T Data)
-{
-	static_assert(
-		std::is_same<T, float>::value ||
-		std::is_same<T, bool>::value ||
-		std::is_same<T, FString>::value ||
-		std::is_same<T, int>::value ||
-		std::is_same<T, TArray<float>>::value ||
-		std::is_same<T, TArray<bool>>::value ||
-		std::is_same<T, TArray<FString>>::value ||
-		std::is_same<T, TArray<int>>::value,
-		"Not correct Type!!");
-}

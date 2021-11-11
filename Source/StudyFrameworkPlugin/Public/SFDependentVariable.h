@@ -12,9 +12,11 @@ class STUDYFRAMEWORKPLUGIN_API USFDependentVariable : public UObject
 public:
 	USFDependentVariable();
 
-	UPROPERTY()
+	TSharedPtr<FJsonObject> GetAsJson() const;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString Name = "undefined";
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString Value="";
 };

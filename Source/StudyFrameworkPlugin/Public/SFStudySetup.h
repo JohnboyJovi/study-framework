@@ -18,6 +18,11 @@ public:
 	USFStudyPhase* AddStudyPhase(FName PhaseName);
 
 	UFUNCTION()
+	void AddActorForEveryLevelInEveryPhase(TSubclassOf<AActor> Actor);
+	UFUNCTION()
+	void AddActorForEveryLevelInEveryPhaseBlueprint(const FString& BlueprintPath, const FString& BlueprintName);
+
+	UFUNCTION()
 	bool CheckPhases();
 
 	UFUNCTION()
@@ -26,7 +31,13 @@ public:
 	UFUNCTION()
 	USFStudyPhase* GetPhase(int Index);
 
+	TSharedPtr<FJsonObject> GetAsJson() const;
+
 protected:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<USFStudyPhase*> Phases;
+
+	// Spawn in every Level of every phase
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TArray<TSubclassOf<AActor>> SpawnInEveryPhase;
 };

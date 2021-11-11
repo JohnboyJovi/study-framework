@@ -7,7 +7,6 @@
 #include "Engine/GameInstance.h"
 #include "SFStudySetup.h"
 #include "HUD/SFMasterHUD.h"
-#include "SFDefines.h"
 
 #include "SFGameInstance.generated.h"
 
@@ -73,11 +72,8 @@ public: // TODO check what can be protected:
 	//TODO: create this!
 	UFUNCTION()
 	void LoadStudySetupFromJson();
-
 	UFUNCTION()
-	void AddActorForEveryLevelInEveryPhaseCpp(UClass* Actor);
-	UFUNCTION()
-	void AddActorForEveryLevelInEveryPhaseBlueprint(FSFClassOfBlueprintActor Actor);
+	void SaveStudySetupToJson(FString Filename) const;
 
 	// Fade Handler
 	UFUNCTION()
@@ -93,10 +89,9 @@ public: // TODO check what can be protected:
 	// ****************************************************************** // 
 	// ******* Executing Study ****************************************** //
 	// ****************************************************************** //
+	// 
 	UFUNCTION()
 	void SpawnAllActorsForLevel();
-	UFUNCTION()
-	void SpawnBlueprintActor(FSFClassOfBlueprintActor Actor) const;
 	UFUNCTION()
 	void OnLevelLoaded();
 	UFUNCTION()
@@ -127,12 +122,6 @@ protected:
 
 	UPROPERTY()
 	USFFadeHandler* FadeHandler;
-
-	// Spawn in every Level
-	UPROPERTY()
-	TArray<UClass*> SpawnInEveryPhaseCpp;
-	UPROPERTY()
-	TArray<FSFClassOfBlueprintActor> SpawnInEveryPhaseBlueprint;
 
 	// State of Study / GameInstance
 	UPROPERTY()

@@ -7,7 +7,7 @@
 #include "HUD/SFMasterHUD.h"
 #include "HUD/SFGlobalFadeGameViewportClient.h"
 
-#include "SFUtils.h"
+#include "Help/SFUtils.h"
 
 USFGameInstance* USFGameInstance::Instance = nullptr;
 
@@ -229,7 +229,7 @@ void USFGameInstance::SetInitialFadedOut(const bool bFadedOut)
 void USFGameInstance::SpawnAllActorsForLevel()
 {
 	// Spawn all for every level
-	for (auto EntryC : SpawnInEveryPhase)
+	for (auto EntryC : StudySetup->GetSpawnActors())
 	{
 		GetWorld()->SpawnActor(EntryC);
 	}

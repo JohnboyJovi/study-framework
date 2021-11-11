@@ -4,8 +4,8 @@
 #include "SFParticipant.h"
 
 #include "SFGameInstance.h"
-#include "SFLogger.h"
-#include "SFUtils.h"
+#include "Help/SFLogger.h"
+#include "Help/SFUtils.h"
 
 USFParticipant::USFParticipant()
 {

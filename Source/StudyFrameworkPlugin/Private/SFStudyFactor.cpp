@@ -3,7 +3,7 @@
 #include "Dom/JsonObject.h"
 #include "Dom/JsonValue.h"
 
-#include "SFUtils.h"
+#include "Help/SFUtils.h"
 
 
 USFStudyFactor::USFStudyFactor()

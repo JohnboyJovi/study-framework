@@ -5,7 +5,7 @@
 #include "SFGameInstance.h"
 #include "SFParticipant.h"
 #include "SFPlugin.h"
-#include "SFUtils.h"
+#include "Help/SFUtils.h"
 
 
 ASFMasterHUD::ASFMasterHUD()

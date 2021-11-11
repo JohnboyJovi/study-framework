@@ -1,6 +1,6 @@
 #include "SFStudySetup.h"
 
-#include "SFUtils.h"
+#include "Help/SFUtils.h"
 
 
 USFStudySetup::USFStudySetup()
@@ -45,6 +45,11 @@ int USFStudySetup::GetNumberOfPhases()
 USFStudyPhase* USFStudySetup::GetPhase(int Index)
 {
 	return Phases[Index];
+}
+
+TArray<TSubclassOf<AActor>> USFStudySetup::GetSpawnActors() const
+{
+	return SpawnInEveryPhase;
 }
 
 TSharedPtr<FJsonObject> USFStudySetup::GetAsJson() const

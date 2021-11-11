@@ -7,7 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "SFGameInstance.h"
 
-#include "SFUtils.h"
+#include "Help/SFUtils.h"
 
 #include "TimerManager.h"						// For Tick Timer
 #include "HUD/SFGlobalFadeGameViewportClient.h"		// For Fade

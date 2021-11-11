@@ -3,7 +3,7 @@
 #include "Dom/JsonValue.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
-#include "SFUtils.h"
+#include "Help/SFUtils.h"
 
 
 USFStudyPhase::USFStudyPhase()

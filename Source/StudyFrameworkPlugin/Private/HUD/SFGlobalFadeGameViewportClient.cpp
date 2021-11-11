@@ -2,7 +2,7 @@
 // Released under MIT
 
 #include "HUD/SFGlobalFadeGameViewportClient.h"
-#include "SFUtils.h"
+#include "Help/SFUtils.h"
 
 
 #include "Engine/Canvas.h"

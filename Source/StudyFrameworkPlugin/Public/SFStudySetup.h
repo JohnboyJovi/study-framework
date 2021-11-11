@@ -31,6 +31,9 @@ public:
 	UFUNCTION()
 	USFStudyPhase* GetPhase(int Index);
 
+	UFUNCTION()
+	TArray<TSubclassOf<AActor>> GetSpawnActors() const;
+
 	TSharedPtr<FJsonObject> GetAsJson() const;
 
 protected:

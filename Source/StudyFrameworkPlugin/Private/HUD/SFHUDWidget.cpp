@@ -3,7 +3,7 @@
 
 #include "HUD/SFHUDWidget.h"
 
-#include "SFUtils.h"
+#include "Help/SFUtils.h"
 
 
 USFHUDWidget::USFHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)

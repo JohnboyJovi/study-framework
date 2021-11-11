@@ -1,6 +1,6 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
-#include "SFUtils.h"
+#include "Help/SFUtils.h"
 
 #include "Misc/MessageDialog.h"
 #include "Misc/FileHelper.h"
@@ -87,34 +87,25 @@ void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName)
 
 TSubclassOf<AActor> FSFUtils::GetBlueprintClass(FString BlueprintName, FString BlueprintPath)
 {
-	BlueprintName.Append(FString("_C"));
+	const FString FullName = BlueprintPath + "/" + BlueprintName + "." + BlueprintName;
+	UBlueprint* BlueprintToSpawn = FindObject<UBlueprint>(ANY_PACKAGE, *FullName);
 
-	TArray<UObject*> TmpArray;
-
-	if (EngineUtils::FindOrLoadAssetsByPath(*BlueprintPath, TmpArray, EngineUtils::ATL_Class))
+	if(!BlueprintToSpawn)
 	{
-		for (int i = 0; i < TmpArray.Num(); ++i)
-		{
-			UObject* Tmp = TmpArray[i];
-			if (Tmp == nullptr || (!dynamic_cast<UClass*>(Tmp)) || (Tmp->GetName().Compare(BlueprintName) != 0))
-			{
-				continue;
-			}
-
-			if (Cast<AActor>(Tmp) == nullptr)
-			{
-				FSFUtils::Log("[FSFUtils::GetBlueprintClass)]: blueprint actor ("
-				              + BlueprintPath + "/" + BlueprintName + ") is not a subclass of AActor!", true);
-				return nullptr;
-			}
-
-			return Tmp->GetClass();
-		}
-	}
-	FSFUtils::Log("[FSFUtils::GetBlueprintClass)]: Cannot find blueprint actor ("
+		FSFUtils::Log("[FSFUtils::GetBlueprintClass)]: Cannot find blueprint actor ("
 	              + BlueprintPath + "/" + BlueprintName + ")!", true);
-	return nullptr;
+		return nullptr;
+	}
+
+	UClass* Class = BlueprintToSpawn->GeneratedClass;
+	
+	if (!Class->IsChildOf(AActor::StaticClass()))
+	{
+		FSFUtils::Log("[FSFUtils::GetBlueprintClass)]: blueprint actor ("
+		              + BlueprintPath + "/" + BlueprintName + ") is not a subclass of AActor!", true);
+		return nullptr;
+	}
+
+	return Class;
 }
 
-/*
- */

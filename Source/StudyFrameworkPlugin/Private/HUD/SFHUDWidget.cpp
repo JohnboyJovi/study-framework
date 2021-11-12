@@ -96,3 +96,8 @@ UButton* USFHUDWidget::GetShowConditionsButton()
 {
 	return ShowConditionList;
 }
+
+UScrollBox* USFHUDWidget::GetConditionList()
+{
+	return ConditionList;
+}

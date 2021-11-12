@@ -55,6 +55,7 @@ public:
 	UButton* GetStartButton();
 	UButton* GetNextButton();
 	UButton* GetShowConditionsButton();
+	UScrollBox* GetConditionList();
 
 private:
 

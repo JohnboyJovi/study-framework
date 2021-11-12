@@ -38,6 +38,12 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TMap<USFDependentVariable*,FString> DependentVariablesValues;
 
+	UPROPERTY(BlueprintReadOnly)
+	float TimeTaken=0.0;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bConditionFinished=false;
+
 	UPROPERTY()
 	TArray<TSubclassOf<AActor>> SpawnInThisCondition;
 };

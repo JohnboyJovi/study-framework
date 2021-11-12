@@ -7,6 +7,10 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
+
+#include "SFCondition.h"
+#include "Components/Border.h"
+
 #include "SFConditionListEntry.generated.h"
 
 /**
@@ -18,16 +22,35 @@ class STUDYFRAMEWORKPLUGIN_API USFConditionListEntry : public UUserWidget
 	GENERATED_BODY()
 public:
 
+	void FillWithCondition(const USFCondition* Condition);
+	void FillAsPhaseHeader(const USFCondition* Condition);
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UButton* GoToButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Phase;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Map;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UButton* GoToButton;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) TArray<UTextBlock*> Factors;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) TArray<UTextBlock*> DependenVars;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text0;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text1;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text2;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text3;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Time;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UBorder* BackgroundColor;
 
+	UPROPERTY(EditAnywhere) FLinearColor DefaultColor;
+	UPROPERTY(EditAnywhere) FLinearColor HeaderColor;
+	UPROPERTY(EditAnywhere) FLinearColor ActiveColor;
+	UPROPERTY(EditAnywhere) FLinearColor DoneColor;
 
 	UPROPERTY(BlueprintReadWrite) bool IsHeader = false;
 	UPROPERTY(BlueprintReadWrite) bool IsDone = false;
 	UPROPERTY(BlueprintReadWrite) bool IsActive = false;
 
 	UFUNCTION(BlueprintCallable) void GoTo();
+protected:
+	UFUNCTION(BlueprintCallable) void UpdateData();
+
+private:
+	UPROPERTY() const USFCondition* Condition;
+
+	void FillTextsHelper(const TArray<FString>& Data);
+	TMap<int, USFDependentVariable*> TextBlockIdToDependentVar;
 };

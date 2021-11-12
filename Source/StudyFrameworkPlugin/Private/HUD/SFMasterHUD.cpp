@@ -2,6 +2,7 @@
 
 
 #include "HUD/SFMasterHUD.h"
+#include "HUD/SFConditionListEntry.h"
 #include "SFGameInstance.h"
 #include "SFParticipant.h"
 #include "SFPlugin.h"
@@ -22,6 +23,7 @@ void ASFMasterHUD::DrawHUD()
 
 void ASFMasterHUD::BeginPlay()
 {
+	//is called also every time the map is changed (a new condition is loaded)
 	Super::BeginPlay();
 	if (SFWidgetClass)
 	{
@@ -32,17 +34,26 @@ void ASFMasterHUD::BeginPlay()
 			HUDWidget->AddToViewport();
 		}
 	}
-	FHUDSavedData& Data = Cast<USFGameInstance>(GetGameInstance())->HUDSavedData;
+	FHUDSavedData& Data = USFGameInstance::Get()->HUDSavedData;
 	if (Data.bSet && HUDWidget)
 	{
 		HUDWidget->SetData(Data);
 	}
+	else
+	{
+		HUDWidget->SetStatus("Wait for start");
+	}
+
+	if (USFGameInstance::Get()->IsStarted())
+	{
+		HUDWidget->GetStartButton()->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	HUDWidget->GetConditionList()->SetVisibility(ESlateVisibility::Collapsed);
 
 	HUDWidget->GetStartButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnStartButtonPressed);
 	HUDWidget->GetNextButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnNextButtonPressed);
 	HUDWidget->GetShowConditionsButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnShowConditionsButtonPressed);
-
-	HUDWidget->SetStatus("Wait for start");
 }
 
 void ASFMasterHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -69,17 +80,14 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, FString Status)
 
 	HUDWidget->SetParticipant(Participant->GetID());
 
-	USFStudyPhase* Phase = Participant->GetCurrentPhase();
-	HUDWidget->SetPhase(Phase->GetName());
-
-
-	USFCondition* Condition = Phase->GetCurrentCondition();
+	const USFCondition* Condition = Participant->GetCurrentCondition();
+	HUDWidget->SetPhase(Condition->PhaseName);
 
 	FString ConditionString = "(";
-	ConditionString += FPaths::GetBaseFilename(Condition->Map);
+	ConditionString += "Map: " + FPaths::GetBaseFilename(Condition->Map);
 	for (auto FactorLevel : Condition->FactorLevels)
 	{
-		ConditionString += FactorLevel.Key + ": " + FactorLevel.Value + " ";
+		ConditionString += "; " + FactorLevel.Key + ": " + FactorLevel.Value;
 	}
 	ConditionString += ")";
 	HUDWidget->SetCondition(ConditionString);
@@ -115,4 +123,39 @@ void ASFMasterHUD::OnNextButtonPressed()
 
 void ASFMasterHUD::OnShowConditionsButtonPressed()
 {
+	if (bShowConditionList)
+	{
+		HUDWidget->GetConditionList()->SetVisibility(ESlateVisibility::Collapsed);
+		Cast<UTextBlock>(HUDWidget->GetShowConditionsButton()->GetAllChildren()[0])->SetText(FText::FromString("Show Conditions"));
+		bShowConditionList = false;
+	}
+	else
+	{
+		bShowConditionList = true;
+		Cast<UTextBlock>(HUDWidget->GetShowConditionsButton()->GetAllChildren()[0])->SetText(FText::FromString("Hide Conditions"));
+		UScrollBox* ConditionList = HUDWidget->GetConditionList();
+		ConditionList->ClearChildren();
+		ConditionList->SetVisibility(ESlateVisibility::Visible);
+
+		FString LastPhase = "";
+
+		const TArray<USFCondition*> Conditions = USFGameInstance::Get()->GetParticipant()->GetAllConditions();
+
+		for (const USFCondition* Condition : Conditions)
+		{
+			if(LastPhase != Condition->PhaseName)
+			{
+				//add phase header first
+				USFConditionListEntry* Entry = CreateWidget<USFConditionListEntry>(
+				GetWorld()->GetFirstPlayerController(), SFConditionListEntryBP_Class);
+				Entry->FillAsPhaseHeader(Condition);
+				LastPhase = Condition->PhaseName;
+				ConditionList->AddChild(Entry);
+			}
+			USFConditionListEntry* Entry = CreateWidget<USFConditionListEntry>(
+				GetWorld()->GetFirstPlayerController(), SFConditionListEntryBP_Class);
+			Entry->FillWithCondition(Condition);
+			ConditionList->AddChild(Entry);
+		}
+	}
 }

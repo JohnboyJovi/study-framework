@@ -7,7 +7,8 @@
 
 #include "Components/WidgetComponent.h"
 
-#include "SFHUDWidget.h"
+#include "HUD/SFHUDWidget.h"
+#include "HUD/SFConditionListEntry.h"
 
 #include "SFMasterHUD.generated.h"
 
@@ -42,7 +43,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interactive")
 	TSubclassOf<USFHUDWidget> SFWidgetClass;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Interactive")
+	TSubclassOf<USFConditionListEntry> SFConditionListEntryBP_Class;
+	
 	UFUNCTION()
 	void OnStartButtonPressed();
 	UFUNCTION()
@@ -51,9 +54,12 @@ public:
 	void OnShowConditionsButtonPressed();
 
 private:
+	
 	UPROPERTY()
 	USFHUDWidget* HUDWidget;
 	UPROPERTY()
 	FLinearColor BackgroundColor = FLinearColor::Black;
 	void DrawBackground();
+	UPROPERTY()
+	bool bShowConditionList = false;
 };

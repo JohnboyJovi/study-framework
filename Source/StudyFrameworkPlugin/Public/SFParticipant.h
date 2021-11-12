@@ -7,6 +7,7 @@
 #include "Dom/JsonObject.h"
 #include "SFStudySetup.h"
 #include "SFStudyPhase.h"
+#include "SFCondition.h"
 
 
 #include "SFParticipant.generated.h"
@@ -59,7 +60,7 @@ protected:
 	UPROPERTY()
 	USFStudySetup* StudySetup;
 	UPROPERTY()
-	TArray<FString> UpcomingCondition;
+	USFCondition* UpcomingCondition;
 	UPROPERTY()
 	USFStudyPhase* CurrentPhase;
 	UPROPERTY()

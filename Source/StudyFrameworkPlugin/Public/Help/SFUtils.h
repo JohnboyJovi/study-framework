@@ -19,9 +19,6 @@ public:
 	// To setup the debugging logs to be used
 	static void SetupLoggingStreams();
 
-	static FString ConditionToString(TArray<FString> Condition);
-
-
 	static FString JsonToString(TSharedPtr<FJsonObject> Json);
 	static TSharedPtr<FJsonObject> StringToJson(FString String);
 

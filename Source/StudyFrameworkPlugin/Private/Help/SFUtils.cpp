@@ -51,17 +51,6 @@ void FSFUtils::SetupLoggingStreams()
 	SFErrorLog->SetOnScreenColor(FColor::Red);
 }
 
-FString FSFUtils::ConditionToString(TArray<FString> Condition)
-{
-	FString Output = Condition[0];
-	for (int i = 1; i < Condition.Num(); i++)
-	{
-		Output = Output + "_" + Condition[i];
-	}
-
-	return Output;
-}
-
 FString FSFUtils::JsonToString(TSharedPtr<FJsonObject> Json)
 {
 	FString OutputString;

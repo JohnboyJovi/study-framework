@@ -244,7 +244,8 @@ void USFGameInstance::SpawnAllActorsForLevel()
 
 void USFGameInstance::OnLevelLoaded()
 {
-	Participant->GetCurrentPhase()->ApplyCondition();
+	//do we need to do something here?
+	//Participant->GetCurrentPhase()->ApplyCondition();
 	UpdateHUD("Fading In");
 }
 

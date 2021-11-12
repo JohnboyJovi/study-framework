@@ -90,15 +90,10 @@ bool USFStudyPhase::GenerateConditions()
 	ConditionsIndices.Reserve(NumberOfConditions);
 	CreateAllConditionsRecursively(0, {}, ConditionsIndices);
 
-	TArray<FString> Condition;
-	Condition.Reserve(NumberOfFactors);
 	for (TArray<int> ConditionIndices : ConditionsIndices)
 	{
-		Condition.Empty();
-		for (int i = 0; i < ConditionIndices.Num(); ++i)
-		{
-			Condition.Add(Factors[i]->Levels[ConditionIndices[i]]);
-		}
+		USFCondition* Condition = NewObject<USFCondition>(this, FName(USFCondition::CreateIdentifiableName(GetName(),ConditionIndices)));
+		Condition->Generate(GetName(), ConditionIndices, Factors, DependentVariables);
 		Conditions.Add(Condition);
 	}
 
@@ -116,41 +111,18 @@ bool USFStudyPhase::GenerateConditions()
 	return true;
 }
 
-TArray<FString> USFStudyPhase::NextCondition()
+USFCondition* USFStudyPhase::NextCondition()
 {
-	if (Conditions.Num() <= ++CurrentCondtitionIdx)
+	if (Conditions.Num() <= ++CurrentConditionIdx)
 	{
 		// Phase already ran all Setups
-		return TArray<FString>();
+		return nullptr;
 	}
 
-	UpcomingCondition = Conditions[CurrentCondtitionIdx];
-
-	const int MapIdx = GetMapFactorIndex();
-	UpcomingMapName = UpcomingCondition[MapIdx];
-
+	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx];
 	return UpcomingCondition;
 }
 
-bool USFStudyPhase::ApplyCondition()
-{
-	//TODO: should we trigger something here?
-	//starting at 1 since first factor represents the different levels
-	/*for (int i = 1; i < Factors.Num(); i++)
-	{
-		bSuc &= Factors[i].Delegate.ExecuteIfBound(UpcomingCondition[i]);
-	}*/
-
-	CurrentCondition = UpcomingCondition;
-	UpcomingCondition.Empty();
-
-	return true;
-}
-
-FString USFStudyPhase::GetUpcomingLevelName() const
-{
-	return UpcomingMapName;
-}
 
 TArray<TSubclassOf<AActor>> USFStudyPhase::GetSpawnActors() const
 {
@@ -167,9 +139,9 @@ TArray<int> USFStudyPhase::GetFactorsLevelCount()
 	return Array;
 }
 
-TArray<FString> USFStudyPhase::GetCurrentCondition() const
+USFCondition* USFStudyPhase::GetCurrentCondition() const
 {
-	return CurrentCondition;
+	return Conditions[CurrentConditionIdx];
 }
 
 const TArray<USFStudyFactor*> USFStudyPhase::GetFactors() const
@@ -259,7 +231,7 @@ int USFStudyPhase::GetMapFactorIndex() const
 	return -1;
 }
 
-void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices)
+void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices) const
 {
 	if (Index >= Factors.Num())
 	{

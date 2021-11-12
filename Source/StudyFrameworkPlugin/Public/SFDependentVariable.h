@@ -16,7 +16,4 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString Name = "undefined";
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FString Value="";
 };

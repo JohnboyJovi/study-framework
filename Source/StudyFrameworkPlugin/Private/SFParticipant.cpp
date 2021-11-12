@@ -18,11 +18,7 @@ USFParticipant::~USFParticipant()
 void USFParticipant::SaveDataArray(FString Where, TArray<FString> Data)
 {
 	//TODO: what is this used for???
-	TArray<FString> CurrentCondtion = CurrentPhase->GetCurrentCondition();
-
-	FString ConditionString = FSFUtils::ConditionToString(CurrentCondtion);
-
-	Logger->SaveDataArray(Where, Data, CurrentPhaseIdx, ConditionString);
+	Logger->SaveDataArray(Where, Data, CurrentPhaseIdx, CurrentPhase->GetCurrentCondition()->ToString());
 }
 
 
@@ -168,7 +164,7 @@ FString USFParticipant::NextCondition()
 	// Get next Setup
 	UpcomingCondition = CurrentPhase->NextCondition();
 
-	if (UpcomingCondition.Num() == 0)
+	if (UpcomingCondition == nullptr)
 	{
 		if (CurrentPhaseIdx >= (StudySetup->GetNumberOfPhases() - 1)) // So there is no next phase
 		{
@@ -186,7 +182,7 @@ FString USFParticipant::NextCondition()
 		}
 	}
 
-	const FString LevelName = CurrentPhase->GetUpcomingLevelName();
+	const FString LevelName = UpcomingCondition->Map;
 
 	return LevelName;
 }

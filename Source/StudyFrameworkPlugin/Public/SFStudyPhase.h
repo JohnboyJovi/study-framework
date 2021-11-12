@@ -4,6 +4,7 @@
 
 #include "SFStudyFactor.h"
 #include "SFMapFactor.h"
+#include "SFCondition.h"
 #include "SFDependentVariable.h"
 
 #include "SFStudyPhase.generated.h"
@@ -57,31 +58,26 @@ public:
 
 	// Prepare everything for next setup and load map.
 	UFUNCTION()
-	TArray<FString> NextCondition();
-
-	UFUNCTION()
-	bool ApplyCondition();
+	USFCondition* NextCondition();
 
 	// ****************************************************************** // 
 	// ******* Getter for the Study Phase ******************************* //
 	// ****************************************************************** //
-	
-	UFUNCTION()
-	FString GetUpcomingLevelName() const;
 
 	UFUNCTION()
 	TArray<TSubclassOf<AActor>> GetSpawnActors() const;
 
 	UFUNCTION()
-	TArray<int> GetFactorsLevelCount();
-
-	UFUNCTION()
-	TArray<FString> GetCurrentCondition() const;
+	USFCondition* GetCurrentCondition() const;
 
 	UFUNCTION()
 	const TArray<USFStudyFactor*> GetFactors() const;
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
+
+	// ****************************************************************** // 
+	// ******* Properties of this Phase ********************************* //
+	// ****************************************************************** //
 
 protected:
 	
@@ -103,26 +99,20 @@ protected:
 	TArray<TSubclassOf<AActor>> SpawnInEveryMapOfThisPhase;
 
 private:
-	void CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices);
+	
+	void CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices) const;
+
+	TArray<int> GetFactorsLevelCount();
 
 	bool ContainsAMapFactor() const;
 	USFMapFactor* GetMapFactor() const;
 	int GetMapFactorIndex() const;
 
-	//UPROPERTY() not possible, nested containers not supported
-	TArray<TArray<FString>> Conditions;
+	UPROPERTY()
+	TArray<USFCondition*> Conditions;
 
 	UPROPERTY()
-	TArray<FString> UpcomingCondition;
-
-	UPROPERTY()
-	TArray<FString> CurrentCondition;
-
-	UPROPERTY()
-	int CurrentCondtitionIdx = -1;
-
-	UPROPERTY()
-	FString UpcomingMapName;
+	int CurrentConditionIdx = -1;
 };
 
 

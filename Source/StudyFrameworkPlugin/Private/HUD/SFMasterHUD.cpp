@@ -72,17 +72,13 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, FString Status)
 	HUDWidget->SetPhase(Phase->GetName());
 
 
-	TArray<FString> Condition = Phase->GetCurrentCondition();
-	if (Condition.Num() == 0)
-		return;
+	USFCondition* Condition = Phase->GetCurrentCondition();
 
 	FString ConditionString = "(";
-	ConditionString += FPaths::GetBaseFilename(Condition[0]);
-	const TArray<USFStudyFactor*>& Factors = Phase->GetFactors();
-	for (int FactorIndex = 0; FactorIndex < Factors.Num(); ++FactorIndex)
+	ConditionString += FPaths::GetBaseFilename(Condition->Map);
+	for (auto FactorLevel : Condition->FactorLevels)
 	{
-		const USFStudyFactor* Factor = Factors[FactorIndex];
-		ConditionString += Factor->FactorName + ": " + Condition[FactorIndex] + " ";
+		ConditionString += FactorLevel.Key + ": " + FactorLevel.Value + " ";
 	}
 	ConditionString += ")";
 	HUDWidget->SetCondition(ConditionString);

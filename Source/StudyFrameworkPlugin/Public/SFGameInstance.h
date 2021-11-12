@@ -96,6 +96,8 @@ public: // TODO check what can be protected:
 	void OnLevelLoaded();
 	UFUNCTION()
 	void OnFadedIn();
+	UFUNCTION()
+	USFParticipant* GetParticipant() const;
 
 	// ****************************************************************** // 
 	// *******   Delegates   ******************************************** //

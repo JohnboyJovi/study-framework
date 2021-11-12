@@ -47,18 +47,15 @@ public:
 	void SetRepetitions(int Num, EPhaseRepetitionType RepetitionType);
 
 	// ****************************************************************** // 
-	// ******* Executing the Study Phase ******************************** //
+	// ******* Preparing the Study Phase ******************************** //
 	// ****************************************************************** //
 	
 	UFUNCTION()
 	bool PhaseValid() const;
 
 	UFUNCTION()
-	bool GenerateConditions(); 
+	TArray<USFCondition*> GenerateConditions(); 
 
-	// Prepare everything for next setup and load map.
-	UFUNCTION()
-	USFCondition* NextCondition();
 
 	// ****************************************************************** // 
 	// ******* Getter for the Study Phase ******************************* //
@@ -66,9 +63,6 @@ public:
 
 	UFUNCTION()
 	TArray<TSubclassOf<AActor>> GetSpawnActors() const;
-
-	UFUNCTION()
-	USFCondition* GetCurrentCondition() const;
 
 	UFUNCTION()
 	const TArray<USFStudyFactor*> GetFactors() const;
@@ -102,17 +96,9 @@ private:
 	
 	void CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices) const;
 
-	TArray<int> GetFactorsLevelCount();
-
 	bool ContainsAMapFactor() const;
 	USFMapFactor* GetMapFactor() const;
 	int GetMapFactorIndex() const;
-
-	UPROPERTY()
-	TArray<USFCondition*> Conditions;
-
-	UPROPERTY()
-	int CurrentConditionIdx = -1;
 };
 
 

@@ -37,6 +37,21 @@ bool USFStudySetup::CheckPhases()
 	return true;
 }
 
+TArray<USFCondition*> USFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber)
+{
+	//TODO: use the RunningParticipantNumber, e.g. for latin square and between factors
+	TArray<USFCondition*> Conditions;
+	for(USFStudyPhase* Phase : Phases)
+	{
+		Conditions.Append(Phase->GenerateConditions());
+	}
+	for(USFCondition* Condition : Conditions)
+	{
+		Condition->SpawnInThisCondition.Append(SpawnInEveryPhase);
+	}
+	return Conditions;
+}
+
 int USFStudySetup::GetNumberOfPhases()
 {
 	return Phases.Num();

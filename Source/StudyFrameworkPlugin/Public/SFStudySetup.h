@@ -14,6 +14,10 @@ class STUDYFRAMEWORKPLUGIN_API USFStudySetup : public UObject
 public:
 	USFStudySetup();
 
+	// ****************************************************************** // 
+	// ******* Setting up the Study ************************************* //
+	// ****************************************************************** //
+
 	UFUNCTION()
 	USFStudyPhase* AddStudyPhase(FName PhaseName);
 
@@ -25,6 +29,13 @@ public:
 	UFUNCTION()
 	bool CheckPhases();
 
+	// ****************************************************************** // 
+	// ******* Getters ************************************************** //
+	// ****************************************************************** //
+
+	UFUNCTION()
+	TArray<USFCondition*> GetAllConditionsForRun(int RunningParticipantNumber);
+	
 	UFUNCTION()
 	int GetNumberOfPhases();
 

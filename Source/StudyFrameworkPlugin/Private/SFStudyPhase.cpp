@@ -72,8 +72,9 @@ bool USFStudyPhase::PhaseValid() const
 	return true;
 }
 
-bool USFStudyPhase::GenerateConditions()
+TArray<USFCondition*> USFStudyPhase::GenerateConditions()
 {
+	TArray<USFCondition*> Conditions;
 	const int NumberOfFactors = Factors.Num();
 
 	int NumberOfConditions = 1;
@@ -94,6 +95,7 @@ bool USFStudyPhase::GenerateConditions()
 	{
 		USFCondition* Condition = NewObject<USFCondition>(this, FName(USFCondition::CreateIdentifiableName(GetName(),ConditionIndices)));
 		Condition->Generate(GetName(), ConditionIndices, Factors, DependentVariables);
+		Condition->SpawnInThisCondition.Append(SpawnInEveryMapOfThisPhase);
 		Conditions.Add(Condition);
 	}
 
@@ -108,40 +110,13 @@ bool USFStudyPhase::GenerateConditions()
 		}
 	}
 
-	return true;
-}
-
-USFCondition* USFStudyPhase::NextCondition()
-{
-	if (Conditions.Num() <= ++CurrentConditionIdx)
-	{
-		// Phase already ran all Setups
-		return nullptr;
-	}
-
-	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx];
-	return UpcomingCondition;
+	return Conditions;
 }
 
 
 TArray<TSubclassOf<AActor>> USFStudyPhase::GetSpawnActors() const
 {
 	return SpawnInEveryMapOfThisPhase;
-}
-
-TArray<int> USFStudyPhase::GetFactorsLevelCount()
-{
-	TArray<int> Array;
-	for (auto Factor : Factors)
-	{
-		Array.Add(Factor->Levels.Num());
-	}
-	return Array;
-}
-
-USFCondition* USFStudyPhase::GetCurrentCondition() const
-{
-	return Conditions[CurrentConditionIdx];
 }
 
 const TArray<USFStudyFactor*> USFStudyPhase::GetFactors() const

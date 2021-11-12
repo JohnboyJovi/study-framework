@@ -37,4 +37,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	TMap<USFDependentVariable*,FString> DependentVariablesValues;
+
+	UPROPERTY()
+	TArray<TSubclassOf<AActor>> SpawnInThisCondition;
 };

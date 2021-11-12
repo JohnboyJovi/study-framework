@@ -18,7 +18,7 @@ USFParticipant::~USFParticipant()
 void USFParticipant::SaveDataArray(FString Where, TArray<FString> Data)
 {
 	//TODO: what is this used for???
-	Logger->SaveDataArray(Where, Data, CurrentPhaseIdx, CurrentPhase->GetCurrentCondition()->ToString());
+	Logger->SaveDataArray(Where, Data, /*CurrentPhaseIdx*/ 0, Conditions[CurrentConditionIdx]->ToString());
 }
 
 
@@ -33,7 +33,7 @@ bool USFParticipant::Initialize(FString IdNew, FString JsonFilePath, FString Log
 	return true;
 }
 
-void USFParticipant::GenerateExecutionJsonFile()
+void USFParticipant::GenerateExecutionJsonFile() const
 {
 	// Create initial Json File
 	/*
@@ -52,8 +52,6 @@ void USFParticipant::GenerateExecutionJsonFile()
 	 -             "NameOfData": (Array)
 	 >                  1,2,3,4,5 (Value)
 	*/
-
-	MainJsonObject = MakeShared<FJsonObject>();
 
 	/*TSharedPtr<FJsonObject> JsonPhases = MakeShared<FJsonObject>();
 	TSharedPtr<FJsonObject> JsonData = MakeShared<FJsonObject>();
@@ -134,53 +132,33 @@ bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 	}
 
 
-	// Setup order
-	for (int PhaseIndex = 0; PhaseIndex < StudySetup->GetNumberOfPhases(); ++PhaseIndex)
-	{
-		StudySetup->GetPhase(PhaseIndex)->GenerateConditions();
-	}
+	// Conditions order
+	Conditions = StudySetup->GetAllConditionsForRun(0); //TODO: we need a running number!
 
 	FSFUtils::Log(
-		"[USFParticipant::StartStudy()]: Generated Phases for " + FString::FromInt(StudySetup->GetNumberOfPhases()) +
-		" phases",
+		"[USFParticipant::StartStudy()]: Generated " + FString::FromInt(Conditions.Num()) +
+		" conditions for participant " + ParticipantID,
 		false);
 
 	// Create initial Json file
 	GenerateExecutionJsonFile();
 
-	// And save it
-	Logger->SaveJsonFile(MainJsonObject);
-
-	// Set first phase
-	CurrentPhase = StudySetup->GetPhase(0);
-	CurrentPhaseIdx = 0;
+	// Set first condition
+	CurrentConditionIdx = -1;
 
 	return true;
 }
 
 FString USFParticipant::NextCondition()
-// TODO can maybe be made a schöner function with different if phase finished logic
 {
-	// Get next Setup
-	UpcomingCondition = CurrentPhase->NextCondition();
-
-	if (UpcomingCondition == nullptr)
+	// Get next Condition
+	if (++CurrentConditionIdx >= Conditions.Num())
 	{
-		if (CurrentPhaseIdx >= (StudySetup->GetNumberOfPhases() - 1)) // So there is no next phase
-		{
-			FSFUtils::Log("[USFParticipant::NextCondition()]: All setups already ran, EndStudy()", false);
-
-			USFGameInstance::Get()->EndStudy();
-
-			return "";
-		}
-		else
-		{
-			CurrentPhase = StudySetup->GetPhase(++CurrentPhaseIdx);
-
-			UpcomingCondition = CurrentPhase->NextCondition();
-		}
+		FSFUtils::Log("[USFParticipant::NextCondition()]: All conditions already ran, EndStudy()", false);
+		USFGameInstance::Get()->EndStudy();
+		return "";
 	}
+	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx];
 
 	const FString LevelName = UpcomingCondition->Map;
 
@@ -201,22 +179,17 @@ void USFParticipant::CommitData()
 	Logger->CommitData();
 }
 
-TSharedPtr<FJsonObject> USFParticipant::GetJsonFile()
+const USFCondition* USFParticipant::GetCurrentCondition() const
 {
-	return MainJsonObject;
+	return Conditions[CurrentConditionIdx];
 }
 
-USFStudyPhase* USFParticipant::GetCurrentPhase()
+const TArray<USFCondition*> USFParticipant::GetAllConditions() const
 {
-	return CurrentPhase;
+	return Conditions;
 }
 
-int USFParticipant::GetCurrentPhaseIdx()
-{
-	return CurrentPhaseIdx;
-}
-
-FString USFParticipant::GetID()
+FString USFParticipant::GetID() const
 {
 	return ParticipantID;
 }

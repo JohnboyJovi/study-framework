@@ -28,10 +28,10 @@ public:
 	bool Initialize(FString IdNew, FString JsonFilePath, FString LogName = "NormalLog",
 	                FString SaveDataLogName = "SaveLog");
 
-	void GenerateExecutionJsonFile(); // TODO implement GenerateExecutionJsonFile()
+	void GenerateExecutionJsonFile() const; // TODO implement GenerateExecutionJsonFile()
 
 	bool StartStudy(USFStudySetup* StudySetup);
-	FString NextCondition();
+	FString NextCondition(); //returns the level to load
 	void EndStudy(); // TODO implement Participant::EndStudy()
 
 	void SaveDataArray(FString Where, TArray<FString> Data);
@@ -39,19 +39,14 @@ public:
 	void CommitData(); // TODO need CommitData()?
 
 
-	TSharedPtr<FJsonObject> GetJsonFile();
-	USFStudyPhase* GetCurrentPhase();
-	int GetCurrentPhaseIdx();
-	FString GetID();
+	const USFCondition* GetCurrentCondition() const;
+	const TArray<USFCondition*> GetAllConditions() const;
+	FString GetID() const;
 
 
 protected:
 	UPROPERTY()
 	FString ParticipantID;
-
-
-	TSharedPtr<FJsonObject> MainJsonObject;
-
 
 	UPROPERTY()
 	USFLogger* Logger;
@@ -60,9 +55,7 @@ protected:
 	UPROPERTY()
 	USFStudySetup* StudySetup;
 	UPROPERTY()
-	USFCondition* UpcomingCondition;
+	TArray<USFCondition*> Conditions;
 	UPROPERTY()
-	USFStudyPhase* CurrentPhase;
-	UPROPERTY()
-	int CurrentPhaseIdx;
+	int CurrentConditionIdx;
 };

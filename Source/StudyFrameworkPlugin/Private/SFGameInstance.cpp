@@ -230,14 +230,8 @@ void USFGameInstance::SetInitialFadedOut(const bool bFadedOut)
 
 void USFGameInstance::SpawnAllActorsForLevel()
 {
-	// Spawn all for every level
-	for (auto EntryC : StudySetup->GetSpawnActors())
-	{
-		GetWorld()->SpawnActor(EntryC);
-	}
-
 	// Spawn all level specific actor
-	TArray<TSubclassOf<AActor>> SpawnInThisPhase = Participant->GetCurrentPhase()->GetSpawnActors();
+	TArray<TSubclassOf<AActor>> SpawnInThisPhase = Participant->GetCurrentCondition()->SpawnInThisCondition;
 	for (auto EntryC : SpawnInThisPhase)
 	{
 		GetWorld()->SpawnActor(EntryC);
@@ -256,6 +250,11 @@ void USFGameInstance::OnFadedIn()
 	OnFadedInDelegate.Broadcast();
 
 	UpdateHUD("Condition Running");
+}
+
+USFParticipant* USFGameInstance::GetParticipant() const
+{
+	return Participant;
 }
 
 

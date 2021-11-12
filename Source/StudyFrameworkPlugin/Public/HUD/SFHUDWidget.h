@@ -54,25 +54,31 @@ public:
 
 	UButton* GetStartButton();
 	UButton* GetNextButton();
+	UButton* GetShowConditionsButton();
 
 private:
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	class UTextBlock* StatusTextBox;
+	UTextBlock* StatusTextBox;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	class UTextBlock* ParticipantTextBox;
+	UTextBlock* ParticipantTextBox;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	class UTextBlock* PhaseTextBox;
+	UTextBlock* PhaseTextBox;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	class UTextBlock* ConditionTextBox;
+	UTextBlock* ConditionTextBox;
 
 	TArray<FString> LogMessages;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	class UTextBlock* LogsTextBox;
+	UTextBlock* LogsTextBox;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	class UButton* StartButton;
+	UButton* StartButton;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	class UButton* NextButton;
+	UButton* NextButton;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UButton* ShowConditionList;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UScrollBox* ConditionList;
 };

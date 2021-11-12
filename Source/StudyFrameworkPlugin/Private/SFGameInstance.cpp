@@ -96,6 +96,8 @@ void USFGameInstance::EndStudy()
 	Participant->EndStudy();
 
 	UpdateHUD("Study ended");
+
+	//TODO: reactivate the start study button?
 }
 
 

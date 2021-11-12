@@ -40,6 +40,7 @@ void ASFMasterHUD::BeginPlay()
 
 	HUDWidget->GetStartButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnStartButtonPressed);
 	HUDWidget->GetNextButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnNextButtonPressed);
+	HUDWidget->GetShowConditionsButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnShowConditionsButtonPressed);
 
 	HUDWidget->SetStatus("Wait for start");
 }
@@ -103,10 +104,15 @@ void ASFMasterHUD::DrawBackground()
 
 void ASFMasterHUD::OnStartButtonPressed()
 {
+	HUDWidget->GetStartButton()->SetVisibility(ESlateVisibility::Collapsed);
 	USFGameInstance::Get()->StartStudy();
 }
 
 void ASFMasterHUD::OnNextButtonPressed()
 {
 	USFGameInstance::Get()->NextCondition();
+}
+
+void ASFMasterHUD::OnShowConditionsButtonPressed()
+{
 }

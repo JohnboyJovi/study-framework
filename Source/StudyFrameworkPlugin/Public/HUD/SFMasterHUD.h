@@ -47,6 +47,8 @@ public:
 	void OnStartButtonPressed();
 	UFUNCTION()
 	void OnNextButtonPressed();
+	UFUNCTION()
+	void OnShowConditionsButtonPressed();
 
 private:
 	UPROPERTY()

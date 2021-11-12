@@ -91,3 +91,8 @@ UButton* USFHUDWidget::GetNextButton()
 {
 	return NextButton;
 }
+
+UButton* USFHUDWidget::GetShowConditionsButton()
+{
+	return ShowConditionList;
+}

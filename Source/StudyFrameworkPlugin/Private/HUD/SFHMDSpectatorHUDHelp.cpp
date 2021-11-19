@@ -3,16 +3,14 @@
 #include "HUD/SFHMDSpectatorHUDHelp.h"
 
 #if WITH_EDITOR
-#include "Editor/UnrealEd/Classes/Editor/EditorEngine.h"
+#include "Editor/EditorEngine.h"
 #endif
 
-#include "IHeadMountedDisplay.h"
 #include "IXRTrackingSystem.h"
 #include "HUD/SFHUDWidget.h"
 #include "Pawn/VirtualRealityPawn.h"
-#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
-#include "Runtime/Engine/Public/Slate/SceneViewport.h"
-#include "Runtime/Engine/Classes/Engine/GameEngine.h"
+#include "GameFramework/PlayerController.h"
+#include "Slate/SceneViewport.h"
 
 ASFHMDSpectatorHUDHelp::ASFHMDSpectatorHUDHelp()
 {
@@ -25,19 +23,31 @@ ASFHMDSpectatorHUDHelp::ASFHMDSpectatorHUDHelp()
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
 	WidgetComponent->SetupAttachment(Root);
 
-	//WidgetComponent->SetRelativeRotation(FRotator(90,0,0));
 	InteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>("Interaction Component");
 	InteractionComponent->SetupAttachment(WidgetComponent);
-	//InteractionComponent->VirtualUserIndex=1;
-	InteractionComponent->PointerIndex = 1;
-	InteractionComponent->bShowDebug=true;
-	InteractionComponent->InteractionDistance = 10.0f;
-	InteractionComponent->SetRelativeRotation(FRotator(0,180,0));
+	InteractionComponent->VirtualUserIndex = 1;
+	//InteractionComponent->bShowDebug = true;
+	InteractionComponent->InteractionDistance = 10.0f; //only 10 cm, because the interaction component is 1cm away from the widget
+	InteractionComponent->SetRelativeRotation(FRotator(0, 180, 0));
+
+	
 }
 
 void ASFHMDSpectatorHUDHelp::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UInputComponent* Input = GetWorld()->GetFirstPlayerController()->InputComponent;
+	//potentially right-clicks could be used here, since the left click is currently also forwarded to the "Fire" Action
+	Input->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &ASFHMDSpectatorHUDHelp::OnMouseClicked);
+	Input->BindKey(EKeys::LeftMouseButton, IE_Released, this, &ASFHMDSpectatorHUDHelp::OnMouseReleased);
+
+	//DrawSize = GetSpectatorDisplayResolution(); //as of now we always use 1080p since the HUD is designed for that
+	if(WidgetComponent->GetWidget())
+	{
+		//if CreateWidget was already set, overwrite that
+		WidgetComponent->SetDrawSize(DrawSize);
+	}
 }
 
 
@@ -47,38 +57,25 @@ void ASFHMDSpectatorHUDHelp::Tick(float DeltaSeconds)
 
 	//the widget needs to be always be facing away, so we do not see it in the HMD view
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	//AVirtualRealityPawn* Pawn = Cast<AVirtualRealityPawn>(PlayerController->AcknowledgedPawn);
-	//FVector HeadPos = Pawn->Head->GetComponentLocation();
-	//SetActorRotation(FQuat::FindBetweenNormals(FVector(0,0,1),(GetActorLocation()-HeadPos).GetSafeNormal()).Rotator());
+	AVirtualRealityPawn* Pawn = Cast<AVirtualRealityPawn>(PlayerController->AcknowledgedPawn);
+	FVector HeadPos = Pawn->Head->GetComponentLocation();
+	SetActorRotation(FQuat::FindBetweenNormals(FVector(0,0,1),(GetActorLocation()-HeadPos).GetSafeNormal()).Rotator());
 
 	//Set cursor to the right place
 	USFHUDWidget* HUDWidget = Cast<USFHUDWidget>(WidgetComponent->GetWidget());
-	FVector2D CursorPos = GetAbsoluteLocationForCursorWidgetFromMousePosition(PlayerController, DefaultDrawSize);
+	FVector2D CursorPos = GetAbsoluteLocationForCursorWidgetFromMousePosition(PlayerController, DrawSize);
 	HUDWidget->SetCursorWidgetPosition(CursorPos);
 
-	//Set widget interaction
-	FVector2D RelativePos = OffsetCursorWidgetFromMouseLocationForMiddlePivot(CursorPos, DefaultDrawSize);
+	//Set widget interaction to the right spot
+	FVector2D RelativePos = OffsetCursorWidgetFromMouseLocationForMiddlePivot(CursorPos, DrawSize);
 	InteractionComponent->SetRelativeLocation(FVector(1, RelativePos.X, RelativePos.Y));
-	
-
-	//clicking?
-	if(PlayerController->WasInputKeyJustPressed(EKeys::LeftMouseButton))
-	{
-		InteractionComponent->PressPointerKey(EKeys::RightMouseButton);
-	}
-	if(PlayerController->WasInputKeyJustReleased(EKeys::LeftMouseButton))
-	{
-		InteractionComponent->ReleasePointerKey(EKeys::RightMouseButton);
-	}
-	//InteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
-	//InteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
 }
 
 UUserWidget* ASFHMDSpectatorHUDHelp::CreateWidget(TSubclassOf<UUserWidget> WidgetClass)
 {
 	WidgetComponent->SetWidgetClass(WidgetClass);
 	WidgetComponent->InitWidget();
-	WidgetComponent->SetDrawSize(DefaultDrawSize);
+	WidgetComponent->SetDrawSize(DrawSize);
 	WidgetComponent->SetTickWhenOffscreen(true);
 	WidgetComponent->SetCastShadow(false);
 	//WidgetComponent->SetVisibility(false); //also not rendering into RenderTarget when used!
@@ -143,4 +140,16 @@ const FVector2D ASFHMDSpectatorHUDHelp::GetSpectatorDisplayResolution()
 	}
 
 	return FVector2D();
+}
+
+void ASFHMDSpectatorHUDHelp::OnMouseClicked()
+{
+	//We need to forward the clicks to the right user (see VirtualUserIndex=1 above)
+	InteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
+}
+
+void ASFHMDSpectatorHUDHelp::OnMouseReleased()
+{
+	//We need to forward the clicks to the right user (see VirtualUserIndex=1 above)
+	InteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
 }

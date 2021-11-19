@@ -52,6 +52,11 @@ public:
 	UFUNCTION()
 	static const FVector2D GetSpectatorDisplayResolution();
 
+	UFUNCTION()
+	void OnMouseClicked();
+	UFUNCTION()
+	void OnMouseReleased();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UWidgetComponent* WidgetComponent;
@@ -63,5 +68,5 @@ protected:
 	USceneComponent* Root;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FVector2D DefaultDrawSize = FVector2D(1920, 1080);
+	FVector2D DrawSize = FVector2D(1920, 1080);
 };

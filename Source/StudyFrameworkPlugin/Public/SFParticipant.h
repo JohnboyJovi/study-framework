@@ -31,7 +31,7 @@ public:
 	void GenerateExecutionJsonFile() const; // TODO implement GenerateExecutionJsonFile()
 
 	bool StartStudy(USFStudySetup* StudySetup);
-	FString NextCondition(); //returns the level to load
+	USFCondition* NextCondition(); 
 	void EndStudy(); // TODO implement Participant::EndStudy()
 
 	void SaveDataArray(FString Where, TArray<FString> Data);

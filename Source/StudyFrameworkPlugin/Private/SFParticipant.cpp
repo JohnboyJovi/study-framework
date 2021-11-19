@@ -149,20 +149,17 @@ bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 	return true;
 }
 
-FString USFParticipant::NextCondition()
+USFCondition* USFParticipant::NextCondition()
 {
 	// Get next Condition
 	if (++CurrentConditionIdx >= Conditions.Num())
 	{
 		FSFUtils::Log("[USFParticipant::NextCondition()]: All conditions already ran, EndStudy()", false);
 		USFGameInstance::Get()->EndStudy();
-		return "";
+		return nullptr;
 	}
 	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx];
-
-	const FString LevelName = UpcomingCondition->Map;
-
-	return LevelName;
+	return UpcomingCondition;
 }
 
 void USFParticipant::EndStudy()

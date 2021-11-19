@@ -45,6 +45,8 @@ public: // TODO check what can be protected:
 	UFUNCTION(BlueprintCallable)
 	bool NextCondition();
 	UFUNCTION(BlueprintCallable)
+	bool GoToCondition(const USFCondition* Condition);
+	UFUNCTION(BlueprintCallable)
 	bool IsStarted() const;
 
 

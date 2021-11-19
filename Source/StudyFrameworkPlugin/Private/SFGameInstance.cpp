@@ -103,6 +103,12 @@ void USFGameInstance::EndStudy()
 
 bool USFGameInstance::NextCondition()
 {
+	USFCondition* NextCondition = Participant->NextCondition();
+	return GoToCondition(NextCondition);
+}
+
+bool USFGameInstance::GoToCondition(const USFCondition* Condition)
+{
 	// Check if is already fading
 	if (FadeHandler->GetIsFading())
 	{
@@ -111,18 +117,16 @@ bool USFGameInstance::NextCondition()
 	}
 
 	// Commit data at SFLogger
-	Participant->CommitData();
+	CommitData();
 
-	FString NextLevelName = Participant->NextCondition();
-
-	if (NextLevelName.Equals(""))
+	if (!Condition || Condition->Map.Equals(""))
 	{
-		FSFUtils::Log("[USFGameInstance::NextCondition()]: Could not load next setup.", true);
+		FSFUtils::Log("[USFGameInstance::NextCondition()]: Could not load next condition.", true);
 		return false;
 	}
 
 	// Fade to next Level
-	FadeHandler->FadeToLevel(NextLevelName);
+	FadeHandler->FadeToLevel(Condition->Map);
 	UpdateHUD("Fading out");
 	return true;
 }

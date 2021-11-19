@@ -203,26 +203,10 @@ void USFGameInstance::SaveStudySetupToJson(FString Filename) const
 	FSFUtils::WriteJsonToFile(Json, Filename);
 }
 
-void USFGameInstance::SetFadeColor(const FLinearColor Color)
+USFFadeHandler* USFGameInstance::GetFadeHandler()
 {
-	FadeHandler->SetFadeColor(Color);
+	return FadeHandler;
 }
-
-void USFGameInstance::SetFadeDuration(const float FadeDuration)
-{
-	FadeHandler->SetFadeDuration(FadeDuration);
-}
-
-void USFGameInstance::SetFadedOutDuration(const float FadeOutWait)
-{
-	FadeHandler->SetFadedOutDuration(FadeOutWait);
-}
-
-void USFGameInstance::SetInitialFadedOut(const bool bFadedOut)
-{
-	FadeHandler->SetInitialFadedOut(bFadedOut);
-}
-
 
 // ****************************************************************** // 
 // ******* Executing Study ****************************************** //

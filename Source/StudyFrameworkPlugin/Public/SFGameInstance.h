@@ -77,14 +77,7 @@ public: // TODO check what can be protected:
 
 	// Fade Handler
 	UFUNCTION()
-	void SetFadeColor(FLinearColor Color);
-	UFUNCTION()
-	void SetFadeDuration(float FadeDuration);
-	UFUNCTION()
-	void SetFadedOutDuration(float FadeOutWait);
-	UFUNCTION()
-	void SetInitialFadedOut(bool bFadedOut);
-
+	USFFadeHandler* GetFadeHandler();
 
 	// ****************************************************************** // 
 	// ******* Executing Study ****************************************** //

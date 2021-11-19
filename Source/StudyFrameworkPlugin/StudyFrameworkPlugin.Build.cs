@@ -40,7 +40,8 @@ public class StudyFrameworkPlugin : ModuleRules
                 "Json",
                 "JsonUtilities",
                 "Networking",
-                "UMG"
+                "UMG",
+                "HeadMountedDisplay"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -53,7 +54,8 @@ public class StudyFrameworkPlugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                "UniversalLogging"
+                "UniversalLogging",
+                "UnrealEd"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

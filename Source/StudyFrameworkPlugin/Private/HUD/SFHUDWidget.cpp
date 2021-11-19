@@ -82,6 +82,14 @@ void USFHUDWidget::SetData(FHUDSavedData Data)
 	AddLogMessage("");
 }
 
+void USFHUDWidget::SetCursorWidgetPosition(FVector2D Pos)
+{
+	CursorImage->SetVisibility(ESlateVisibility::HitTestInvisible);
+	CursorImage->SetRenderTranslation(Pos);
+
+	//rather use CanvasPanelSlot::SetPosition(FVector2D InPosition)?
+}
+
 UButton* USFHUDWidget::GetStartButton()
 {
 	return StartButton;

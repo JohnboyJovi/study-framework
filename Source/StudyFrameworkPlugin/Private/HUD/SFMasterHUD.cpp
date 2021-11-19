@@ -8,6 +8,9 @@
 #include "SFPlugin.h"
 #include "Help/SFUtils.h"
 
+#include "Utility/VirtualRealityUtilities.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
+
 
 ASFMasterHUD::ASFMasterHUD()
 {
@@ -16,6 +19,11 @@ ASFMasterHUD::ASFMasterHUD()
 void ASFMasterHUD::DrawHUD()
 {
 	DrawBackground();
+
+	if(HMDHUDHelper && !bHMDHUDHelperTextureSet && HMDHUDHelper->GetWidgetComponent()->GetRenderTarget()!=nullptr){
+		UHeadMountedDisplayFunctionLibrary::SetSpectatorScreenTexture(HMDHUDHelper->GetWidgetComponent()->GetRenderTarget());
+		bHMDHUDHelperTextureSet = true;
+	}
 
 	if (FSFPlugin::GetIsMaster())
 		Super::DrawHUD();
@@ -27,11 +35,30 @@ void ASFMasterHUD::BeginPlay()
 	Super::BeginPlay();
 	if (SFWidgetClass)
 	{
-		HUDWidget = CreateWidget<USFHUDWidget>(GetWorld(), SFWidgetClass);
+		HMDHUDHelper=nullptr;
+		if (UVirtualRealityUtilities::IsHeadMountedMode())
+		{
+			HMDHUDHelper = Cast<ASFHMDSpectatorHUDHelp>(
+				GetWorld()->SpawnActor(ASFHMDSpectatorHUDHelp::StaticClass()));
+			HUDWidget = Cast<USFHUDWidget>(HMDHUDHelper->CreateWidget(SFWidgetClass));
+		}
+		else
+		{
+			HUDWidget = CreateWidget<USFHUDWidget>(GetWorld(), SFWidgetClass);
+		}
 
 		if (HUDWidget)
 		{
-			HUDWidget->AddToViewport();
+			if (HMDHUDHelper)
+			{
+				UHeadMountedDisplayFunctionLibrary::SetSpectatorScreenMode(ESpectatorScreenMode::TexturePlusEye);
+				UHeadMountedDisplayFunctionLibrary::SetSpectatorScreenModeTexturePlusEyeLayout(
+					FVector2D(0, 0), FVector2D(1, 1), FVector2D(0, 0), FVector2D(1, 1), true, false, true);
+			}
+			else
+			{
+				HUDWidget->AddToViewport();
+			}
 		}
 	}
 	FHUDSavedData& Data = USFGameInstance::Get()->HUDSavedData;
@@ -126,13 +153,15 @@ void ASFMasterHUD::OnShowConditionsButtonPressed()
 	if (bShowConditionList)
 	{
 		HUDWidget->GetConditionList()->SetVisibility(ESlateVisibility::Collapsed);
-		Cast<UTextBlock>(HUDWidget->GetShowConditionsButton()->GetAllChildren()[0])->SetText(FText::FromString("Show Conditions"));
+		Cast<UTextBlock>(HUDWidget->GetShowConditionsButton()->GetAllChildren()[0])->SetText(
+			FText::FromString("Show Conditions"));
 		bShowConditionList = false;
 	}
 	else
 	{
 		bShowConditionList = true;
-		Cast<UTextBlock>(HUDWidget->GetShowConditionsButton()->GetAllChildren()[0])->SetText(FText::FromString("Hide Conditions"));
+		Cast<UTextBlock>(HUDWidget->GetShowConditionsButton()->GetAllChildren()[0])->SetText(
+			FText::FromString("Hide Conditions"));
 		UScrollBox* ConditionList = HUDWidget->GetConditionList();
 		ConditionList->ClearChildren();
 		ConditionList->SetVisibility(ESlateVisibility::Visible);
@@ -143,11 +172,11 @@ void ASFMasterHUD::OnShowConditionsButtonPressed()
 
 		for (const USFCondition* Condition : Conditions)
 		{
-			if(LastPhase != Condition->PhaseName)
+			if (LastPhase != Condition->PhaseName)
 			{
 				//add phase header first
 				USFConditionListEntry* Entry = CreateWidget<USFConditionListEntry>(
-				GetWorld()->GetFirstPlayerController(), SFConditionListEntryBP_Class);
+					GetWorld()->GetFirstPlayerController(), SFConditionListEntryBP_Class);
 				Entry->FillAsPhaseHeader(Condition);
 				LastPhase = Condition->PhaseName;
 				ConditionList->AddChild(Entry);

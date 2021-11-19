@@ -52,6 +52,8 @@ public:
 	FHUDSavedData GetData();
 	void SetData(FHUDSavedData Data);
 
+	void SetCursorWidgetPosition(FVector2D Pos);
+
 	UButton* GetStartButton();
 	UButton* GetNextButton();
 	UButton* GetShowConditionsButton();
@@ -82,4 +84,7 @@ private:
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UScrollBox* ConditionList;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UImage* CursorImage; //only used for HMD fake HUD
 };

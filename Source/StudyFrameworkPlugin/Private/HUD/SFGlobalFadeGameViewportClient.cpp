@@ -88,7 +88,13 @@ void USFGlobalFadeGameViewportClient::DrawScreenFade(UCanvas* Canvas)
 				FLinearColor FadeColorTmp = FadeColor;
 				FadeColorTmp.A = bToBlack ? Alpha : 1 - Alpha;
 
-				ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+				ASFMasterHUD* MasterHUD=nullptr;
+				APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+				if(PlayerController)
+				{
+					MasterHUD = Cast<ASFMasterHUD>(PlayerController->GetHUD());
+				}
+
 				if (MasterHUD)
 				{
 					//if we use the HUD let it do the fading, so it can still be seen when faded out

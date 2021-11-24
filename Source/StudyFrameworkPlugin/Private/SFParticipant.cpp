@@ -177,7 +177,7 @@ void USFParticipant::CommitData()
 
 USFCondition* USFParticipant::GetCurrentCondition() const
 {
-	if (CurrentConditionIdx > 0 && CurrentConditionIdx < Conditions.Num())
+	if (CurrentConditionIdx >= 0 && CurrentConditionIdx < Conditions.Num())
 		return Conditions[CurrentConditionIdx];
 
 	return nullptr;

@@ -40,12 +40,12 @@ public:
 	virtual void NativeConstruct() override;
 
 
-	void SetParticipant(FString Text);
-	void SetPhase(FString Text);
-	void SetCondition(FString Text);
-	void SetStatus(FString Text);
+	void SetParticipant(const FString& Text);
+	void SetPhase(const FString& Text);
+	void SetCondition(const FString& Text);
+	void SetStatus(const FString& Text);
 
-	void AddLogMessage(FString Text);
+	void AddLogMessage(const FString& Text);
 
 	void ClearWidget();
 

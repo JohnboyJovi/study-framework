@@ -33,11 +33,13 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	UFUNCTION()
-	void UpdateHUD(USFParticipant* Participant, FString Status = "None");
+	bool IsWidgetPresent() const;
 
 	UFUNCTION()
-	void AddLogMessage(FString Text);
+	void UpdateHUD(USFParticipant* Participant, const FString& Status = "None");
+
+	UFUNCTION()
+	void AddLogMessage(const FString& Text);
 
 	UFUNCTION()
 	void SetBackgroundColor(FLinearColor Color);

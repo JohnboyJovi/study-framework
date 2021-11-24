@@ -15,27 +15,27 @@ void USFHUDWidget::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void USFHUDWidget::SetParticipant(FString Text)
+void USFHUDWidget::SetParticipant(const FString& Text)
 {
 	ParticipantTextBox->SetText(FText::FromString(FString(TEXT("Participant: ")) + Text));
 }
 
-void USFHUDWidget::SetPhase(FString Text)
+void USFHUDWidget::SetPhase(const FString& Text)
 {
 	PhaseTextBox->SetText(FText::FromString(FString(TEXT("Phase: ")) + Text));
 }
 
-void USFHUDWidget::SetCondition(FString Text)
+void USFHUDWidget::SetCondition(const FString& Text)
 {
 	ConditionTextBox->SetText(FText::FromString(FString(TEXT("Condition: ")) + Text));
 }
 
-void USFHUDWidget::SetStatus(FString Text)
+void USFHUDWidget::SetStatus(const FString& Text)
 {
 	StatusTextBox->SetText(FText::FromString(FString(TEXT("Status: ")) + Text));
 }
 
-void USFHUDWidget::AddLogMessage(FString Text)
+void USFHUDWidget::AddLogMessage(const FString& Text)
 {
 	if (!Text.IsEmpty())
 		LogMessages.Add(Text);

@@ -95,7 +95,12 @@ void ASFMasterHUD::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 }
 
-void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, FString Status)
+bool ASFMasterHUD::IsWidgetPresent() const
+{
+	return  HUDWidget!=nullptr;
+}
+
+void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, const FString& Status)
 {
 	if (HUDWidget == nullptr)
 		return;
@@ -107,7 +112,7 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, FString Status)
 
 	HUDWidget->SetParticipant(Participant->GetID());
 
-	const USFCondition* Condition = Participant->GetCurrentCondition();
+	USFCondition* Condition = Participant->GetCurrentCondition();
 	HUDWidget->SetPhase(Condition->PhaseName);
 
 	FString ConditionString = "(";
@@ -120,7 +125,7 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, FString Status)
 	HUDWidget->SetCondition(ConditionString);
 }
 
-void ASFMasterHUD::AddLogMessage(FString Text)
+void ASFMasterHUD::AddLogMessage(const FString& Text)
 {
 	HUDWidget->AddLogMessage(Text);
 }

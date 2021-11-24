@@ -9,6 +9,7 @@
 #include "Json.h"
 
 #include "SFPlugin.h"
+#include "SFGameInstance.h"
 
 #include "IUniversalLogging.h"
 
@@ -32,6 +33,7 @@ void FSFUtils::Log(const FString Text, const bool Error /*=false*/)
 	if (Error)
 	{
 		UniLog.Log(Text, "SFErrorLog");
+		USFGameInstance::Get()->LogToHUD("ERROR: "+Text);
 	}
 	else
 	{

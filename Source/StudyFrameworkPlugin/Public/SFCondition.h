@@ -57,5 +57,5 @@ protected:
 
 private:
 
-	float StartTime;
+	double StartTime;
 };

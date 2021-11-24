@@ -1,7 +1,6 @@
 #include "SFCondition.h"
 
 #include "SFMapFactor.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 USFCondition::USFCondition()
 {
@@ -68,7 +67,7 @@ bool USFCondition::operator==(USFCondition& Other)
 
 void USFCondition::Begin()
 {
-	StartTime = UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld());
+	StartTime = FPlatformTime::Seconds();
 
 	for(auto Vars : DependentVariablesValues)
 	{
@@ -80,7 +79,7 @@ void USFCondition::Begin()
 
 bool USFCondition::End()
 {
-	const float EndTime = UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld());
+	const double EndTime = FPlatformTime::Seconds();
 
 	for(auto Vars : DependentVariablesValues)
 	{

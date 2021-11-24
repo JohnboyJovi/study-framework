@@ -13,7 +13,7 @@ void USFConditionListEntry::FillWithCondition(const USFCondition* InCondition)
 	TArray<FString> Data;
 	Data.Add(Condition->PhaseName);
 	Data.Add(FPaths::GetBaseFilename(Condition->Map));
-	Data.Add(Condition->TimeTaken <= 0.0 ? "-" : FString::FromInt(Condition->TimeTaken));
+	Data.Add(Condition->TimeTaken <= 0.0 ? "-" : FString::Printf(TEXT("%.2f"), Condition->TimeTaken));
 	for (auto Factor : Condition->FactorLevels)
 	{
 		Data.Add(Factor.Value);
@@ -88,6 +88,24 @@ void USFConditionListEntry::UpdateData()
 	IsActive = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() == Condition;
 	IsDone = Condition->bConditionFinished;
 
+	if (IsHeader)
+	{
+		BackgroundColor->SetBrushColor(HeaderColor);
+		return; //no need to update anything!
+	}
+	else if (IsDone)
+	{
+		BackgroundColor->SetBrushColor(DoneColor);
+	}
+	else if (IsActive)
+	{
+		BackgroundColor->SetBrushColor(ActiveColor);
+	}
+	else
+	{
+		BackgroundColor->SetBrushColor(DefaultColor);
+	}
+
 	TArray<UTextBlock*> Texts = {Text0, Text1, Text2, Text3, Time};
 	for (int i = 0; i < Texts.Num(); ++i)
 	{
@@ -103,7 +121,7 @@ void USFConditionListEntry::UpdateData()
 			{
 				continue;
 			}
-			NewValue = FString::FromInt(Condition->TimeTaken);
+			NewValue = FString::Printf(TEXT("%.2f"), Condition->TimeTaken);
 		}
 		else
 		{
@@ -115,22 +133,5 @@ void USFConditionListEntry::UpdateData()
 			NewValue = Value;
 		}
 		Texts[i]->SetText(FText::FromString(NewValue));
-	}
-
-	if (IsHeader)
-	{
-		BackgroundColor->SetBrushColor(HeaderColor);
-	}
-	else if (IsDone)
-	{
-		BackgroundColor->SetBrushColor(DoneColor);
-	}
-	else if (IsActive)
-	{
-		BackgroundColor->SetBrushColor(ActiveColor);
-	}
-	else
-	{
-		BackgroundColor->SetBrushColor(DefaultColor);
 	}
 }

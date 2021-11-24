@@ -18,15 +18,19 @@ ASFMasterHUD::ASFMasterHUD()
 
 void ASFMasterHUD::DrawHUD()
 {
-	DrawBackground();
+	if (UVirtualRealityUtilities::IsMaster())
+	{
+		DrawBackground();
+	}
 
-	if(HMDHUDHelper && !bHMDHUDHelperTextureSet && HMDHUDHelper->GetWidgetComponent()->GetRenderTarget()!=nullptr){
-		UHeadMountedDisplayFunctionLibrary::SetSpectatorScreenTexture(HMDHUDHelper->GetWidgetComponent()->GetRenderTarget());
+	if (HMDHUDHelper && !bHMDHUDHelperTextureSet && HMDHUDHelper->GetWidgetComponent()->GetRenderTarget() != nullptr)
+	{
+		UHeadMountedDisplayFunctionLibrary::SetSpectatorScreenTexture(
+			HMDHUDHelper->GetWidgetComponent()->GetRenderTarget());
 		bHMDHUDHelperTextureSet = true;
 	}
 
-	if (FSFPlugin::GetIsMaster())
-		Super::DrawHUD();
+	Super::DrawHUD();
 }
 
 void ASFMasterHUD::BeginPlay()
@@ -35,14 +39,14 @@ void ASFMasterHUD::BeginPlay()
 	Super::BeginPlay();
 	if (SFWidgetClass)
 	{
-		HMDHUDHelper=nullptr;
+		HMDHUDHelper = nullptr;
 		if (UVirtualRealityUtilities::IsHeadMountedMode())
 		{
 			HMDHUDHelper = Cast<ASFHMDSpectatorHUDHelp>(
 				GetWorld()->SpawnActor(ASFHMDSpectatorHUDHelp::StaticClass()));
 			HUDWidget = Cast<USFHUDWidget>(HMDHUDHelper->CreateWidget(SFWidgetClass));
 		}
-		else
+		else if (UVirtualRealityUtilities::IsMaster())
 		{
 			HUDWidget = CreateWidget<USFHUDWidget>(GetWorld(), SFWidgetClass);
 		}
@@ -61,8 +65,12 @@ void ASFMasterHUD::BeginPlay()
 			}
 		}
 	}
+
+	if (!HUDWidget)
+		return;
+
 	FHUDSavedData& Data = USFGameInstance::Get()->HUDSavedData;
-	if (Data.bSet && HUDWidget)
+	if (Data.bSet)
 	{
 		HUDWidget->SetData(Data);
 	}
@@ -97,7 +105,7 @@ void ASFMasterHUD::Tick(float DeltaSeconds)
 
 bool ASFMasterHUD::IsWidgetPresent() const
 {
-	return  HUDWidget!=nullptr;
+	return HUDWidget != nullptr;
 }
 
 void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, const FString& Status)

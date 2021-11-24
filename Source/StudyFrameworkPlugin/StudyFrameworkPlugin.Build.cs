@@ -35,6 +35,7 @@ public class StudyFrameworkPlugin : ModuleRules
                 "Engine",
                 "DisplayCluster",
                 "RWTHVRToolkit",
+                "RWTHVRCluster",
                 "InputCore",
                 "Sockets",
                 "Json",

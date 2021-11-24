@@ -11,11 +11,13 @@
 #include "SFPlugin.h"
 #include "SFGameInstance.h"
 
+#include "Utility/VirtualRealityUtilities.h"
+
 #include "IUniversalLogging.h"
 
 void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 {
-	if (!FSFPlugin::GetIsMaster())
+	if (!UVirtualRealityUtilities::IsMaster())
 	{
 		return;
 	}

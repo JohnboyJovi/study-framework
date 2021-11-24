@@ -195,6 +195,9 @@ FString USFParticipant::GetID() const
 
 bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 {
+	if(!NextCondition)
+		return false;
+
 	for (int i = 0; i < Conditions.Num(); ++i)
 	{
 		if (Conditions[i] == NextCondition)

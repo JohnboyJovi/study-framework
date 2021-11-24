@@ -23,7 +23,15 @@ void USFGameInstance::Init()
 	GEngine->GameViewportClientClass = USFGlobalFadeGameViewportClient::StaticClass();
 
 	Instance = this;
+
+	GoToConditionSyncedEvent.Attach(this);
 }
+
+void USFGameInstance::Shutdown()
+{
+	GoToConditionSyncedEvent.Detach();
+}
+
 
 USFGameInstance* USFGameInstance::Get()
 {
@@ -130,21 +138,35 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition)
 		return false;
 	}
 
+	GoToConditionSyncedEvent.Send(Condition->GetName());
+	return true;
+}
+
+void  USFGameInstance::GoToConditionSynced(FString ConditionName)
+{
+	USFCondition* NextCondition=nullptr;
+	for(USFCondition* Condition : Participant->GetAllConditions())
+	{
+		if(Condition->GetName() == ConditionName)
+		{
+			NextCondition=Condition;
+		}
+	}
+
 	USFCondition* LastCondition = Participant->GetCurrentCondition();
 	if (LastCondition)
 		LastCondition->End();
 
-	bool bConditionPresent = Participant->SetCondition(Condition);
+	bool bConditionPresent = Participant->SetCondition(NextCondition);
 	if (!bConditionPresent)
 	{
 		FSFUtils::Log("[USFGameInstance::GoToCondition()]: Requested GoTo Condition seems not to exist.", true);
-		return false;
+		return;
 	}
 
 	// Fade to next Level
-	FadeHandler->FadeToLevel(Condition->Map);
+	FadeHandler->FadeToLevel(NextCondition->Map);
 	UpdateHUD("Fading out");
-	return true;
 }
 
 bool USFGameInstance::IsStarted() const

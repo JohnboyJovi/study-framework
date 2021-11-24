@@ -3,12 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
-
-
-// FStudyFrameworkPluginModule
-
-// TODO Check .cs file for correct Dependencies
 
 class FSFPlugin : public IModuleInterface
 {
@@ -18,10 +12,4 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-
-	static bool GetIsMaster();
-
-protected:
-
-	static bool bIsMaster;
 };

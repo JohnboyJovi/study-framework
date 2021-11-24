@@ -8,6 +8,8 @@
 #include "SFStudySetup.h"
 #include "HUD/SFMasterHUD.h"
 
+#include "Events/DisplayClusterEventWrapper.h"
+
 #include "SFGameInstance.generated.h"
 
 class USFFadeHandler;
@@ -24,6 +26,7 @@ public: // TODO check what can be protected:
 
 	//override UGameInstance init
 	void Init() override;
+	void Shutdown();
 
 	static USFGameInstance* Get();
 
@@ -113,6 +116,9 @@ public: // TODO check what can be protected:
 	FHUDSavedData HUDSavedData;
 
 protected:
+
+	void GoToConditionSynced(FString ConditionName);
+	DECLARE_DISPLAY_CLUSTER_EVENT(USFGameInstance, GoToConditionSynced);
 
 	UPROPERTY()
 	USFStudySetup* StudySetup = nullptr;

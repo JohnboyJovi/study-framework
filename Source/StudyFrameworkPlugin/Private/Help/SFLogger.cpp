@@ -7,6 +7,7 @@
 
 #include "HAL/FileManager.h"
 #include "Misc/Paths.h"
+#include "Utility/VirtualRealityUtilities.h"
 // #include "FileHelper.h"
 
 USFLogger::USFLogger()
@@ -25,12 +26,9 @@ void USFLogger::Initialize(USFParticipant* ParticipantNew, FString JsonFilePathN
 	LogName = LogNameNew;
 	SaveLogName = SaveLogNameNew;
 
-	ILogStream* LogStream = UniLog.NewLogStream(LogName, "Saved/OwnLogs/", LogName + ".log", true);
+	//ILogStream* LogStream = UniLog.NewLogStream(LogName, "Saved/OwnLogs/", LogName + ".log", true);
 	//TODO what is the difference here?
-	LogStream = UniLog.NewLogStream(SaveLogName, "Saved/OwnLogs/", SaveLogName + ".log", true); // TODO Kommentar
-
-	//initialize Log streams
-	FSFUtils::SetupLoggingStreams();
+	//LogStream = UniLog.NewLogStream(SaveLogName, "Saved/OwnLogs/", SaveLogName + ".log", true); // TODO Kommentar
 
 	bInitialized = true;
 }
@@ -126,6 +124,11 @@ void USFLogger::CommitData()
 		return;
 	}
 
+	if(!UVirtualRealityUtilities::IsMaster())
+	{
+		return;
+	}
+
 	FString SavedFolder = FPaths::ProjectSavedDir();
 
 	FString JsonFile = SavedFolder + JsonFilePath + Participant->GetID() + ".txt";
@@ -139,7 +142,7 @@ void USFLogger::CommitData()
 	FJsonSerializer::Serialize(MainJsonObject.ToSharedRef(), Writer);
 
 	// Log it in a extra log
-	UniLog.Log(JsonString, SaveLogName);
+	//UniLog.Log(JsonString, SaveLogName);
 
 	// Write to File_Tmp
 	if (!FFileHelper::SaveStringToFile(JsonString, *JsonFileTmp))

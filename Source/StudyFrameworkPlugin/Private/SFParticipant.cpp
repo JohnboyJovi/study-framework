@@ -152,13 +152,12 @@ bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 USFCondition* USFParticipant::NextCondition()
 {
 	// Get next Condition
-	if (++CurrentConditionIdx >= Conditions.Num())
+	if (CurrentConditionIdx+1 >= Conditions.Num())
 	{
 		FSFUtils::Log("[USFParticipant::NextCondition()]: All conditions already ran, EndStudy()", false);
-		USFGameInstance::Get()->EndStudy();
 		return nullptr;
 	}
-	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx];
+	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx+1];
 	return UpcomingCondition;
 }
 
@@ -176,7 +175,7 @@ void USFParticipant::CommitData()
 	Logger->CommitData();
 }
 
-const USFCondition* USFParticipant::GetCurrentCondition() const
+USFCondition* USFParticipant::GetCurrentCondition() const
 {
 	return Conditions[CurrentConditionIdx];
 }
@@ -189,4 +188,18 @@ const TArray<USFCondition*> USFParticipant::GetAllConditions() const
 FString USFParticipant::GetID() const
 {
 	return ParticipantID;
+}
+
+bool USFParticipant::SetCondition(const USFCondition* NextCondition)
+{
+	for(int i=0; i< Conditions.Num(); ++i)
+	{
+		if (Conditions[i]==NextCondition)
+		{
+			CurrentConditionIdx=i;
+			return true;
+		}
+	}
+	FSFUtils::Log("[USFParticipant::SetCondition()]: Requested condition is not one of my conditions!", true);
+	return false;
 }

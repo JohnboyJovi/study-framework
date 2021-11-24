@@ -8,10 +8,14 @@
 
 #include "SFCondition.generated.h"
 
+class USFGameInstance;
+
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFCondition : public UObject
 {
 	GENERATED_BODY()
+
+	friend USFGameInstance;
 
 public:
 	USFCondition();
@@ -46,4 +50,12 @@ public:
 
 	UPROPERTY()
 	TArray<TSubclassOf<AActor>> SpawnInThisCondition;
+
+protected:
+	void Begin();
+	bool End();
+
+private:
+
+	float StartTime;
 };

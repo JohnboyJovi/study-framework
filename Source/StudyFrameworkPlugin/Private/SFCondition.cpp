@@ -1,6 +1,7 @@
 #include "SFCondition.h"
 
 #include "SFMapFactor.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 USFCondition::USFCondition()
 {
@@ -63,4 +64,33 @@ bool USFCondition::operator==(USFCondition& Other)
 {
 	//this should work, since we use CreateIdentifiableName() for the Name
 	return GetName() == Other.GetName();
+}
+
+void USFCondition::Begin()
+{
+	StartTime = UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld());
+
+	for(auto Vars : DependentVariablesValues)
+	{
+		Vars.Value="";
+	}
+
+	//TODO: anything else to setup?
+}
+
+bool USFCondition::End()
+{
+	const float EndTime = UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld());
+
+	for(auto Vars : DependentVariablesValues)
+	{
+		if(Vars.Key->bRequired && Vars.Value=="")
+		{
+			return false;
+		}
+	}
+
+	TimeTaken = EndTime-StartTime;
+	bConditionFinished=true;
+	return true;
 }

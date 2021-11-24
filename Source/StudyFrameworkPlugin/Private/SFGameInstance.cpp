@@ -22,7 +22,7 @@ void USFGameInstance::Init()
 
 	GEngine->GameViewportClientClass = USFGlobalFadeGameViewportClient::StaticClass();
 
-	Instance=this;
+	Instance = this;
 }
 
 USFGameInstance* USFGameInstance::Get()
@@ -73,7 +73,7 @@ bool USFGameInstance::StartStudy()
 		return false;
 	}
 
-	if(!StudySetup)
+	if (!StudySetup)
 	{
 		FSFUtils::OpenMessageBox("[USFGameInstance::StartStudy()]: Not StudySetup specified. Please do so.", true);
 	}
@@ -104,6 +104,11 @@ void USFGameInstance::EndStudy()
 bool USFGameInstance::NextCondition()
 {
 	USFCondition* NextCondition = Participant->NextCondition();
+	if (!NextCondition)
+	{
+		EndStudy();
+		return false;
+	}
 	return GoToCondition(NextCondition);
 }
 
@@ -112,7 +117,7 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition)
 	// Check if is already fading
 	if (FadeHandler->GetIsFading())
 	{
-		FSFUtils::Log("[USFGameInstance::NextCondition()]: Already Fading between levels", true);
+		FSFUtils::Log("[USFGameInstance::GoToCondition()]: Already Fading between levels", true);
 		return false;
 	}
 
@@ -121,7 +126,17 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition)
 
 	if (!Condition || Condition->Map.Equals(""))
 	{
-		FSFUtils::Log("[USFGameInstance::NextCondition()]: Could not load next condition.", true);
+		FSFUtils::Log("[USFGameInstance::GoToCondition()]: Could not load next condition.", true);
+		return false;
+	}
+
+	USFCondition* LastCondition = Participant->GetCurrentCondition();
+	LastCondition->End();
+
+	bool bConditionPresent = Participant->SetCondition(Condition);
+	if (!bConditionPresent)
+	{
+		FSFUtils::Log("[USFGameInstance::GoToCondition()]: Requested GoTo Condition seems not to exist.", true);
 		return false;
 	}
 
@@ -176,7 +191,7 @@ void USFGameInstance::LogData(const FString String)
 void USFGameInstance::LogToHUD(FString Text)
 {
 	ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-	if (MasterHUD)
+	if (MasterHUD && MasterHUD->IsWidgetPresent())
 	{
 		MasterHUD->AddLogMessage(Text);
 	}
@@ -198,7 +213,7 @@ USFStudySetup* USFGameInstance::CreateNewStudySetup()
 		FSFUtils::Log("[USFGameInstance::CreateNewStudySetup()]: Study already started.", true);
 	}
 
-	StudySetup =  NewObject<USFStudySetup>(GetTransientPackage(), "StudySetup");
+	StudySetup = NewObject<USFStudySetup>(GetTransientPackage(), "StudySetup");
 	return StudySetup;
 }
 
@@ -247,6 +262,8 @@ void USFGameInstance::OnLevelLoaded()
 void USFGameInstance::OnFadedIn()
 {
 	OnFadedInDelegate.Broadcast();
+
+	Participant->GetCurrentCondition()->Begin();
 
 	UpdateHUD("Condition Running");
 }

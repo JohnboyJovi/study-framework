@@ -16,4 +16,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString Name = "undefined";
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bRequired = true; //potentially there are variables that are not required in every execution
 };

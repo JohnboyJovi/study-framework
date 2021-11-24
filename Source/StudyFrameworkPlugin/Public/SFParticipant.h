@@ -21,6 +21,9 @@ class STUDYFRAMEWORKPLUGIN_API USFParticipant : public UObject
 {
 	GENERATED_BODY()
 
+	friend USFGameInstance;
+	//so it can call SetCondition() which should only be called through the GameInstance which is the central interface
+
 public:
 	USFParticipant();
 	~USFParticipant();
@@ -31,7 +34,7 @@ public:
 	void GenerateExecutionJsonFile() const; // TODO implement GenerateExecutionJsonFile()
 
 	bool StartStudy(USFStudySetup* StudySetup);
-	USFCondition* NextCondition(); 
+	USFCondition* NextCondition();
 	void EndStudy(); // TODO implement Participant::EndStudy()
 
 	void SaveDataArray(FString Where, TArray<FString> Data);
@@ -39,12 +42,14 @@ public:
 	void CommitData(); // TODO need CommitData()?
 
 
-	const USFCondition* GetCurrentCondition() const;
+	USFCondition* GetCurrentCondition() const;
 	const TArray<USFCondition*> GetAllConditions() const;
 	FString GetID() const;
 
 
 protected:
+	bool SetCondition(const USFCondition* NextCondition);
+
 	UPROPERTY()
 	FString ParticipantID;
 

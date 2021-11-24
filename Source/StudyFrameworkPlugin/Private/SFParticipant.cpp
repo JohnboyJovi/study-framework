@@ -152,12 +152,12 @@ bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 USFCondition* USFParticipant::NextCondition()
 {
 	// Get next Condition
-	if (CurrentConditionIdx+1 >= Conditions.Num())
+	if (CurrentConditionIdx + 1 >= Conditions.Num())
 	{
 		FSFUtils::Log("[USFParticipant::NextCondition()]: All conditions already ran, EndStudy()", false);
 		return nullptr;
 	}
-	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx+1];
+	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx + 1];
 	return UpcomingCondition;
 }
 
@@ -177,7 +177,10 @@ void USFParticipant::CommitData()
 
 USFCondition* USFParticipant::GetCurrentCondition() const
 {
-	return Conditions[CurrentConditionIdx];
+	if (CurrentConditionIdx > 0 && CurrentConditionIdx < Conditions.Num())
+		return Conditions[CurrentConditionIdx];
+
+	return nullptr;
 }
 
 const TArray<USFCondition*> USFParticipant::GetAllConditions() const
@@ -192,11 +195,11 @@ FString USFParticipant::GetID() const
 
 bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 {
-	for(int i=0; i< Conditions.Num(); ++i)
+	for (int i = 0; i < Conditions.Num(); ++i)
 	{
-		if (Conditions[i]==NextCondition)
+		if (Conditions[i] == NextCondition)
 		{
-			CurrentConditionIdx=i;
+			CurrentConditionIdx = i;
 			return true;
 		}
 	}

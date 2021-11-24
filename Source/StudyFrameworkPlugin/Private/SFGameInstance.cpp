@@ -131,7 +131,8 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition)
 	}
 
 	USFCondition* LastCondition = Participant->GetCurrentCondition();
-	LastCondition->End();
+	if (LastCondition)
+		LastCondition->End();
 
 	bool bConditionPresent = Participant->SetCondition(Condition);
 	if (!bConditionPresent)

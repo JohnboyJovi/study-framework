@@ -136,6 +136,17 @@ bool USFGameInstance::IsStarted() const
 	return bStudyStarted;
 }
 
+FString USFGameInstance::GetFactorLevel(FString FactorName) const
+{
+	if (Participant->GetCurrentCondition()->FactorLevels.Contains(FactorName))
+	{
+		return Participant->GetCurrentCondition()->FactorLevels[FactorName];
+	}
+
+	FSFUtils::Log("[USFGameInstance::GetFactorLevel()]: Factor " + FactorName + " seems not to exist!", true);
+	return "FactorNotPresent";
+}
+
 
 void USFGameInstance::SaveData(const FString Where, FString Data)
 {

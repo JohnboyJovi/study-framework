@@ -49,6 +49,9 @@ public: // TODO check what can be protected:
 	UFUNCTION(BlueprintCallable)
 	bool IsStarted() const;
 
+	UFUNCTION(BlueprintCallable)
+	FString GetFactorLevel(FString FactorName) const;
+
 
 	UFUNCTION()
 	void SaveData(const FString Where, FString Data);

@@ -31,7 +31,7 @@ public:
 	bool Initialize(FString IdNew, FString JsonFilePath, FString LogName = "NormalLog",
 	                FString SaveDataLogName = "SaveLog");
 
-	void GenerateExecutionJsonFile() const; // TODO implement GenerateExecutionJsonFile()
+	void GenerateExecutionJsonFile() const;
 
 	bool StartStudy(USFStudySetup* StudySetup);
 	USFCondition* NextCondition();

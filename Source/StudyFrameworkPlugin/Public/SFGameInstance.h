@@ -26,7 +26,7 @@ public: // TODO check what can be protected:
 
 	//override UGameInstance init
 	void Init() override;
-	void Shutdown();
+	virtual void Shutdown() override;
 
 	static USFGameInstance* Get();
 

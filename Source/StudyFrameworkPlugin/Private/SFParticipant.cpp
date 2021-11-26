@@ -26,7 +26,7 @@ bool USFParticipant::Initialize(FString IdNew, FString JsonFilePath, FString Log
 {
 	ParticipantID = IdNew;
 
-	// TODO initialize Logger!!!
+	// TODO initialize Logger!!!   or not???
 	Logger = NewObject<USFLogger>();
 	Logger->Initialize(this, JsonFilePath, LogName, SaveDataLogName);
 
@@ -35,82 +35,19 @@ bool USFParticipant::Initialize(FString IdNew, FString JsonFilePath, FString Log
 
 void USFParticipant::GenerateExecutionJsonFile() const
 {
-	// Create initial Json File
-	/*
-	 + Phases (object)
-	 +     Num (Int)
-	 +         5 (Value)
-	 +     1 (object)
-	 +         Setup (Array)
-	 +             2_2_2 (Value)
-	 +         Order (FString Array)
-	 +             1_1,1_2,2_1,2_2 (Value)
+	TSharedPtr<FJsonObject> Json = MakeShared<FJsonObject>();
 
-	 + "Data": (object)
-	 +     "Phase_1": (object)
-	 +         "1_1": (object)
-	 -             "NameOfData": (Array)
-	 >                  1,2,3,4,5 (Value)
-	*/
+	Json->SetStringField("ParticipantID", ParticipantID);
 
-	/*TSharedPtr<FJsonObject> JsonPhases = MakeShared<FJsonObject>();
-	TSharedPtr<FJsonObject> JsonData = MakeShared<FJsonObject>();
-
-	const int NumPhases = StudySetup->GetNumberOfPhases();
-
-	JsonPhases->SetNumberField("NumberOfPhases", NumPhases);
-
-	TArray<TSharedPtr<FJsonObject>> JsonEachPhase;
-
-	for (int i = 0; i < NumPhases; i++)
+	TArray<TSharedPtr<FJsonValue>> ConditionsArray;
+	for (auto Condition : Conditions)
 	{
-		TSharedPtr<FJsonObject> JsonTmpPhases = MakeShared<FJsonObject>();
-		TSharedPtr<FJsonObject> JsonTmpData = MakeShared<FJsonObject>();
-
-		USFStudyPhase* Phase = StudySetup->GetPhase(i);
-
-		// Setup
-		TArray<int> SetupInt = Phase->GetFactorsLevelCount();
-		TArray<TSharedPtr<FJsonValue>> Setup;
-		for (auto Entry : SetupInt)
-		{
-			TSharedPtr<FJsonValueNumber> Tmp = MakeShared<FJsonValueNumber>(Entry);
-			Setup.Add(Tmp);
-		}
-		JsonTmpPhases->SetArrayField("Setup", Setup);
-
-		// Order
-		TArray<FString> OrderFString = FString::Join(Phase->GetOrderStrings();
-		TArray<TSharedPtr<FJsonValue>> Order;
-		for (auto Entry : OrderFString)
-		{
-			TSharedPtr<FJsonValueString> Tmp = MakeShared<FJsonValueString>(Entry);
-			Order.Add(Tmp);
-		}
-		JsonTmpPhases->SetArrayField("Order", Setup);
-
-		// Add Phase
-		JsonPhases->SetObjectField(FString::FromInt(i), JsonTmpPhases);
-
-
-		// Data Part
-		for (auto Entry : OrderFString)
-		{
-			TSharedPtr<FJsonObject> Tmp = MakeShared<FJsonObject>();
-			JsonTmpData->SetObjectField(Entry, Tmp);
-		}
-
-		JsonData->SetObjectField(FString::FromInt(i), JsonTmpData);
+		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(Condition->GetAsJson());
+		ConditionsArray.Add(JsonValue);
 	}
+	Json->SetArrayField("Conditions", ConditionsArray);
 
-	MainJsonObject->SetObjectField("Phases", JsonPhases);
-	MainJsonObject->SetObjectField("Data", JsonData);
-
-	FString JsonAsString = FSFUtils::JsonToString(MainJsonObject);
-
-	FSFUtils::Log(JsonAsString, false);*/
-
-	//TODO: recreate!
+	FSFUtils::WriteJsonToFile(Json, "Runs/Participant_" + ParticipantID + ".txt");
 }
 
 bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
@@ -195,7 +132,7 @@ FString USFParticipant::GetID() const
 
 bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 {
-	if(!NextCondition)
+	if (!NextCondition)
 		return false;
 
 	for (int i = 0; i < Conditions.Num(); ++i)

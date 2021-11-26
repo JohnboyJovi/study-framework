@@ -34,7 +34,24 @@ TSharedPtr<FJsonObject> USFCondition::GetAsJson() const
 {
 	TSharedPtr<FJsonObject> Json = MakeShared<FJsonObject>();
 
-	//TODO: implement!
+	Json->SetStringField("Name", GetName());
+	Json->SetStringField("PhaseName", PhaseName);
+	Json->SetStringField("Map", Map);
+
+	TSharedPtr<FJsonObject> FactorLevelsJson = MakeShared<FJsonObject>();
+	for(auto FactorLevel : FactorLevels)
+	{
+		FactorLevelsJson->SetStringField(FactorLevel.Key, FactorLevel.Value);
+	}
+	Json->SetObjectField("FactorLevels",FactorLevelsJson);
+
+	TArray<TSharedPtr<FJsonValue>> DependentVariablesArray;
+	for(auto Var : DependentVariablesValues)
+	{
+		TSharedRef< FJsonValueObject > JsonValue = MakeShared<FJsonValueObject>(Var.Key->GetAsJson());
+		DependentVariablesArray.Add(JsonValue);
+	}
+	Json->SetArrayField("DependentVariables",DependentVariablesArray);
 
 	return Json;
 }

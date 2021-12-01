@@ -28,13 +28,14 @@ void USFCondition::Generate(const FString& InPhaseName, const TArray<int>& Condi
 	{
 		DependentVariablesValues.Add(Var, "");
 	}
+	UniqueName = CreateIdentifiableName();
 }
 
 TSharedPtr<FJsonObject> USFCondition::GetAsJson() const
 {
 	TSharedPtr<FJsonObject> Json = MakeShared<FJsonObject>();
 
-	Json->SetStringField("Name", GetName());
+	Json->SetStringField("Name", UniqueName);
 	Json->SetStringField("PhaseName", PhaseName);
 	Json->SetStringField("Map", Map);
 
@@ -52,16 +53,36 @@ TSharedPtr<FJsonObject> USFCondition::GetAsJson() const
 		DependentVariablesArray.Add(JsonValue);
 	}
 	Json->SetArrayField("DependentVariables",DependentVariablesArray);
-
 	return Json;
 }
 
-FString USFCondition::CreateIdentifiableName(const FString& PhaseName, const TArray<int>& ConditionIndices)
+void USFCondition::FromJson(TSharedPtr<FJsonObject> Json)
+{
+	UniqueName = Json->GetStringField("Name");
+	PhaseName = Json->GetStringField("PhaseName");
+	Map = Json->GetStringField("Map");
+
+	TSharedPtr<FJsonObject> FactorLevelsJson = Json->GetObjectField("FactorLevels");
+	for(auto FactorLevel : FactorLevelsJson->Values)
+	{
+		FactorLevels.Add(FactorLevel.Key, FactorLevel.Value->AsString());
+	}
+
+	TArray<TSharedPtr<FJsonValue>> DependentVariablesArray = Json->GetArrayField("DependentVariables");
+	for(auto Var : DependentVariablesArray)
+	{
+		USFDependentVariable* DependentVariable = NewObject<USFDependentVariable>();
+		DependentVariable->FromJson(Var->AsObject());
+		DependentVariablesValues.Add(DependentVariable, "");
+	}
+}
+
+FString USFCondition::CreateIdentifiableName()
 {
 	FString Name = PhaseName;
-	for (int Index : ConditionIndices)
+	for (auto FactorLevel : FactorLevels)
 	{
-		Name = Name + "_" + FString::FromInt(Index);
+		Name = Name + "_" + FactorLevel.Value;
 	}
 	return Name;
 }
@@ -79,7 +100,7 @@ FString USFCondition::ToString() const
 bool USFCondition::operator==(USFCondition& Other)
 {
 	//this should work, since we use CreateIdentifiableName() for the Name
-	return GetName() == Other.GetName();
+	return UniqueName == Other.UniqueName;
 }
 
 void USFCondition::Begin()

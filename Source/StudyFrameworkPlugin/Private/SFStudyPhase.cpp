@@ -93,7 +93,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions()
 
 	for (TArray<int> ConditionIndices : ConditionsIndices)
 	{
-		USFCondition* Condition = NewObject<USFCondition>(this, FName(USFCondition::CreateIdentifiableName(GetName(),ConditionIndices)));
+		USFCondition* Condition = NewObject<USFCondition>();
 		Condition->Generate(GetName(), ConditionIndices, Factors, DependentVariables);
 		Condition->SpawnInThisCondition.Append(SpawnInEveryMapOfThisPhase);
 		Conditions.Add(Condition);

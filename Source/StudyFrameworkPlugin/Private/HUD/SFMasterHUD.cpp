@@ -118,7 +118,7 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, const FString& Status)
 	if (Participant == nullptr)
 		return;
 
-	HUDWidget->SetParticipant(Participant->GetID());
+	HUDWidget->SetParticipant(FString::FromInt(Participant->GetID()));
 
 	USFCondition* Condition = Participant->GetCurrentCondition();
 	HUDWidget->SetPhase(Condition->PhaseName);
@@ -144,6 +144,11 @@ void ASFMasterHUD::SetBackgroundColor(FLinearColor Color)
 	BackgroundColor = Color;
 }
 
+void ASFMasterHUD::SetStartStudyButtonVisibility(ESlateVisibility Visibility)
+{
+	HUDWidget->GetStartButton()->SetVisibility(Visibility);
+}
+
 void ASFMasterHUD::DrawBackground()
 {
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
@@ -152,7 +157,6 @@ void ASFMasterHUD::DrawBackground()
 
 void ASFMasterHUD::OnStartButtonPressed()
 {
-	HUDWidget->GetStartButton()->SetVisibility(ESlateVisibility::Collapsed);
 	USFGameInstance::Get()->StartStudy();
 }
 

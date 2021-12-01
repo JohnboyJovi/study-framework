@@ -32,6 +32,49 @@ void USFGameInstance::Shutdown()
 	GoToConditionSyncedEvent.Detach();
 }
 
+void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
+{
+	Super::OnWorldChanged(OldWorld, NewWorld);
+
+	//when unloading map, NewWorld==nullptr, when loading new map OldWorld==nullptr
+	if (NewWorld == nullptr)
+	{
+		return;
+	}
+
+	if (bStudyStarted)
+	{
+		//everything is already up and running, so nothing to do
+		return;
+	}
+
+	if(!Instance)
+	{
+		//this is potentially called before init was called
+		Init();
+	}
+
+
+	// so we have loaded a new world and the study is not running, so check whether this is a map in one of the conditions
+	TArray<USFCondition*> LastConditions = USFParticipant::GetLastParticipantsConditions();
+	USFCondition* FirstMapCondition = nullptr;
+	for (USFCondition* Condition : LastConditions)
+	{
+		if (FPaths::GetBaseFilename(Condition->Map).Equals(NewWorld->GetName()))
+		{
+			FirstMapCondition = Condition;
+			break;
+		}
+	}
+
+	if (FirstMapCondition)
+	{
+		FSFUtils::Log("Started on a map that was part of the last study, so start the study run for debug resaons");
+		Initialize(USFParticipant::GetLastParticipantId());
+		StartStudy(FirstMapCondition);
+	}
+}
+
 
 USFGameInstance* USFGameInstance::Get()
 {
@@ -42,7 +85,12 @@ USFGameInstance* USFGameInstance::Get()
 	return Instance;
 }
 
-void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
+bool USFGameInstance::IsGameInstanceSet()
+{
+	return Instance != nullptr;
+}
+
+void USFGameInstance::Initialize(int ParticipantID, FString JsonFilePath)
 {
 	if (bInitialized)
 	{
@@ -51,12 +99,13 @@ void USFGameInstance::Initialize(FString ParticipantID, FString JsonFilePath)
 
 	// FadeHandler
 	FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
-	FadeHandler->AddToRoot(); // TODO What is that?
+	FadeHandler->AddToRoot();
 	FadeHandler->SetGameInstance(this);
 	FadeHandler->SetInitialFadedOut(false);
 
 	// Participant
-	Participant = NewObject<USFParticipant>(GetTransientPackage(), FName(*ParticipantID));
+	Participant = NewObject<USFParticipant>(GetTransientPackage(),
+	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
 	Participant->Initialize(ParticipantID, JsonFilePath);
 
 	bInitialized = true;
@@ -73,7 +122,7 @@ bool USFGameInstance::IsInitialized() const
 // ******* Control Study ******************************************** //
 // ****************************************************************** //
 
-bool USFGameInstance::StartStudy()
+bool USFGameInstance::StartStudy(const USFCondition* StartCondition /*= nullptr*/)
 {
 	if (bStudyStarted)
 	{
@@ -81,20 +130,39 @@ bool USFGameInstance::StartStudy()
 		return false;
 	}
 
-	if (!StudySetup)
+	if (!StartCondition)
 	{
-		FSFUtils::OpenMessageBox("[USFGameInstance::StartStudy()]: Not StudySetup specified. Please do so.", true);
-	}
+		//we are actually doing a real start and not just a "debug-start"
+		if (!StudySetup)
+		{
+			FSFUtils::OpenMessageBox("[USFGameInstance::StartStudy()]: Not StudySetup specified. Please do so.", true);
+		}
 
-	if (!Participant->StartStudy(StudySetup))
-	{
-		FSFUtils::Log("[USFGameInstance::StartStudy()]: unable to start study.", true);
-		return false;
+		if (!Participant->StartStudy(StudySetup))
+		{
+			FSFUtils::Log("[USFGameInstance::StartStudy()]: unable to start study.", true);
+			return false;
+		}
 	}
 
 	bStudyStarted = true;
 
-	NextCondition();
+	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()))
+	{
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->SetStartStudyButtonVisibility(
+			ESlateVisibility::Collapsed);
+	}
+
+
+	if (!StartCondition)
+	{
+		NextCondition();
+	}
+	else
+	{
+		GoToCondition(StartCondition);
+	}
+
 	return true;
 }
 
@@ -111,7 +179,7 @@ void USFGameInstance::EndStudy()
 
 bool USFGameInstance::NextCondition()
 {
-	USFCondition* NextCondition = Participant->NextCondition();
+	USFCondition* NextCondition = Participant->GetNextCondition();
 	if (!NextCondition)
 	{
 		EndStudy();
@@ -142,14 +210,14 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition)
 	return true;
 }
 
-void  USFGameInstance::GoToConditionSynced(FString ConditionName)
+void USFGameInstance::GoToConditionSynced(FString ConditionName)
 {
-	USFCondition* NextCondition=nullptr;
-	for(USFCondition* Condition : Participant->GetAllConditions())
+	USFCondition* NextCondition = nullptr;
+	for (USFCondition* Condition : Participant->GetAllConditions())
 	{
-		if(Condition->GetName() == ConditionName)
+		if (Condition->GetName() == ConditionName)
 		{
-			NextCondition=Condition;
+			NextCondition = Condition;
 		}
 	}
 

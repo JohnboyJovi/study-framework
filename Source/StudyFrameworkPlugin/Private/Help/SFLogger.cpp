@@ -131,8 +131,8 @@ void USFLogger::CommitData()
 
 	FString SavedFolder = FPaths::ProjectSavedDir();
 
-	FString JsonFile = SavedFolder + JsonFilePath + Participant->GetID() + ".txt";
-	FString JsonFileTmp = SavedFolder + JsonFilePath + Participant->GetID() + "_tmp.txt";
+	FString JsonFile = SavedFolder + JsonFilePath + FString::FromInt(Participant->GetID()) + ".txt";
+	FString JsonFileTmp = SavedFolder + JsonFilePath + FString::FromInt(Participant->GetID()) + "_tmp.txt";
 
 	bool Success = true;
 

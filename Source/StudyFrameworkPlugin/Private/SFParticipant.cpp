@@ -22,9 +22,9 @@ void USFParticipant::SaveDataArray(FString Where, TArray<FString> Data)
 }
 
 
-bool USFParticipant::Initialize(FString IdNew, FString JsonFilePath, FString LogName, FString SaveDataLogName)
+bool USFParticipant::Initialize(int Participant, FString JsonFilePath, FString LogName, FString SaveDataLogName)
 {
-	ParticipantID = IdNew;
+	ParticipantID = Participant;
 
 	// TODO initialize Logger!!!   or not???
 	Logger = NewObject<USFLogger>();
@@ -37,7 +37,7 @@ void USFParticipant::GenerateExecutionJsonFile() const
 {
 	TSharedPtr<FJsonObject> Json = MakeShared<FJsonObject>();
 
-	Json->SetStringField("ParticipantID", ParticipantID);
+	Json->SetNumberField("ParticipantID", ParticipantID);
 
 	TArray<TSharedPtr<FJsonValue>> ConditionsArray;
 	for (auto Condition : Conditions)
@@ -47,7 +47,30 @@ void USFParticipant::GenerateExecutionJsonFile() const
 	}
 	Json->SetArrayField("Conditions", ConditionsArray);
 
-	FSFUtils::WriteJsonToFile(Json, "Runs/Participant_" + ParticipantID + ".txt");
+	FSFUtils::WriteJsonToFile(Json, "StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
+}
+
+TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
+{
+	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(
+		"StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
+	TArray<USFCondition*> LoadedConditions;
+	if (Json == nullptr)
+	{
+		FSFUtils::Log(
+			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
+			FString::FromInt(ParticipantID) + " cannot be read!", true);
+		return LoadedConditions;
+	}
+
+	TArray<TSharedPtr<FJsonValue>> ConditionsArray = Json->GetArrayField("Conditions");
+	for(TSharedPtr<FJsonValue> ConditionJson : ConditionsArray)
+	{
+		USFCondition* Condition = NewObject<USFCondition>();
+		Condition->FromJson(ConditionJson->AsObject());
+		LoadedConditions.Add(Condition);
+	}
+	return LoadedConditions;
 }
 
 bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
@@ -74,7 +97,7 @@ bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 
 	FSFUtils::Log(
 		"[USFParticipant::StartStudy()]: Generated " + FString::FromInt(Conditions.Num()) +
-		" conditions for participant " + ParticipantID,
+		" conditions for participant " + FString::FromInt(ParticipantID),
 		false);
 
 	// Create initial Json file
@@ -84,18 +107,6 @@ bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 	CurrentConditionIdx = -1;
 
 	return true;
-}
-
-USFCondition* USFParticipant::NextCondition()
-{
-	// Get next Condition
-	if (CurrentConditionIdx + 1 >= Conditions.Num())
-	{
-		FSFUtils::Log("[USFParticipant::NextCondition()]: All conditions already ran, EndStudy()", false);
-		return nullptr;
-	}
-	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx + 1];
-	return UpcomingCondition;
 }
 
 void USFParticipant::EndStudy()
@@ -120,14 +131,42 @@ USFCondition* USFParticipant::GetCurrentCondition() const
 	return nullptr;
 }
 
+USFCondition* USFParticipant::GetNextCondition() const
+{
+	// Get next Condition
+	if (CurrentConditionIdx + 1 >= Conditions.Num())
+	{
+		FSFUtils::Log("[USFParticipant::NextCondition()]: All conditions already ran, no NextCondition", false);
+		return nullptr;
+	}
+	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx + 1];
+	return UpcomingCondition;
+}
+
 const TArray<USFCondition*> USFParticipant::GetAllConditions() const
 {
 	return Conditions;
 }
 
-FString USFParticipant::GetID() const
+int USFParticipant::GetID() const
 {
 	return ParticipantID;
+}
+
+TArray<USFCondition*> USFParticipant::GetLastParticipantsConditions()
+{
+	return ReadExecutionJsonFile(GetLastParticipantId());
+}
+
+int USFParticipant::GetLastParticipantId()
+{
+	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticpantJson == nullptr)
+	{
+		//file does not exist or something else went wrong
+		return -1;
+	}
+	return ParticpantJson->GetNumberField("ParticipantID");
 }
 
 bool USFParticipant::SetCondition(const USFCondition* NextCondition)
@@ -140,9 +179,27 @@ bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 		if (Conditions[i] == NextCondition)
 		{
 			CurrentConditionIdx = i;
+			LogCurrentParticipant();
 			return true;
 		}
 	}
 	FSFUtils::Log("[USFParticipant::SetCondition()]: Requested condition is not one of my conditions!", true);
 	return false;
+}
+
+void USFParticipant::LogCurrentParticipant() const
+{
+	TSharedPtr<FJsonObject> Json = MakeShared<FJsonObject>();
+
+	Json->SetNumberField("ParticipantID", ParticipantID);
+	bool bFinished = true;
+	for (USFCondition* Condition : Conditions)
+	{
+		bFinished = bFinished && Condition->bConditionFinished;
+	}
+	Json->SetBoolField("Finished", bFinished);
+	Json->SetNumberField("CurrentConditionIdx", CurrentConditionIdx);
+
+
+	FSFUtils::WriteJsonToFile(Json, "StudyRuns/LastParticipant.txt");
 }

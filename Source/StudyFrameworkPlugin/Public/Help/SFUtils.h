@@ -23,6 +23,7 @@ public:
 	static TSharedPtr<FJsonObject> StringToJson(FString String);
 
 	static void WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName);
+	static TSharedPtr<FJsonObject> ReadJsonFromFile(FString FilenName);
 
 	static TSubclassOf<AActor> GetBlueprintClass(FString BlueprintName, FString BlueprintPath);
 };

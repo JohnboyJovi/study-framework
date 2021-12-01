@@ -13,6 +13,7 @@ public:
 	USFDependentVariable();
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
+	void FromJson(TSharedPtr<FJsonObject> Json);
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString Name = "undefined";

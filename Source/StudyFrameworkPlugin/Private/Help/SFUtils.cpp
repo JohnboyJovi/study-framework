@@ -35,7 +35,11 @@ void FSFUtils::Log(const FString Text, const bool Error /*=false*/)
 	if (Error)
 	{
 		UniLog.Log(Text, "SFErrorLog");
-		USFGameInstance::Get()->LogToHUD("ERROR: "+Text);
+		if(USFGameInstance::IsGameInstanceSet())
+		{
+			//to avoid endless error message loops
+			USFGameInstance::Get()->LogToHUD("ERROR: "+Text);
+		}
 	}
 	else
 	{
@@ -76,6 +80,16 @@ TSharedPtr<FJsonObject> FSFUtils::StringToJson(FString String)
 void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName)
 {
 	FFileHelper::SaveStringToFile(JsonToString(Json), *(FPaths::ProjectSavedDir() + FilenName));
+}
+
+TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilenName)
+{
+	FString JsonString;
+	if(!FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectSavedDir() + FilenName)))
+	{
+		return nullptr;
+	}
+	return StringToJson(JsonString);
 }
 
 TSubclassOf<AActor> FSFUtils::GetBlueprintClass(FString BlueprintName, FString BlueprintPath)

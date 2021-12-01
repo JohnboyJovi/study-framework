@@ -23,12 +23,14 @@ public:
 	void Generate(const FString& InPhaseName, const TArray<int>& ConditionIndices, const TArray<USFStudyFactor*>& Factors, const TArray<USFDependentVariable*>& InDependentVars);
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
-
-	static FString CreateIdentifiableName(const FString& PhaseName, const TArray<int>& ConditionIndices);
+	void FromJson(TSharedPtr<FJsonObject> Json);
 
 	FString ToString() const;
 
 	bool operator==(USFCondition &Other);
+
+	UPROPERTY(BlueprintReadOnly)
+	FString UniqueName;
 
 	UPROPERTY(BlueprintReadOnly)
 	FString PhaseName;
@@ -54,6 +56,8 @@ public:
 protected:
 	void Begin();
 	bool End();
+
+	FString CreateIdentifiableName();
 
 private:
 

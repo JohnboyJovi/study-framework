@@ -24,25 +24,28 @@ class STUDYFRAMEWORKPLUGIN_API USFGameInstance : public UGameInstance
 
 public: // TODO check what can be protected:
 
-	//override UGameInstance init
-	void Init() override;
+	//override UGameInstance methods
+	virtual void Init() override;
 	virtual void Shutdown() override;
+	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
 
 	static USFGameInstance* Get();
+	static bool IsGameInstanceSet();
 
 	// ****************************************************************** // 
 	// ******* Initialization ******************************************* //
 	// ****************************************************************** //
 	UFUNCTION()
-	void Initialize(FString ParticipantID, FString JsonFilePath);
+	void Initialize(int ParticipantID, FString JsonFilePath = "WhatFor");
 	UFUNCTION()
 	bool IsInitialized() const;
+	
 
 	// ****************************************************************** // 
 	// ******* Control Study ******************************************** //
 	// ****************************************************************** //
 	UFUNCTION(BlueprintCallable)
-	bool StartStudy();
+	bool StartStudy(const USFCondition* StartCondition = nullptr);
 	UFUNCTION(BlueprintCallable)
 	void EndStudy(); // TODO implement EndStudy()
 	UFUNCTION(BlueprintCallable)

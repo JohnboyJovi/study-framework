@@ -28,13 +28,10 @@ public:
 	USFParticipant();
 	~USFParticipant();
 
-	bool Initialize(FString IdNew, FString JsonFilePath, FString LogName = "NormalLog",
+	bool Initialize(int Participant, FString JsonFilePath, FString LogName = "NormalLog",
 	                FString SaveDataLogName = "SaveLog");
 
-	void GenerateExecutionJsonFile() const;
-
 	bool StartStudy(USFStudySetup* StudySetup);
-	USFCondition* NextCondition();
 	void EndStudy(); // TODO implement Participant::EndStudy()
 
 	void SaveDataArray(FString Where, TArray<FString> Data);
@@ -43,15 +40,27 @@ public:
 
 
 	USFCondition* GetCurrentCondition() const;
+	USFCondition* GetNextCondition() const;
 	const TArray<USFCondition*> GetAllConditions() const;
-	FString GetID() const;
+	int GetID() const;
+
+	// this method can be used to recover from a crash during the study
+	// (or when directly starting an intermediate map for testing)
+	static TArray<USFCondition*> GetLastParticipantsConditions();
+	static int GetLastParticipantId();
 
 
 protected:
 	bool SetCondition(const USFCondition* NextCondition);
 
+	//this logs the current participant and state into a file, for recovery etc.
+	void LogCurrentParticipant() const;
+
+	void GenerateExecutionJsonFile() const;
+	static TArray<USFCondition*> ReadExecutionJsonFile(int ParticipantID);
+
 	UPROPERTY()
-	FString ParticipantID;
+	int ParticipantID;
 
 	UPROPERTY()
 	USFLogger* Logger;

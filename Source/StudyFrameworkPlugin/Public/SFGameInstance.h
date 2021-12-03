@@ -30,15 +30,15 @@ public: // TODO check what can be protected:
 	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
 
 	static USFGameInstance* Get();
-	static bool IsGameInstanceSet();
+	static bool IsInitialized();
 
 	// ****************************************************************** // 
 	// ******* Initialization ******************************************* //
 	// ****************************************************************** //
 	UFUNCTION()
-	void Initialize(int ParticipantID, FString JsonFilePath = "WhatFor");
+	void PrepareForParticipant(int ParticipantID, FString JsonFilePath = "WhatFor");
 	UFUNCTION()
-	bool IsInitialized() const;
+	bool IsPrepared() const;
 	
 
 	// ****************************************************************** // 
@@ -134,7 +134,7 @@ protected:
 
 	// State of Study / GameInstance
 	UPROPERTY()
-	bool bInitialized = false;
+	bool bPrepared = false;
 	UPROPERTY()
 	bool bStudyStarted = false;
 

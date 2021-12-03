@@ -30,6 +30,7 @@ void USFGameInstance::Init()
 void USFGameInstance::Shutdown()
 {
 	GoToConditionSyncedEvent.Detach();
+	Instance = nullptr;
 }
 
 void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
@@ -85,14 +86,14 @@ USFGameInstance* USFGameInstance::Get()
 	return Instance;
 }
 
-bool USFGameInstance::IsGameInstanceSet()
+bool USFGameInstance::IsInitialized()
 {
 	return Instance != nullptr;
 }
 
-void USFGameInstance::Initialize(int ParticipantID, FString JsonFilePath)
+void USFGameInstance::PrepareForParticipant(int ParticipantID, FString JsonFilePath)
 {
-	if (bInitialized)
+	if (bPrepared)
 	{
 		return;
 	}
@@ -108,13 +109,13 @@ void USFGameInstance::Initialize(int ParticipantID, FString JsonFilePath)
 	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
 	Participant->Initialize(ParticipantID, JsonFilePath);
 
-	bInitialized = true;
+	bPrepared = true;
 }
 
 
-bool USFGameInstance::IsInitialized() const
+bool USFGameInstance::IsPrepared() const
 {
-	return bInitialized;
+	return bPrepared;
 }
 
 

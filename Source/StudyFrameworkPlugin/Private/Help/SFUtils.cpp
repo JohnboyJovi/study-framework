@@ -35,7 +35,7 @@ void FSFUtils::Log(const FString Text, const bool Error /*=false*/)
 	if (Error)
 	{
 		UniLog.Log(Text, "SFErrorLog");
-		if(USFGameInstance::IsGameInstanceSet())
+		if(USFGameInstance::IsInitialized())
 		{
 			//to avoid endless error message loops
 			USFGameInstance::Get()->LogToHUD("ERROR: "+Text);

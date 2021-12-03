@@ -123,6 +123,11 @@ protected:
 	void GoToConditionSynced(FString ConditionName);
 	DECLARE_DISPLAY_CLUSTER_EVENT(USFGameInstance, GoToConditionSynced);
 
+	void RestoreLastParticipant(USFCondition* StartCondition);
+	//method called by a timer if we want to directly fade in on startup
+	void StartFadingIn();
+	FTimerHandle StartFadingTimerHandle;
+
 	UPROPERTY()
 	USFStudySetup* StudySetup = nullptr;
 	UPROPERTY()
@@ -140,4 +145,8 @@ protected:
 
 	//singleton object of this class, to easier access it
 	static USFGameInstance* Instance;
+
+	// this is only needed if a map should be started for debugging, but Init wasn't called
+	USFCondition* ConditionToStartAtInit=nullptr;
 };
+

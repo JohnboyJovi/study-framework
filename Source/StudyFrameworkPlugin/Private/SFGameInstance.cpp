@@ -22,9 +22,16 @@ void USFGameInstance::Init()
 
 	GEngine->GameViewportClientClass = USFGlobalFadeGameViewportClient::StaticClass();
 
-	Instance = this;
-
 	GoToConditionSyncedEvent.Attach(this);
+
+	if (ConditionToStartAtInit)
+	{
+		FSFUtils::Log(
+			"Started on a map that was part of the last study, so start the study run for debug reasons from Init()");
+		RestoreLastParticipant(ConditionToStartAtInit);
+	}
+
+	Instance = this;
 }
 
 void USFGameInstance::Shutdown()
@@ -49,13 +56,6 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 		return;
 	}
 
-	if(!Instance)
-	{
-		//this is potentially called before init was called
-		Init();
-	}
-
-
 	// so we have loaded a new world and the study is not running, so check whether this is a map in one of the conditions
 	TArray<USFCondition*> LastConditions = USFParticipant::GetLastParticipantsConditions();
 	USFCondition* FirstMapCondition = nullptr;
@@ -68,12 +68,30 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 		}
 	}
 
-	if (FirstMapCondition)
+	if (!IsInitialized())
 	{
-		FSFUtils::Log("Started on a map that was part of the last study, so start the study run for debug resaons");
-		Initialize(USFParticipant::GetLastParticipantId());
-		StartStudy(FirstMapCondition);
+		//this is potentially called before init was called
+		ConditionToStartAtInit = FirstMapCondition;
 	}
+	else if (FirstMapCondition)
+	{
+		FSFUtils::Log("Started on a map that was part of the last study, so start the study run for debug reasons");
+		RestoreLastParticipant(FirstMapCondition);
+	}
+}
+
+void USFGameInstance::RestoreLastParticipant(USFCondition* StartCondition)
+{
+	PrepareForParticipant(USFParticipant::GetLastParticipantId());
+	Participant->LoadConditionsFromJson();
+	StartStudy(StartCondition);
+	GetTimerManager().SetTimer(StartFadingTimerHandle, this, &USFGameInstance::StartFadingIn, 1.0f);
+}
+
+void USFGameInstance::StartFadingIn()
+{
+	FadeHandler->FadeIn();
+	GetTimerManager().ClearTimer(StartFadingTimerHandle);
 }
 
 
@@ -234,8 +252,11 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName)
 	}
 
 	// Fade to next Level
-	FadeHandler->FadeToLevel(NextCondition->Map);
-	UpdateHUD("Fading out");
+	if (IsInitialized())
+	{
+		FadeHandler->FadeToLevel(NextCondition->Map);
+		UpdateHUD("Fading out");
+	}
 }
 
 bool USFGameInstance::IsStarted() const
@@ -282,10 +303,10 @@ void USFGameInstance::LogData(const FString String)
 
 void USFGameInstance::LogToHUD(FString Text)
 {
-	ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-	if (MasterHUD && MasterHUD->IsWidgetPresent())
+	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()) &&
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->IsWidgetPresent())
 	{
-		MasterHUD->AddLogMessage(Text);
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->AddLogMessage(Text);
 	}
 	else
 	{

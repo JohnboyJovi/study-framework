@@ -44,6 +44,9 @@ public:
 	UFUNCTION()
 	void SetBackgroundColor(FLinearColor Color);
 
+	UFUNCTION()
+	void SetStartStudyButtonVisibility(ESlateVisibility Visibility);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Interactive")
 	TSubclassOf<USFHUDWidget> SFWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Interactive")

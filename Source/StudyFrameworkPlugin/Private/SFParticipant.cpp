@@ -64,7 +64,7 @@ TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 	}
 
 	TArray<TSharedPtr<FJsonValue>> ConditionsArray = Json->GetArrayField("Conditions");
-	for(TSharedPtr<FJsonValue> ConditionJson : ConditionsArray)
+	for (TSharedPtr<FJsonValue> ConditionJson : ConditionsArray)
 	{
 		USFCondition* Condition = NewObject<USFCondition>();
 		Condition->FromJson(ConditionJson->AsObject());
@@ -167,6 +167,26 @@ int USFParticipant::GetLastParticipantId()
 		return -1;
 	}
 	return ParticpantJson->GetNumberField("ParticipantID");
+}
+
+bool USFParticipant::LoadConditionsFromJson()
+{
+	if (ParticipantID == -1)
+	{
+		FSFUtils::Log("[USFParticipant::LoadContitionsFromJson] ParticipantID == -1, maybe nothing stored?", true);
+		return false;
+	}
+
+	Conditions = ReadExecutionJsonFile(ParticipantID);
+
+	if (Conditions.Num() == 0)
+	{
+		FSFUtils::Log(
+			"[USFParticipant::LoadContitionsFromJson] No Conditions could be loaded for Participant " +
+			FString::FromInt(ParticipantID), true);
+		return false;
+	}
+	return true;
 }
 
 bool USFParticipant::SetCondition(const USFCondition* NextCondition)

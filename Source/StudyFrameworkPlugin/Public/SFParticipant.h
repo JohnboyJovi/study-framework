@@ -48,6 +48,7 @@ public:
 	// (or when directly starting an intermediate map for testing)
 	static TArray<USFCondition*> GetLastParticipantsConditions();
 	static int GetLastParticipantId();
+	bool LoadConditionsFromJson();
 
 
 protected:

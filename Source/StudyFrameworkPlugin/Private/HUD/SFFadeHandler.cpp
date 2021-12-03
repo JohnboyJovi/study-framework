@@ -150,12 +150,6 @@ void USFFadeHandler::Fade(const float Duration, const bool bToBlack) const
 		{
 			GameViewportClient->Fade(Duration, bToBlack, FadeColor);
 		}
-		else
-		{
-			FSFUtils::OpenMessageBox(
-				"GameViewport is not set to USFGlobalFadeGameViewportClient, Study Framework will not work correctly",
-				true);
-		}
 	}
 }
 

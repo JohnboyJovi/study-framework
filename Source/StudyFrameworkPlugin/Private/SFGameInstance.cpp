@@ -109,7 +109,7 @@ bool USFGameInstance::IsInitialized()
 	return Instance != nullptr;
 }
 
-void USFGameInstance::PrepareForParticipant(int ParticipantID, FString JsonFilePath)
+void USFGameInstance::PrepareForParticipant(int ParticipantID)
 {
 	if (bPrepared)
 	{
@@ -125,7 +125,7 @@ void USFGameInstance::PrepareForParticipant(int ParticipantID, FString JsonFileP
 	// Participant
 	Participant = NewObject<USFParticipant>(GetTransientPackage(),
 	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
-	Participant->Initialize(ParticipantID, JsonFilePath);
+	Participant->Initialize(ParticipantID);
 
 	bPrepared = true;
 }
@@ -187,7 +187,6 @@ bool USFGameInstance::StartStudy(const USFCondition* StartCondition /*= nullptr*
 
 void USFGameInstance::EndStudy()
 {
-	Participant->CommitData();
 	Participant->EndStudy();
 
 	UpdateHUD("Study ended");
@@ -215,9 +214,6 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition)
 		FSFUtils::Log("[USFGameInstance::GoToCondition()]: Already Fading between levels", true);
 		return false;
 	}
-
-	// Commit data at SFLogger
-	CommitData();
 
 	if (!Condition || Condition->Map.Equals(""))
 	{
@@ -276,29 +272,15 @@ FString USFGameInstance::GetFactorLevel(FString FactorName) const
 }
 
 
-void USFGameInstance::SaveData(const FString Where, FString Data)
+void USFGameInstance::LogData(const FString& DependenVariableName, const FString& Value)
 {
-	TArray<FString> DataArray;
-	DataArray.Add(Data);
-
-	SaveDataArray(Where, DataArray);
+	Participant->LogData(DependenVariableName, Value);
 }
 
-void USFGameInstance::SaveDataArray(const FString Where, TArray<FString> Data)
+void USFGameInstance::LogComment(const FString& Comment)
 {
-	Participant->SaveDataArray(Where, Data);
-}
-
-void USFGameInstance::CommitData()
-{
-	Participant->CommitData();
-}
-
-void USFGameInstance::LogData(const FString String)
-{
-	Participant->LogData(String);
-	LogToHUD(String);
-	//TODO: log it to HUD here?
+	Participant->LogComment(Comment);
+	LogToHUD(Comment);
 }
 
 void USFGameInstance::LogToHUD(FString Text)

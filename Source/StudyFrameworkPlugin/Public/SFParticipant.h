@@ -28,15 +28,13 @@ public:
 	USFParticipant();
 	~USFParticipant();
 
-	bool Initialize(int Participant, FString JsonFilePath, FString LogName = "NormalLog",
-	                FString SaveDataLogName = "SaveLog");
+	bool Initialize(int Participant);
 
 	bool StartStudy(USFStudySetup* StudySetup);
 	void EndStudy(); // TODO implement Participant::EndStudy()
 
-	void SaveDataArray(FString Where, TArray<FString> Data);
-	void LogData(FString Data);
-	void CommitData(); // TODO need CommitData()?
+	void LogData(const FString& DependentVariableName, const FString& Value);
+	void LogComment(const FString& Comment);
 
 
 	USFCondition* GetCurrentCondition() const;
@@ -60,15 +58,11 @@ protected:
 	void GenerateExecutionJsonFile() const;
 	static TArray<USFCondition*> ReadExecutionJsonFile(int ParticipantID);
 
+	void StoreInPhaseLongTable();
+
 	UPROPERTY()
 	int ParticipantID;
 
-	UPROPERTY()
-	USFLogger* Logger;
-
-
-	UPROPERTY()
-	USFStudySetup* StudySetup;
 	UPROPERTY()
 	TArray<USFCondition*> Conditions;
 	UPROPERTY()

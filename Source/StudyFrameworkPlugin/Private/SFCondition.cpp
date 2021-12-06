@@ -103,6 +103,29 @@ bool USFCondition::operator==(USFCondition& Other)
 	return UniqueName == Other.UniqueName;
 }
 
+bool USFCondition::StoreDependetVariableData(const FString & VarName, const FString & Value)
+{
+	for(auto& Var : DependentVariablesValues)
+	{
+		if(Var.Key->Name == VarName)
+		{
+			Var.Value = Value;
+			return true;
+		}
+	}
+	return false;
+}
+
+float USFCondition::GetTimeTaken() const
+{
+	return TimeTaken;
+}
+
+bool USFCondition::IsFinished() const
+{
+	return bConditionFinished;
+}
+
 void USFCondition::Begin()
 {
 	StartTime = FPlatformTime::Seconds();

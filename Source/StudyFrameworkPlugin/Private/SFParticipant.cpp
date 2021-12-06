@@ -3,8 +3,9 @@
 
 #include "SFParticipant.h"
 
+
+#include "IUniversalLogging.h"
 #include "SFGameInstance.h"
-#include "Help/SFLogger.h"
 #include "Help/SFUtils.h"
 
 USFParticipant::USFParticipant()
@@ -15,20 +16,11 @@ USFParticipant::~USFParticipant()
 {
 }
 
-void USFParticipant::SaveDataArray(FString Where, TArray<FString> Data)
-{
-	//TODO: what is this used for???
-	Logger->SaveDataArray(Where, Data, /*CurrentPhaseIdx*/ 0, Conditions[CurrentConditionIdx]->ToString());
-}
-
-
-bool USFParticipant::Initialize(int Participant, FString JsonFilePath, FString LogName, FString SaveDataLogName)
+bool USFParticipant::Initialize(int Participant)
 {
 	ParticipantID = Participant;
 
-	// TODO initialize Logger!!!   or not???
-	Logger = NewObject<USFLogger>();
-	Logger->Initialize(this, JsonFilePath, LogName, SaveDataLogName);
+	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "Saved/Results", "LogParticipant_" + FString::FromInt(ParticipantID) + ".txt", true);
 
 	return true;
 }
@@ -73,7 +65,40 @@ TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 	return LoadedConditions;
 }
 
-bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
+void USFParticipant::StoreInPhaseLongTable()
+{
+	USFCondition* CurrCondition = GetCurrentCondition();
+
+	FString Filename = FPaths::ProjectSavedDir() + "Results/Phase_" + CurrCondition->PhaseName + ".csv";
+
+	if (!FPaths::FileExists(Filename))
+	{
+		FString Header = "ParticipantID";
+		for (auto Factor : CurrCondition->FactorLevels)
+		{
+			Header += "," + Factor.Key;
+		}
+		for (auto Var : CurrCondition->DependentVariablesValues)
+		{
+			Header += "," + Var.Key->Name;
+		}
+		FFileHelper::SaveStringToFile(*Header, *Filename);
+	}
+
+	FString ConditionResults = FString::FromInt(ParticipantID);
+	for (auto Factor : CurrCondition->FactorLevels)
+	{
+		ConditionResults += "," + Factor.Value;
+	}
+	for (auto Var : CurrCondition->DependentVariablesValues)
+	{
+		ConditionResults += "," + Var.Value;
+	}
+	//append this
+	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
+}
+
+bool USFParticipant::StartStudy(USFStudySetup* StudySetup)
 {
 	//TODO: recover from crashed run?
 	// If reload an already existing study?
@@ -82,8 +107,6 @@ bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 		FSFUtils::Log("[USFParticipant::StartStudy()]: Json File found. Loading it now..", false);
 		return LoadJsonFile();
 	}*/
-
-	StudySetup = InStudySetup;
 
 	if (!StudySetup->CheckPhases())
 	{
@@ -111,17 +134,28 @@ bool USFParticipant::StartStudy(USFStudySetup* InStudySetup)
 
 void USFParticipant::EndStudy()
 {
+	StoreInPhaseLongTable();
 }
 
-void USFParticipant::LogData(FString Data)
+void USFParticipant::LogData(const FString& DependentVariableName, const FString& Value)
 {
-	Logger->LogData(Data);
+	USFCondition* CurrCondition = GetCurrentCondition();
+	if (!CurrCondition->StoreDependetVariableData(DependentVariableName, Value))
+	{
+		FSFUtils::Log("Cannot log data '" + Value + "' for dependent variable '" + DependentVariableName + "' since it does not exist for this condition!", true);
+		return;
+	}
+	LogComment("Recorded " + DependentVariableName + ": " + Value);
+
+	//the data is stored in the phase long table on SetCondition() or EndStudy()
 }
 
-void USFParticipant::CommitData()
+void USFParticipant::LogComment(const FString& Comment)
 {
-	Logger->CommitData();
+	UniLog.Log("#" + Comment, "ParticipantLog");
+	FSFUtils::Log("Logged Comment: " + Comment);
 }
+
 
 USFCondition* USFParticipant::GetCurrentCondition() const
 {
@@ -194,6 +228,19 @@ bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 	if (!NextCondition)
 		return false;
 
+	if (GetCurrentCondition())
+	{
+		//we already ran a condition so store it
+		if (GetCurrentCondition()->IsFinished())
+		{
+			StoreInPhaseLongTable();
+		}
+		else
+		{
+			FSFUtils::Log("[USFParticipant::SetCondition] Not storing unfinished last condition, when going to next. Make sure all required dependent variables received data!", true);
+		}
+	}
+
 	for (int i = 0; i < Conditions.Num(); ++i)
 	{
 		if (Conditions[i] == NextCondition)
@@ -215,7 +262,7 @@ void USFParticipant::LogCurrentParticipant() const
 	bool bFinished = true;
 	for (USFCondition* Condition : Conditions)
 	{
-		bFinished = bFinished && Condition->bConditionFinished;
+		bFinished = bFinished && Condition->IsFinished();
 	}
 	Json->SetBoolField("Finished", bFinished);
 	Json->SetNumberField("CurrentConditionIdx", CurrentConditionIdx);

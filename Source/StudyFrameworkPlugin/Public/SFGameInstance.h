@@ -36,7 +36,7 @@ public: // TODO check what can be protected:
 	// ******* Initialization ******************************************* //
 	// ****************************************************************** //
 	UFUNCTION()
-	void PrepareForParticipant(int ParticipantID, FString JsonFilePath = "WhatFor");
+	void PrepareForParticipant(int ParticipantID);
 	UFUNCTION()
 	bool IsPrepared() const;
 	
@@ -58,16 +58,10 @@ public: // TODO check what can be protected:
 	UFUNCTION(BlueprintCallable)
 	FString GetFactorLevel(FString FactorName) const;
 
-
-	UFUNCTION()
-	void SaveData(const FString Where, FString Data);
-	UFUNCTION()
-	void SaveDataArray(const FString Where, TArray<FString> Data);
-	UFUNCTION()
-	void CommitData();
-
-	UFUNCTION()
-	void LogData(const FString String);
+	UFUNCTION(BlueprintCallable)
+	void LogData(const FString& DependenVariableName, const FString& Value);
+	UFUNCTION(BlueprintCallable)
+	void LogComment(const FString& Comment);
 
 	UFUNCTION()
 	void LogToHUD(FString Text);

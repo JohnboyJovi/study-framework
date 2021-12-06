@@ -29,6 +29,12 @@ public:
 
 	bool operator==(USFCondition &Other);
 
+	//returns false if a variable with that name does not exist
+	bool StoreDependetVariableData(const FString& VarName, const FString& Value);
+
+	float GetTimeTaken() const;
+	bool IsFinished() const;
+
 	UPROPERTY(BlueprintReadOnly)
 	FString UniqueName;
 
@@ -45,15 +51,16 @@ public:
 	TMap<USFDependentVariable*,FString> DependentVariablesValues;
 
 	UPROPERTY(BlueprintReadOnly)
+	TArray<TSubclassOf<AActor>> SpawnInThisCondition;
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly)
 	float TimeTaken=0.0;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bConditionFinished=false;
 
-	UPROPERTY()
-	TArray<TSubclassOf<AActor>> SpawnInThisCondition;
-
-protected:
 	void Begin();
 	bool End();
 

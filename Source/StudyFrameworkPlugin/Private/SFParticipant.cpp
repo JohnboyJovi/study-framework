@@ -82,6 +82,7 @@ void USFParticipant::StoreInPhaseLongTable()
 		{
 			Header += "," + Var.Key->Name;
 		}
+		Header += "\n";
 		FFileHelper::SaveStringToFile(*Header, *Filename);
 	}
 
@@ -95,6 +96,7 @@ void USFParticipant::StoreInPhaseLongTable()
 		ConditionResults += "," + Var.Value;
 	}
 	//append this
+	ConditionResults += "\n";
 	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 

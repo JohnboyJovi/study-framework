@@ -29,6 +29,7 @@ public: // TODO check what can be protected:
 	virtual void Shutdown() override;
 	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
 
+	UFUNCTION(BlueprintCallable,  meta = (DisplayName="Get SFGameInstance"))
 	static USFGameInstance* Get();
 	static bool IsInitialized();
 

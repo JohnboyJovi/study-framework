@@ -13,7 +13,7 @@ void USFConditionListEntry::FillWithCondition(const USFCondition* InCondition)
 	TArray<FString> Data;
 	Data.Add(Condition->PhaseName);
 	Data.Add(FPaths::GetBaseFilename(Condition->Map));
-	Data.Add(Condition->TimeTaken <= 0.0 ? "-" : FString::Printf(TEXT("%.2f"), Condition->TimeTaken));
+	Data.Add(Condition->GetTimeTaken() <= 0.0 ? "-" : FString::Printf(TEXT("%.2f"), Condition->GetTimeTaken()));
 	for (auto Factor : Condition->FactorLevels)
 	{
 		Data.Add(Factor.Value);
@@ -61,12 +61,12 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 	for (int i = 3; i < Data.Num(); ++i)
 	{
 		Texts[UsedTexts++]->SetText(FText::FromString(Data[i]));
-		if (UsedTexts >= Texts.Num())
+		if (UsedTexts > Texts.Num())
 		{
 			FSFUtils::Log(
 				"[USFConditionListEntry::FillWithCondition] to few text fields to show everything, " + FString::FromInt(
 					Condition->FactorLevels.Num() + Condition->DependentVariablesValues.Num()) +
-				"text fields would be needed.", true);
+				" text fields would be needed.", true);
 			return;
 		}
 	}
@@ -117,11 +117,11 @@ void USFConditionListEntry::UpdateData()
 		//if it is "-" check whether we have new data?
 		if (i == Texts.Num() - 1) //Time
 		{
-			if (Condition->TimeTaken <= 0.0)
+			if (Condition->GetTimeTaken() <= 0.0)
 			{
 				continue;
 			}
-			NewValue = FString::Printf(TEXT("%.2f"), Condition->TimeTaken);
+			NewValue = FString::Printf(TEXT("%.2f"), Condition->GetTimeTaken());
 		}
 		else
 		{

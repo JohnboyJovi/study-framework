@@ -131,11 +131,14 @@ bool USFParticipant::StartStudy(USFStudySetup* StudySetup)
 	// Set first condition
 	CurrentConditionIdx = -1;
 
+	LogComment("StartStudy");
+
 	return true;
 }
 
 void USFParticipant::EndStudy()
 {
+	LogComment("EndStudy");
 	StoreInPhaseLongTable();
 }
 

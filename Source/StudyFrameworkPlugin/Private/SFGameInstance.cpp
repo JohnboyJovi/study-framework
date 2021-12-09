@@ -221,7 +221,7 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition)
 		return false;
 	}
 
-	GoToConditionSyncedEvent.Send(Condition->GetName());
+	GoToConditionSyncedEvent.Send(Condition->UniqueName);
 	return true;
 }
 
@@ -230,7 +230,7 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName)
 	USFCondition* NextCondition = nullptr;
 	for (USFCondition* Condition : Participant->GetAllConditions())
 	{
-		if (Condition->GetName() == ConditionName)
+		if (Condition->UniqueName == ConditionName)
 		{
 			NextCondition = Condition;
 		}

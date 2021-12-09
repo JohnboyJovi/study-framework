@@ -359,7 +359,7 @@ void USFGameInstance::OnFadedIn()
 	OnFadedInDelegate.Broadcast();
 
 	Participant->GetCurrentCondition()->Begin();
-	Participant->LogComment("Started: "+Participant->GetCurrentCondition()->GetPrettyName());
+	Participant->LogComment("Start Condition: "+Participant->GetCurrentCondition()->GetPrettyName());
 
 	UpdateHUD("Condition Running");
 }

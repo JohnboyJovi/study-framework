@@ -126,6 +126,18 @@ bool USFCondition::IsFinished() const
 	return bConditionFinished;
 }
 
+FString USFCondition::GetPrettyName()
+{
+	FString ConditionString = "(";
+	ConditionString += "Map: " + FPaths::GetBaseFilename(Map);
+	for (auto FactorLevel : FactorLevels)
+	{
+		ConditionString += "; " + FactorLevel.Key + ": " + FactorLevel.Value;
+	}
+	ConditionString += ")";
+	return ConditionString;
+}
+
 void USFCondition::Begin()
 {
 	StartTime = FPlatformTime::Seconds();

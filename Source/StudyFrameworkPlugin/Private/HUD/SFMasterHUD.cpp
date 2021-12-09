@@ -123,14 +123,7 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, const FString& Status)
 	USFCondition* Condition = Participant->GetCurrentCondition();
 	HUDWidget->SetPhase(Condition->PhaseName);
 
-	FString ConditionString = "(";
-	ConditionString += "Map: " + FPaths::GetBaseFilename(Condition->Map);
-	for (auto FactorLevel : Condition->FactorLevels)
-	{
-		ConditionString += "; " + FactorLevel.Key + ": " + FactorLevel.Value;
-	}
-	ConditionString += ")";
-	HUDWidget->SetCondition(ConditionString);
+	HUDWidget->SetCondition(Condition->GetPrettyName());
 }
 
 void ASFMasterHUD::AddLogMessage(const FString& Text)

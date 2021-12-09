@@ -35,6 +35,9 @@ public:
 	float GetTimeTaken() const;
 	bool IsFinished() const;
 
+	// in the form (Map:...; Factor1:Level1; ...)
+	FString GetPrettyName();
+
 	UPROPERTY(BlueprintReadOnly)
 	FString UniqueName;
 

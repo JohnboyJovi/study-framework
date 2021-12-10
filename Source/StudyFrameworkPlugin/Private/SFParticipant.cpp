@@ -20,12 +20,9 @@ bool USFParticipant::Initialize(int Participant)
 {
 	ParticipantID = Participant;
 
-	FString Timestamp = FGenericPlatformTime::StrTimestamp();
-	Timestamp = Timestamp.Replace(TEXT("/"), TEXT("-"));
-	Timestamp = Timestamp.Replace(TEXT(" "), TEXT("_"));
-	Timestamp = Timestamp.Replace(TEXT(":"), TEXT("-"));
-
-	const FString Filename = "LogParticipant-" + FString::FromInt(ParticipantID) + "__" + Timestamp + ".txt";
+	
+	const FString Timestamp = FDateTime::Now().ToString();
+	const FString Filename = "LogParticipant-" + FString::FromInt(ParticipantID) + "_" + Timestamp + ".txt";
 	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "Saved/Results",
 	                                                 Filename, false);
 	StartTime = FPlatformTime::Seconds();

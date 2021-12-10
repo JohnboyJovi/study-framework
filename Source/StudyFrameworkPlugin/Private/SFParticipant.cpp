@@ -20,7 +20,15 @@ bool USFParticipant::Initialize(int Participant)
 {
 	ParticipantID = Participant;
 
-	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "Saved/Results", "LogParticipant_" + FString::FromInt(ParticipantID) + ".txt", true);
+	FString Timestamp = FGenericPlatformTime::StrTimestamp();
+	Timestamp = Timestamp.Replace(TEXT("/"), TEXT("-"));
+	Timestamp = Timestamp.Replace(TEXT(" "), TEXT("_"));
+	Timestamp = Timestamp.Replace(TEXT(":"), TEXT("-"));
+
+	const FString Filename = "LogParticipant-" + FString::FromInt(ParticipantID) + "__" + Timestamp + ".txt";
+	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "Saved/Results",
+	                                                 Filename, false);
+	StartTime = FPlatformTime::Seconds();
 
 	return true;
 }
@@ -65,7 +73,13 @@ TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 	return LoadedConditions;
 }
 
-void USFParticipant::StoreInPhaseLongTable()
+FString USFParticipant::GetCurrentTime() const
+{
+	const double CurrTime = FPlatformTime::Seconds() - StartTime;
+	return FString::Printf(TEXT("%.3f"), CurrTime);
+}
+
+void USFParticipant::StoreInPhaseLongTable() const
 {
 	USFCondition* CurrCondition = GetCurrentCondition();
 
@@ -97,7 +111,8 @@ void USFParticipant::StoreInPhaseLongTable()
 	}
 	//append this
 	ConditionResults += "\n";
-	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
+	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::AutoDetect,
+	                              &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 
 bool USFParticipant::StartStudy(USFStudySetup* StudySetup)
@@ -131,7 +146,7 @@ bool USFParticipant::StartStudy(USFStudySetup* StudySetup)
 	// Set first condition
 	CurrentConditionIdx = -1;
 
-	LogComment("StartStudy");
+	LogComment("Start Study for ParticipantID: "+FString::FromInt(ParticipantID));
 
 	return true;
 }
@@ -147,7 +162,9 @@ void USFParticipant::LogData(const FString& DependentVariableName, const FString
 	USFCondition* CurrCondition = GetCurrentCondition();
 	if (!CurrCondition->StoreDependetVariableData(DependentVariableName, Value))
 	{
-		FSFUtils::Log("Cannot log data '" + Value + "' for dependent variable '" + DependentVariableName + "' since it does not exist for this condition!", true);
+		FSFUtils::Log(
+			"Cannot log data '" + Value + "' for dependent variable '" + DependentVariableName +
+			"' since it does not exist for this condition!", true);
 		return;
 	}
 	LogComment("Recorded " + DependentVariableName + ": " + Value);
@@ -157,7 +174,7 @@ void USFParticipant::LogData(const FString& DependentVariableName, const FString
 
 void USFParticipant::LogComment(const FString& Comment)
 {
-	UniLog.Log("#" + Comment, "ParticipantLog");
+	UniLog.Log("#" + GetCurrentTime() + ": " + Comment, "ParticipantLog");
 	FSFUtils::Log("Logged Comment: " + Comment);
 }
 
@@ -242,7 +259,9 @@ bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 		}
 		else
 		{
-			FSFUtils::Log("[USFParticipant::SetCondition] Not storing unfinished last condition, when going to next. Make sure all required dependent variables received data!", true);
+			FSFUtils::Log(
+				"[USFParticipant::SetCondition] Not storing unfinished last condition, when going to next. Make sure all required dependent variables received data!",
+				true);
 		}
 	}
 

@@ -58,13 +58,17 @@ protected:
 	void GenerateExecutionJsonFile() const;
 	static TArray<USFCondition*> ReadExecutionJsonFile(int ParticipantID);
 
-	void StoreInPhaseLongTable();
+	void StoreInPhaseLongTable() const;
+	FString GetCurrentTime() const;
 
 	UPROPERTY()
 	int ParticipantID;
 
 	UPROPERTY()
 	TArray<USFCondition*> Conditions;
+
 	UPROPERTY()
 	int CurrentConditionIdx;
+
+	double StartTime = 0.0;
 };

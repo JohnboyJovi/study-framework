@@ -6,7 +6,7 @@
 
 #include "SFMapFactor.generated.h"
 
-UCLASS()
+UCLASS(EditInlineNew)
 class STUDYFRAMEWORKPLUGIN_API USFMapFactor : public USFStudyFactor
 {
 	GENERATED_BODY()

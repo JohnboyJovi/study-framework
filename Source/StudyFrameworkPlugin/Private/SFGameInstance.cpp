@@ -31,6 +31,8 @@ void USFGameInstance::Init()
 		RestoreLastParticipant(ConditionToStartAtInit);
 	}
 
+	InitFadeHandler(StudySetup->FadeConfig);
+
 	Instance = this;
 }
 
@@ -78,11 +80,30 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 		FSFUtils::Log("Started on a map that was part of the last study, so start the study run for debug reasons");
 		RestoreLastParticipant(FirstMapCondition);
 	}
+
+	// otherwise check whether a setup is present
+	TArray<AActor*> StudySetups;
+	UGameplayStatics::GetAllActorsOfClass(NewWorld, ASFStudySetup::StaticClass(), StudySetups);
+
+	if (!FirstMapCondition && StudySetups.Num() != 1)
+	{
+		FSFUtils::Log(
+			"[USFGameInstance::OnWorldChanged] world started that neither contains exactly one SFStudySetup actor, nor is a level that is part of one of the conditions from the last study run!",
+			true);
+		return;
+	}
+	if (StudySetups.Num() == 1)
+	{
+		PrepareWithStudySetup(Cast<ASFStudySetup>(StudySetups[0]));
+	}
 }
 
 void USFGameInstance::RestoreLastParticipant(USFCondition* StartCondition)
 {
-	PrepareForParticipant(USFParticipant::GetLastParticipantId());
+	const int ParticipantID = USFParticipant::GetLastParticipantId();
+	Participant = NewObject<USFParticipant>(this,
+	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
+	Participant->Initialize(ParticipantID);
 	Participant->LoadConditionsFromJson();
 	StartStudy(StartCondition);
 	GetTimerManager().SetTimer(StartFadingTimerHandle, this, &USFGameInstance::StartFadingIn, 1.0f);
@@ -109,31 +130,46 @@ bool USFGameInstance::IsInitialized()
 	return Instance != nullptr;
 }
 
-void USFGameInstance::PrepareForParticipant(int ParticipantID)
+void USFGameInstance::InitFadeHandler(FFadeConfig FadeConfig)
 {
-	if (bPrepared)
+	if (FadeHandler == nullptr)
 	{
-		return;
+		FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
+		FadeHandler->AddToRoot();
+		FadeHandler->SetGameInstance(this);
+		FadeHandler->SetInitialFadedOut(false);
 	}
-
-	// FadeHandler
-	FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
-	FadeHandler->AddToRoot();
-	FadeHandler->SetGameInstance(this);
-	FadeHandler->SetInitialFadedOut(false);
-
-	// Participant
-	Participant = NewObject<USFParticipant>(GetTransientPackage(),
-	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
-	Participant->Initialize(ParticipantID);
-
-	bPrepared = true;
+	FadeHandler->SetFadeConfig(FadeConfig);
 }
 
-
-bool USFGameInstance::IsPrepared() const
+void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 {
-	return bPrepared;
+	StudySetup = Setup;
+
+	int ParticipantID = USFParticipant::GetLastParticipantId();
+	TArray<USFCondition*> Conditions;
+	if (USFParticipant::GetLastParticipantFinished())
+	{
+		ParticipantID++;
+		Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
+	}
+	else
+	{
+		//TODO restore run?!?!??!?!
+		FSFUtils::Log("[USFGameInstance::PrepareForParticipant] Restoring run not yet implemented, but would be needed!",
+		              true);
+		//for now just restart the same participant again, without recovery
+		Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
+	}
+
+
+	// Participant
+	Participant = NewObject<USFParticipant>(this,
+	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
+	Participant->Initialize(ParticipantID);
+	Participant->SetStudyConditions(Conditions);
+
+	InitFadeHandler(Setup->FadeConfig);
 }
 
 
@@ -152,12 +188,7 @@ bool USFGameInstance::StartStudy(const USFCondition* StartCondition /*= nullptr*
 	if (!StartCondition)
 	{
 		//we are actually doing a real start and not just a "debug-start"
-		if (!StudySetup)
-		{
-			FSFUtils::OpenMessageBox("[USFGameInstance::StartStudy()]: Not StudySetup specified. Please do so.", true);
-		}
-
-		if (!Participant->StartStudy(StudySetup))
+		if (!Participant->StartStudy())
 		{
 			FSFUtils::Log("[USFGameInstance::StartStudy()]: unable to start study.", true);
 			return false;
@@ -296,38 +327,6 @@ void USFGameInstance::LogToHUD(FString Text)
 	}
 }
 
-
-// ****************************************************************** // 
-// ******* Prepare Study ******************************************** //
-// ****************************************************************** //
-
-USFStudySetup* USFGameInstance::CreateNewStudySetup()
-{
-	if (bStudyStarted)
-	{
-		FSFUtils::Log("[USFGameInstance::CreateNewStudySetup()]: Study already started.", true);
-	}
-
-	StudySetup = NewObject<USFStudySetup>(GetTransientPackage(), "StudySetup");
-	return StudySetup;
-}
-
-USFStudySetup* USFGameInstance::GetStudySetup()
-{
-	return StudySetup;
-}
-
-void USFGameInstance::LoadStudySetupFromJson()
-{
-	FSFUtils::OpenMessageBox("USFGameInstance::LoadStudySetupFromJson not implemented!", true);
-}
-
-void USFGameInstance::SaveStudySetupToJson(FString Filename) const
-{
-	TSharedPtr<FJsonObject> Json = StudySetup->GetAsJson();
-	FSFUtils::WriteJsonToFile(Json, Filename);
-}
-
 USFFadeHandler* USFGameInstance::GetFadeHandler()
 {
 	return FadeHandler;
@@ -359,7 +358,7 @@ void USFGameInstance::OnFadedIn()
 	OnFadedInDelegate.Broadcast();
 
 	Participant->GetCurrentCondition()->Begin();
-	Participant->LogComment("Start Condition: "+Participant->GetCurrentCondition()->GetPrettyName());
+	Participant->LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
 
 	UpdateHUD("Condition Running");
 }

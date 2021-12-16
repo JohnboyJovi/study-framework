@@ -3,23 +3,34 @@
 #include "CoreMinimal.h"
 
 #include "SFStudyPhase.h"
+#include "HUD/SFFadeHandler.h"
 
 #include "SFStudySetup.generated.h"
 
 UCLASS()
-class STUDYFRAMEWORKPLUGIN_API USFStudySetup : public UObject
+class STUDYFRAMEWORKPLUGIN_API ASFStudySetup : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	USFStudySetup();
+	ASFStudySetup();
+
+	virtual void BeginPlay() override;
+
+	virtual void PostInitProperties() override;
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	//the normal one seems sufficient
+	//virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
+#endif
 
 	// ****************************************************************** // 
 	// ******* Setting up the Study ************************************* //
 	// ****************************************************************** //
 
 	UFUNCTION()
-	USFStudyPhase* AddStudyPhase(FName PhaseName);
+	USFStudyPhase* AddStudyPhase(FString PhaseName);
 
 	UFUNCTION()
 	void AddActorForEveryLevelInEveryPhase(TSubclassOf<AActor> Actor);
@@ -45,13 +56,26 @@ public:
 	UFUNCTION()
 	TArray<TSubclassOf<AActor>> GetSpawnActors() const;
 
-	TSharedPtr<FJsonObject> GetAsJson() const;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
+	FFadeConfig FadeConfig; 
 
 protected:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+
+	TSharedPtr<FJsonObject> GetAsJson() const;
+	void FromJson(TSharedPtr<FJsonObject> Json);
+	void LoadFromJson();
+	void SaveToJson() const;
+
+	bool ContainsNullptrInArrays();
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "PhaseName", Category = "Study Setup"))
 	TArray<USFStudyPhase*> Phases;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	FString JsonFile = "StudySetup.json";
+
 	// Spawn in every Level of every phase
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	TArray<TSubclassOf<AActor>> SpawnInEveryPhase;
+
 };

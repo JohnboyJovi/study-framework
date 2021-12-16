@@ -13,6 +13,24 @@
 #include "HUD/SFGlobalFadeGameViewportClient.h"		// For Fade
 
 
+TSharedPtr<FJsonObject> FFadeConfig::GetAsJson() const
+{
+	TSharedPtr<FJsonObject> Json = MakeShareable(new FJsonObject());
+	Json->SetBoolField("StartFadedOut", bStartFadedOut);
+	Json->SetNumberField("FadeDuration", FadeDuration);
+	Json->SetNumberField("FadeOutDuration", FadedOutDuration);
+	Json->SetStringField("FadeColor", FadeColor.ToString());
+	return Json;
+}
+
+void FFadeConfig::FromJson(TSharedPtr<FJsonObject> Json)
+{
+	bStartFadedOut = Json->GetBoolField("StartFadedOut");
+	FadeDuration = Json->GetNumberField("FadeDuration");
+	FadedOutDuration = Json->GetNumberField("FadeOutDuration");
+	FadeColor.InitFromString(Json->GetStringField("FadeColor"));
+}
+
 void USFFadeHandler::Tick()
 {
 	if (FadeState == EFadeState::NotFading || (FadeTimeRemaining() > 0.0f && FadeState != EFadeState::WaitForLevelLoaded)
@@ -62,7 +80,7 @@ void USFFadeHandler::Tick()
 	}
 }
 
-void USFFadeHandler::FadeToLevel(const FString LevelName, const bool bStartFadedOut)
+void USFFadeHandler::FadeToLevel(const FString LevelName, const bool bStartFadeFadedOut)
 {
 	if (GetCameraManager() == nullptr)
 	{
@@ -77,7 +95,7 @@ void USFFadeHandler::FadeToLevel(const FString LevelName, const bool bStartFaded
 	FSFUtils::Log(
 		"[USFFadeHandler::FadeToLevel()]: Fading From level (" + GameInstance->GetWorld()->GetMapName() + ") to level (" +
 		LevelName + ")", false);
-	if (bStartFadedOut || bIsFadedOut)
+	if (bStartFadeFadedOut || bIsFadedOut)
 	{
 		if (bIsFadedOut)
 		{
@@ -196,6 +214,25 @@ void USFFadeHandler::SetInitialFadedOut(const bool bFadedOut)
 {
 	bIsFadedOut = bFadedOut;
 	Fade(0.0f, bFadedOut);
+	bStartFadedOut=bFadedOut;
+}
+
+FFadeConfig USFFadeHandler::GetFadeConfig() const
+{
+	FFadeConfig Config;
+	Config.FadeColor = FadeColor;
+	Config.FadeDuration = FadeDuration;
+	Config.FadedOutDuration = FadeOutWait;
+	Config.bStartFadedOut = bStartFadedOut;
+	return Config;
+}
+
+void USFFadeHandler::SetFadeConfig(FFadeConfig FadeConfig)
+{
+	SetInitialFadedOut(FadeConfig.bStartFadedOut);
+	SetFadeColor(FadeConfig.FadeColor);
+	SetFadeDuration(FadeConfig.FadeDuration);
+	SetFadedOutDuration(FadeConfig.FadedOutDuration);
 }
 
 void USFFadeHandler::SetTimerForNextTick(const float TimeToWait)

@@ -20,7 +20,7 @@ enum class EFactorType : uint8
 	Between = 1 UMETA(DisplayName = "Between: participants only see one level of this factor each")
 };
 
-UCLASS()
+UCLASS(EditInlineNew)
 class STUDYFRAMEWORKPLUGIN_API USFStudyFactor : public UObject
 {
 	GENERATED_BODY()
@@ -29,6 +29,7 @@ public:
 	USFStudyFactor();
 
 	virtual TSharedPtr<FJsonObject> GetAsJson() const;
+	void FromJson(TSharedPtr<FJsonObject> Json);
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString FactorName = "undefined";

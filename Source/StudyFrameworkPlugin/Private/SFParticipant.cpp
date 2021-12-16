@@ -30,6 +30,14 @@ bool USFParticipant::Initialize(int Participant)
 	return true;
 }
 
+void USFParticipant::SetStudyConditions(TArray<USFCondition*> NewConditions)
+{
+	Conditions = NewConditions;
+
+	// Create initial Json file
+	GenerateExecutionJsonFile();
+}
+
 void USFParticipant::GenerateExecutionJsonFile() const
 {
 	TSharedPtr<FJsonObject> Json = MakeShared<FJsonObject>();
@@ -112,34 +120,8 @@ void USFParticipant::StoreInPhaseLongTable() const
 	                              &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 
-bool USFParticipant::StartStudy(USFStudySetup* StudySetup)
+bool USFParticipant::StartStudy()
 {
-	//TODO: recover from crashed run?
-	// If reload an already existing study?
-	/*if (FindJsonFile())
-	{
-		FSFUtils::Log("[USFParticipant::StartStudy()]: Json File found. Loading it now..", false);
-		return LoadJsonFile();
-	}*/
-
-	if (!StudySetup->CheckPhases())
-	{
-		FSFUtils::Log("[USFParticipant::StartStudy()]: Not all Phases valid", true);
-		return false;
-	}
-
-
-	// Conditions order
-	Conditions = StudySetup->GetAllConditionsForRun(0); //TODO: we need a running number!
-
-	FSFUtils::Log(
-		"[USFParticipant::StartStudy()]: Generated " + FString::FromInt(Conditions.Num()) +
-		" conditions for participant " + FString::FromInt(ParticipantID),
-		false);
-
-	// Create initial Json file
-	GenerateExecutionJsonFile();
-
 	// Set first condition
 	CurrentConditionIdx = -1;
 
@@ -220,6 +202,17 @@ int USFParticipant::GetLastParticipantId()
 		return -1;
 	}
 	return ParticpantJson->GetNumberField("ParticipantID");
+}
+
+bool USFParticipant::GetLastParticipantFinished()
+{
+	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticpantJson == nullptr)
+	{
+		//file does not exist or something else went wrong
+		return true;
+	}
+	return ParticpantJson->GetBoolField("Finished");
 }
 
 bool USFParticipant::LoadConditionsFromJson()

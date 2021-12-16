@@ -29,8 +29,9 @@ public:
 	~USFParticipant();
 
 	bool Initialize(int Participant);
+	void SetStudyConditions(TArray<USFCondition*> NewConditions);
 
-	bool StartStudy(USFStudySetup* StudySetup);
+	bool StartStudy();
 	void EndStudy(); // TODO implement Participant::EndStudy()
 
 	void LogData(const FString& DependentVariableName, const FString& Value);
@@ -46,6 +47,7 @@ public:
 	// (or when directly starting an intermediate map for testing)
 	static TArray<USFCondition*> GetLastParticipantsConditions();
 	static int GetLastParticipantId();
+	static bool GetLastParticipantFinished();
 	bool LoadConditionsFromJson();
 
 

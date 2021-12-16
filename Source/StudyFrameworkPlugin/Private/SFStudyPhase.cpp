@@ -12,7 +12,7 @@ USFStudyPhase::USFStudyPhase()
 
 USFStudyFactor* USFStudyPhase::AddStudyFactor(FString FactorName, const TArray<FString>& FactorLevels)
 {
-	USFStudyFactor* Factor = NewObject<USFStudyFactor>(this, FName(FactorName));
+	USFStudyFactor* Factor = NewObject<USFStudyFactor>(this);
 	Factor->FactorName = FactorName;
 	Factor->Levels = FactorLevels;
 	Factors.Add(Factor);
@@ -26,7 +26,7 @@ USFMapFactor* USFStudyPhase::AddMapFactor(const TArray<FString>& FactorLevels)
 		FSFUtils::Log("Already contains Map Factor, {"+FString::Join(FactorLevels, TEXT(", "))+"} will be ignored", true);
 		return nullptr;
 	}
-	USFMapFactor* Factor = NewObject<USFMapFactor>(this, "Map");
+	USFMapFactor* Factor = NewObject<USFMapFactor>(this);
 	Factor->FactorName = "Map";
 	Factor->Levels = FactorLevels;
 	Factors.Add(Factor);
@@ -66,7 +66,7 @@ bool USFStudyPhase::PhaseValid() const
 	USFMapFactor* MapFactor = GetMapFactor();
 	if (MapFactor==nullptr || MapFactor->Levels.Num()==0)
 	{
-		FSFUtils::Log("Phase " + GetName() + " is invalid, since no map is set!", true);
+		FSFUtils::Log("Phase " + PhaseName + " is invalid, since no map is set!", true);
 		return false;
 	}
 	return true;
@@ -94,7 +94,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions()
 	for (TArray<int> ConditionIndices : ConditionsIndices)
 	{
 		USFCondition* Condition = NewObject<USFCondition>();
-		Condition->Generate(GetName(), ConditionIndices, Factors, DependentVariables);
+		Condition->Generate(PhaseName, ConditionIndices, Factors, DependentVariables);
 		Condition->SpawnInThisCondition.Append(SpawnInEveryMapOfThisPhase);
 		Conditions.Add(Condition);
 	}
@@ -128,11 +128,13 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 {
 	TSharedPtr<FJsonObject> Json = MakeShareable(new FJsonObject());
 
-	Json->SetStringField("Name", GetName());
+	Json->SetStringField("Name", PhaseName);
 
 	// Factors
 	TArray<TSharedPtr<FJsonValue>> FactorsArray;
 	for(USFStudyFactor* Factor : Factors){
+		if(!Factor)
+			continue;
 		TSharedRef< FJsonValueObject > JsonValue = MakeShared<FJsonValueObject>(Factor->GetAsJson());
 		FactorsArray.Add(JsonValue);
 	}
@@ -141,6 +143,8 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 	// DependentVariables
 	TArray<TSharedPtr<FJsonValue>> DependentVarsArray;
 	for(USFDependentVariable* Var : DependentVariables){
+		if(!Var)
+			continue;
 		TSharedRef< FJsonValueObject > JsonValue = MakeShared<FJsonValueObject>(Var->GetAsJson());
 		DependentVarsArray.Add(JsonValue);
 	}
@@ -168,6 +172,8 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 	// SpawnInEveryMapOfThisPhase
 	TArray<TSharedPtr<FJsonValue>> SpawnActorsArray;
 	for(TSubclassOf<AActor> Class : SpawnInEveryMapOfThisPhase){
+		if(!Class)
+			continue;
 		TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
 		JsonObject->SetStringField("ClassName", Class.Get()->GetName());
 		JsonObject->SetStringField("ClassPath", Class.Get()->GetPathName());
@@ -177,6 +183,92 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 	Json->SetArrayField("SpawnInEveryMapOfThisPhase",SpawnActorsArray);	
 	
 	return  Json;
+}
+
+void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
+{
+	PhaseName = Json->GetStringField("Name");
+
+	// Factors
+	TArray<TSharedPtr<FJsonValue>> FactorsArray = Json->GetArrayField("Factors");
+	for(auto JsonFactor : FactorsArray){
+		TSharedPtr<FJsonObject> FactorObj = JsonFactor->AsObject();
+		USFStudyFactor* Factor=nullptr;
+		if(FactorObj->HasField("MapFactor") && FactorObj->GetBoolField("MapFactor"))
+		{
+			Factor = NewObject<USFMapFactor>(this);
+		}
+		else
+		{
+			Factor = NewObject<USFStudyFactor>(this);
+		}
+		Factor->FromJson(FactorObj);
+		Factors.Add(Factor);
+	}
+
+	// DependentVariables
+	TArray<TSharedPtr<FJsonValue>> DependentVarsArray = Json->GetArrayField("Dependent Variables");;
+	for(auto Var : DependentVarsArray){
+		USFDependentVariable* DependentVariable = NewObject<USFDependentVariable>(this);
+		DependentVariable->FromJson(Var->AsObject());
+		DependentVariables.Add(DependentVariable);
+	}
+
+	// NumberOfRepetitions
+	NumberOfRepetitions = Json->GetNumberField("Number Of Repetitions");
+
+	// TypeOfRepetition
+	FString RepetitionTypeStr = Json->GetStringField("TypeOfRepetition");
+	if(RepetitionTypeStr == "SameOrder")
+	{
+		TypeOfRepetition = EPhaseRepetitionType::SameOrder;
+	}
+	else if(RepetitionTypeStr == "DifferentOrder")
+	{
+		TypeOfRepetition = EPhaseRepetitionType::DifferentOrder;
+	}
+	else if(RepetitionTypeStr == "FullyRandom")
+	{
+		TypeOfRepetition = EPhaseRepetitionType::FullyRandom;
+	}
+	else
+	{
+		FSFUtils::Log("[USFStudyPhase::FromJson] unknown TypeOfRepetition: "+RepetitionTypeStr, true);
+	}
+
+	// SpawnInEveryMapOfThisPhase
+	TArray<TSharedPtr<FJsonValue>> SpawnActorsArray = Json->GetArrayField("SpawnInEveryMapOfThisPhase");;
+	for(auto Class : SpawnActorsArray){
+		const FString Name = Class->AsObject()->GetStringField("ClassName");
+		const FString Path = Class->AsObject()->GetStringField("ClassPath");
+		const FString FullName = Path + "/" + Name;
+		UClass* ClassToSpawn = FindObject<UClass>(ANY_PACKAGE, *FullName);
+		if(!ClassToSpawn)
+		{
+			FSFUtils::Log("[USFStudyPhase::FromJson] class does not exist: "+Path+"/"+Name, true);
+			continue;
+		}
+		SpawnInEveryMapOfThisPhase.Add(ClassToSpawn->GetClass());
+	}
+}
+
+bool USFStudyPhase::ContainsNullptrInArrays()
+{
+	for(USFStudyFactor* Factor : Factors)
+	{
+		if(Factor==nullptr)
+		{
+			return true;
+		}
+	}
+	for(USFDependentVariable* Var : DependentVariables)
+	{
+		if(Var==nullptr)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 bool USFStudyPhase::ContainsAMapFactor() const

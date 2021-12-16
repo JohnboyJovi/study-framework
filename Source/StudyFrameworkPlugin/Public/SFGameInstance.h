@@ -34,15 +34,6 @@ public: // TODO check what can be protected:
 	static bool IsInitialized();
 
 	// ****************************************************************** // 
-	// ******* Initialization ******************************************* //
-	// ****************************************************************** //
-	UFUNCTION()
-	void PrepareForParticipant(int ParticipantID);
-	UFUNCTION()
-	bool IsPrepared() const;
-	
-
-	// ****************************************************************** // 
 	// ******* Control Study ******************************************** //
 	// ****************************************************************** //
 	UFUNCTION(BlueprintCallable)
@@ -68,27 +59,13 @@ public: // TODO check what can be protected:
 	void LogToHUD(FString Text);
 
 	// ****************************************************************** // 
-	// ******* Prepare Study ******************************************** //
+	// ******* Executing Study  (called by other parts of the framework)* //
 	// ****************************************************************** //
-	UFUNCTION()
-	USFStudySetup* CreateNewStudySetup();
-	UFUNCTION()
-	USFStudySetup* GetStudySetup();
-
-	//TODO: create this!
-	UFUNCTION()
-	void LoadStudySetupFromJson();
-	UFUNCTION()
-	void SaveStudySetupToJson(FString Filename) const;
 
 	// Fade Handler
 	UFUNCTION()
 	USFFadeHandler* GetFadeHandler();
 
-	// ****************************************************************** // 
-	// ******* Executing Study ****************************************** //
-	// ****************************************************************** //
-	// 
 	UFUNCTION()
 	void SpawnAllActorsForLevel();
 	UFUNCTION()
@@ -97,6 +74,7 @@ public: // TODO check what can be protected:
 	void OnFadedIn();
 	UFUNCTION()
 	USFParticipant* GetParticipant() const;
+
 
 	// ****************************************************************** // 
 	// *******   Delegates   ******************************************** //
@@ -123,18 +101,20 @@ protected:
 	void StartFadingIn();
 	FTimerHandle StartFadingTimerHandle;
 
-	UPROPERTY()
-	USFStudySetup* StudySetup = nullptr;
+	void InitFadeHandler(FFadeConfig FadeConfig);
+
+	void PrepareWithStudySetup(ASFStudySetup* Setup);
+
 	UPROPERTY()
 	USFParticipant* Participant = nullptr;
 
 
 	UPROPERTY()
-	USFFadeHandler* FadeHandler;
+	USFFadeHandler* FadeHandler = nullptr;
+	UPROPERTY()
+	ASFStudySetup* StudySetup;
 
 	// State of Study / GameInstance
-	UPROPERTY()
-	bool bPrepared = false;
 	UPROPERTY()
 	bool bStudyStarted = false;
 

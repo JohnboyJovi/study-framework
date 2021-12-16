@@ -10,7 +10,7 @@
 
 class USFGameInstance;
 
-UCLASS()
+UCLASS(EditInlineNew)
 class STUDYFRAMEWORKPLUGIN_API USFCondition : public UObject
 {
 	GENERATED_BODY()

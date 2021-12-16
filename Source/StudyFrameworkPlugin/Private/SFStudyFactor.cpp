@@ -50,3 +50,43 @@ TSharedPtr<FJsonObject> USFStudyFactor::GetAsJson() const
 	return Json;
 }
 
+void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
+{
+
+	FactorName = Json->GetStringField("FactorName");
+
+	TArray<TSharedPtr<FJsonValue>> LevelsArray = Json->GetArrayField("Levels");
+	Levels.Empty();
+	for(auto Level : LevelsArray){
+		Levels.Add(Level->AsString());
+	}
+
+	FString MixingOrderStr = Json->GetStringField("MixingOrder");
+	if(MixingOrderStr == "EnBlock")
+	{
+		MixingOrder = EFactorMixingOrder::EnBlock;
+	}
+	else if(MixingOrderStr == "RandomOrder")
+	{
+		MixingOrder = EFactorMixingOrder::RandomOrder;
+	}
+	else
+	{
+		FSFUtils::Log("[USFStudyFactor::FromJson] unknown MixingOrder: "+MixingOrderStr, true);
+	}
+
+	FString TypeStr = Json->GetStringField("Type");
+	if(TypeStr == "Within")
+	{
+		Type = EFactorType::Within;
+	}
+	else if(TypeStr == "Between")
+	{
+		Type = EFactorType::Between;
+	}
+	else
+	{
+		FSFUtils::Log("[USFStudyFactor::FromJson] unknown Type: "+TypeStr, true);
+	}
+}
+

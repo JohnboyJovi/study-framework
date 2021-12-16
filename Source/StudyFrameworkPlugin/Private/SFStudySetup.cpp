@@ -1,30 +1,56 @@
 #include "SFStudySetup.h"
 
+#include "SFGameInstance.h"
 #include "Help/SFUtils.h"
 
 
-USFStudySetup::USFStudySetup()
+ASFStudySetup::ASFStudySetup()
 {
 }
 
-USFStudyPhase* USFStudySetup::AddStudyPhase(FName PhaseName)
+void ASFStudySetup::BeginPlay()
 {
-	USFStudyPhase* Phase = NewObject<USFStudyPhase>(GetTransientPackage(), PhaseName);
+}
+
+void ASFStudySetup::PostInitProperties()
+{
+	LoadFromJson();
+	Super::PostInitProperties();
+}
+
+
+
+void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlends)
+{
+	SaveToJson();
+	if(!ContainsNullptrInArrays()){
+		LoadFromJson();
+		// otherwise you get "Graph is linked to external private object" error
+		// but we only do that if !ContainsNullptrInArrays, otherwise you cannot add
+		// new elements to the array, since the nullptr are not written to the json
+	}
+	Super::PostEditChangeProperty(MovieSceneBlends);
+}
+
+USFStudyPhase* ASFStudySetup::AddStudyPhase(FString InPhaseName)
+{
+	USFStudyPhase* Phase = NewObject<USFStudyPhase>(this);
+	Phase->PhaseName = InPhaseName;
 	Phases.Add(Phase);
 	return Phase;
 }
 
-void USFStudySetup::AddActorForEveryLevelInEveryPhase(TSubclassOf<AActor> Actor)
+void ASFStudySetup::AddActorForEveryLevelInEveryPhase(TSubclassOf<AActor> Actor)
 {
 	SpawnInEveryPhase.Add(Actor);
 }
 
-void USFStudySetup::AddActorForEveryLevelInEveryPhaseBlueprint(const FString& BlueprintPath, const FString& BlueprintName)
+void ASFStudySetup::AddActorForEveryLevelInEveryPhaseBlueprint(const FString& BlueprintPath, const FString& BlueprintName)
 {
 	SpawnInEveryPhase.Add(FSFUtils::GetBlueprintClass(BlueprintName, BlueprintPath));
 }
 
-bool USFStudySetup::CheckPhases()
+bool ASFStudySetup::CheckPhases()
 {
 	for (auto EntryPhase : Phases)
 	{
@@ -37,8 +63,15 @@ bool USFStudySetup::CheckPhases()
 	return true;
 }
 
-TArray<USFCondition*> USFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber)
+TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber)
 {
+
+	if (!CheckPhases())
+	{
+		FSFUtils::Log("[ASFStudySetup::GetAllConditionsForRun]: Not all Phases are valid", true);
+		return TArray<USFCondition*>();
+	}
+
 	//TODO: use the RunningParticipantNumber, e.g. for latin square and between factors
 	TArray<USFCondition*> Conditions;
 	for(USFStudyPhase* Phase : Phases)
@@ -52,22 +85,22 @@ TArray<USFCondition*> USFStudySetup::GetAllConditionsForRun(int RunningParticipa
 	return Conditions;
 }
 
-int USFStudySetup::GetNumberOfPhases()
+int ASFStudySetup::GetNumberOfPhases()
 {
 	return Phases.Num();
 }
 
-USFStudyPhase* USFStudySetup::GetPhase(int Index)
+USFStudyPhase* ASFStudySetup::GetPhase(int Index)
 {
 	return Phases[Index];
 }
 
-TArray<TSubclassOf<AActor>> USFStudySetup::GetSpawnActors() const
+TArray<TSubclassOf<AActor>> ASFStudySetup::GetSpawnActors() const
 {
 	return SpawnInEveryPhase;
 }
 
-TSharedPtr<FJsonObject> USFStudySetup::GetAsJson() const
+TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 {
 	TSharedPtr<FJsonObject> Json = MakeShareable(new FJsonObject());
 
@@ -75,6 +108,8 @@ TSharedPtr<FJsonObject> USFStudySetup::GetAsJson() const
 	TArray<TSharedPtr<FJsonValue>> PhasesArray;
 	for (USFStudyPhase* Phase : Phases)
 	{
+		if(!Phase)
+			continue;
 		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(Phase->GetAsJson());
 		PhasesArray.Add(JsonValue);
 	}
@@ -83,6 +118,8 @@ TSharedPtr<FJsonObject> USFStudySetup::GetAsJson() const
 	// SpawnInEveryMapOfThisPhase
 	TArray<TSharedPtr<FJsonValue>> SpawnActorsArray;
 	for(TSubclassOf<AActor> Class : SpawnInEveryPhase){
+		if(!Class)
+			continue;
 		TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
 		JsonObject->SetStringField("ClassName", Class.Get()->GetName());
 		JsonObject->SetStringField("ClassPath", Class.Get()->GetPathName());
@@ -90,6 +127,51 @@ TSharedPtr<FJsonObject> USFStudySetup::GetAsJson() const
 		SpawnActorsArray.Add(JsonValue);
 	}
 	Json->SetArrayField("SpawnInEveryPhase",SpawnActorsArray);
+
+	Json->SetObjectField("FadeConfig", FadeConfig.GetAsJson());
 	
 	return Json;
+}
+
+void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
+{
+	Phases.Empty();
+	TArray<TSharedPtr<FJsonValue>> PhasesArray = Json->GetArrayField("Phases");
+	for (auto PhaseJson : PhasesArray)
+	{
+		USFStudyPhase* Phase = NewObject<USFStudyPhase>(this);
+		Phase->FromJson(PhaseJson->AsObject());
+		Phases.Add(Phase);
+	}
+
+	//TODO SpawnActor
+
+	FadeConfig.FromJson(Json->GetObjectField("FadeConfig"));
+	
+}
+
+void ASFStudySetup::LoadFromJson()
+{
+	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(JsonFile);
+	if(Json){
+		FromJson(Json);
+	}
+}
+
+void ASFStudySetup::SaveToJson() const
+{
+	TSharedPtr<FJsonObject> Json = GetAsJson();
+	FSFUtils::WriteJsonToFile(Json, JsonFile);
+}
+
+bool ASFStudySetup::ContainsNullptrInArrays()
+{
+	for(USFStudyPhase* Phase : Phases)
+	{
+		if(Phase==nullptr || Phase->ContainsNullptrInArrays())
+		{
+			return true;
+		}
+	}
+	return false;
 }

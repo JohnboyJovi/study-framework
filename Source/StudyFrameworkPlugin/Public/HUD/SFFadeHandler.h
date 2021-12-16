@@ -18,6 +18,24 @@ enum EFadeState
 	FadingIn = 4 UMETA(DisplayName = "Fading In")
 };
 
+USTRUCT(BlueprintType)
+struct FFadeConfig
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	bool bStartFadedOut = true;
+	UPROPERTY(EditAnywhere)
+	float FadeDuration = 2.0f;
+	UPROPERTY(EditAnywhere)
+	float FadedOutDuration = 1.0f;
+	UPROPERTY(EditAnywhere)
+	FLinearColor FadeColor = FLinearColor::Black;
+
+	TSharedPtr<FJsonObject> GetAsJson() const;
+	void FromJson(TSharedPtr<FJsonObject> Json);
+};
+
 
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFFadeHandler : public UObject
@@ -40,6 +58,9 @@ public:
 	void SetFadedOutDuration(float FadeOutWaitN);
 	void SetFadeColor(FLinearColor Color);
 	void SetInitialFadedOut(bool bFadedOut);
+
+	FFadeConfig GetFadeConfig() const;
+	void SetFadeConfig(FFadeConfig FadeConfig);
 
 
 private:
@@ -68,6 +89,9 @@ private:
 
 	UPROPERTY()
 	FLinearColor FadeColor = FLinearColor::Black;
+
+	UPROPERTY()
+	bool bStartFadedOut=true;
 
 	UPROPERTY()
 	FString NewLevelName;

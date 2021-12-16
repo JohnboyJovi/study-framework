@@ -4,7 +4,7 @@
 
 #include "SFDependentVariable.generated.h"
 
-UCLASS()
+UCLASS(EditInlineNew)
 class STUDYFRAMEWORKPLUGIN_API USFDependentVariable : public UObject
 {
 	GENERATED_BODY()

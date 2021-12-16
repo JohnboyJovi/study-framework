@@ -17,7 +17,7 @@ enum class EPhaseRepetitionType : uint8
 	FullyRandom = 2 UMETA(DisplayName = "Repeat all conditions NumberOfRepetitions times, but in an arbitrary order")
 };
 
-UCLASS()
+UCLASS(EditInlineNew)
 class STUDYFRAMEWORKPLUGIN_API USFStudyPhase : public UObject
 {
 	GENERATED_BODY()
@@ -68,17 +68,23 @@ public:
 	const TArray<USFStudyFactor*> GetFactors() const;
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
+	void FromJson(TSharedPtr<FJsonObject> Json);
 
 	// ****************************************************************** // 
 	// ******* Properties of this Phase ********************************* //
 	// ****************************************************************** //
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FString PhaseName;
+
+	bool ContainsNullptrInArrays();
+
 protected:
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced,  meta = (TitleProperty = "FactorName"))
 	TArray<USFStudyFactor*> Factors;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced,  meta = (TitleProperty = "Name"))
 	TArray<USFDependentVariable*> DependentVariables;
 
 	// Repetitions

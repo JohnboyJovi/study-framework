@@ -146,6 +146,9 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 {
 	StudySetup = Setup;
 
+	//can be used for debugging orders
+	//GenerateTestStudyRuns(20);
+
 	int ParticipantID = USFParticipant::GetLastParticipantId();
 	TArray<USFCondition*> Conditions;
 	if (USFParticipant::GetLastParticipantFinished())
@@ -170,6 +173,17 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	Participant->SetStudyConditions(Conditions);
 
 	InitFadeHandler(Setup->FadeConfig);
+}
+
+void USFGameInstance::GenerateTestStudyRuns(int NrOfRuns) const
+{
+	for (int ParticipantID = 0; ParticipantID < NrOfRuns; ++ParticipantID)
+	{
+		const TArray<USFCondition*> Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
+		USFParticipant* TmpParticipant = NewObject<USFParticipant>();
+		TmpParticipant->Initialize(ParticipantID);
+		TmpParticipant->SetStudyConditions(Conditions); //this also saves it to json
+	}
 }
 
 

@@ -42,4 +42,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	EFactorType Type = EFactorType::Within;
+
+	static TArray<int> GenerateLatinSquareOrder(int ParticipantId, int NrConditions);
 };

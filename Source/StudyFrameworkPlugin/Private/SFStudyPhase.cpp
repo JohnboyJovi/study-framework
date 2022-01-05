@@ -99,6 +99,23 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions()
 		Conditions.Add(Condition);
 	}
 
+	auto LatinSqTest = [] (int numberConditions) {
+		FSFUtils::Log("Latin Square Test for "+FString::FromInt(numberConditions));
+		for(int i=0; i<numberConditions*2; ++i)
+		{
+			FString Content = "";
+			TArray<int> Order = USFStudyFactor::GenerateLatinSquareOrder(i, numberConditions);
+			for(int j=0; j<Order.Num(); ++j)
+			{
+				Content += " "+FString::FromInt(Order[j]);
+			}
+			FSFUtils::Log(Content);
+		}
+	};
+
+	LatinSqTest(3);
+	LatinSqTest(4);
+	LatinSqTest(5);
 
 	//TODO this does not care for the TypeOfRepetition, currently it always does SameOrder
 	// Now setup repetitions

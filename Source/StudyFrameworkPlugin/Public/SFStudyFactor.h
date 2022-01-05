@@ -9,8 +9,8 @@
 UENUM()
 enum class EFactorMixingOrder : uint8
 {
-	RandomOrder = 0 UMETA(DisplayName = "Random"),
-	EnBlock = 1 UMETA(DisplayName = "All conditions with the same level of this factor will be shown en block")
+	RandomOrder = 0 UMETA(DisplayName = "Random: Using Latin Square to balance orders between participants"), 
+	EnBlock = 1 UMETA(DisplayName = "En Block: All conditions with the same level of this factor will be shown en block")
 };
 
 UENUM()

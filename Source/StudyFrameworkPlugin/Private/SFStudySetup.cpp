@@ -81,7 +81,7 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 	TArray<USFCondition*> Conditions;
 	for(USFStudyPhase* Phase : Phases)
 	{
-		Conditions.Append(Phase->GenerateConditions());
+		Conditions.Append(Phase->GenerateConditions(RunningParticipantNumber));
 	}
 	for(USFCondition* Condition : Conditions)
 	{

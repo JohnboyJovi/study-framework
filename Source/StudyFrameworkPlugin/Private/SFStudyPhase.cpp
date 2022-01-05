@@ -65,61 +65,145 @@ void USFStudyPhase::SetRepetitions(int Num, EPhaseRepetitionType Type)
 bool USFStudyPhase::PhaseValid() const
 {
 	USFMapFactor* MapFactor = GetMapFactor();
-	if (MapFactor==nullptr || MapFactor->Levels.Num()==0)
+	if (MapFactor == nullptr || MapFactor->Levels.Num() == 0)
 	{
-		FSFUtils::Log("Phase " + PhaseName + " is invalid, since no map is set!", true);
+		FSFUtils::OpenMessageBox("Phase " + PhaseName + " is invalid, since no map is set!", true);
 		return false;
 	}
+
+	int NrEnBlockFactors = 0;
+	int NrRandomFactors = 0;
+
+	for (USFStudyFactor* Factor : Factors)
+	{
+		// Not Implemented YET errors
+		if (Factor->Type == EFactorType::Between)
+		{
+			FSFUtils::OpenMessageBox(
+				"[USFStudyPhase::PhaseValid] Between factors are not yet implemented! Used for factor " + Factor->FactorName
+				+ " in phase " + PhaseName, true);
+			return false;
+		}
+
+		if (TypeOfRepetition != EPhaseRepetitionType::SameOrder && NumberOfRepetitions > 1)
+		{
+			FSFUtils::OpenMessageBox(
+				"[USFStudyPhase::PhaseValid] Only same order repetition is implemented but something else was requested in phase "
+				+ PhaseName, true);
+			return false;
+		}
+
+
+		// Other (permanent) problems
+		if (Factor->Levels.Num() == 0)
+		{
+			FSFUtils::OpenMessageBox(
+				"[USFStudyPhase::PhaseValid] No level was set for factor " + Factor->FactorName + " in phase " + PhaseName,
+				true);
+			return false;
+		}
+
+		if (Factor->FactorName == "")
+		{
+			FSFUtils::OpenMessageBox("[USFStudyPhase::PhaseValid] No name set for a factor in phase " + PhaseName, true);
+			return false;
+		}
+
+		NrEnBlockFactors += (Factor->MixingOrder == EFactorMixingOrder::EnBlock ? 1 : 0);
+		NrRandomFactors += (Factor->MixingOrder == EFactorMixingOrder::RandomOrder ? 1 : 0);
+
+		if (NrEnBlockFactors > 1)
+		{
+			//what to actually do when more than one factor wants that???
+			FSFUtils::OpenMessageBox(
+				"[USFStudyPhase::PhaseValid] " + Factor->FactorName + " in phase " + PhaseName +
+				" is already the second enBlock factor, how should that work? If you know, implement ;-)", true);
+			return false;
+		}
+	}
+
 	return true;
 }
 
-TArray<USFCondition*> USFStudyPhase::GenerateConditions()
-{
-	TArray<USFCondition*> Conditions;
-	const int NumberOfFactors = Factors.Num();
 
+TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
+{
+	// first restructure factors, such that:
+	// the map factor is the first one
+	// a potential enBlock factor is the last one
+	TArray<USFStudyFactor*> SortedFactors;
+	bool bHasEnBlock = SortFactors(SortedFactors);
+
+	TArray<USFCondition*> Conditions;
 	int NumberOfConditions = 1;
-	for (int i = 0; i < Factors.Num(); i++)
+	for (int i = 0; i < SortedFactors.Num(); i++)
 	{
-		NumberOfConditions *= Factors[i]->Levels.Num();
+		NumberOfConditions *= SortedFactors[i]->Levels.Num();
 	}
+
+
+	// ****************************
+	// Generate Condition Indices
+	// ****************************
 
 	Conditions.Empty();
 	Conditions.Reserve(NumberOfRepetitions * NumberOfConditions); //so we have enough space, it is still empty, however
 
-	//TODO: not randomized yet, so add that!
+	//create an array holding for each condition an array of each factors' level index
 	TArray<TArray<int>> ConditionsIndices;
 	ConditionsIndices.Reserve(NumberOfConditions);
-	CreateAllConditionsRecursively(0, {}, ConditionsIndices);
+	CreateAllConditionsRecursively(0, {}, SortedFactors, ConditionsIndices);
+
+
+	// ****************************
+	//          Randomize
+	// ****************************
+
+
+	int NrLatinSqConditions = ConditionsIndices.Num();
+	int enBlockConditions = 1;
+	if (bHasEnBlock)
+	{
+		//that last enBlock factor is not shuffled since it is en block already by construction
+		//never the less, we still have to change the order within the block, that's what we use LatinSquareRndReOrderEnBlock for
+		enBlockConditions = SortedFactors.Last()->Levels.Num();
+		NrLatinSqConditions /= enBlockConditions;
+	}
+	const TArray<int> LatinSquareRndReOrder = USFStudyFactor::GenerateLatinSquareOrder(
+		ParticipantNr, NrLatinSqConditions);
+	const TArray<int> LatinSquareRndReOrderEnBlock = USFStudyFactor::GenerateLatinSquareOrder(
+		ParticipantNr, enBlockConditions);
+	TArray<TArray<int>> ConditionsIndicesCopy = ConditionsIndices;
+	ConditionsIndices.Empty();
+	for (int i = 0; i < enBlockConditions; ++i)
+	{
+		// if we have enBlockConditions>1 we need to copy and shuffle the whole enBlock Block, otherwise the i loop is trivially run once only
+		for (int j = 0; j < LatinSquareRndReOrder.Num(); ++j)
+		{
+			ConditionsIndices.Add(
+				ConditionsIndicesCopy[enBlockConditions * LatinSquareRndReOrder[j] + LatinSquareRndReOrderEnBlock[i]]);
+		}
+	}
+
+
+	// ****************************
+	//   Create actual conditons
+	// ****************************
 
 	for (TArray<int> ConditionIndices : ConditionsIndices)
 	{
 		USFCondition* Condition = NewObject<USFCondition>();
-		Condition->Generate(PhaseName, ConditionIndices, Factors, DependentVariables);
+		Condition->Generate(PhaseName, ConditionIndices, SortedFactors, DependentVariables);
 		Condition->SpawnInThisCondition.Append(SpawnInEveryMapOfThisPhase);
 		Conditions.Add(Condition);
 	}
 
-	auto LatinSqTest = [] (int numberConditions) {
-		FSFUtils::Log("Latin Square Test for "+FString::FromInt(numberConditions));
-		for(int i=0; i<numberConditions*2; ++i)
-		{
-			FString Content = "";
-			TArray<int> Order = USFStudyFactor::GenerateLatinSquareOrder(i, numberConditions);
-			for(int j=0; j<Order.Num(); ++j)
-			{
-				Content += " "+FString::FromInt(Order[j]);
-			}
-			FSFUtils::Log(Content);
-		}
-	};
 
-	LatinSqTest(3);
-	LatinSqTest(4);
-	LatinSqTest(5);
+	// ****************************
+	//        Add repetitions
+	// ****************************
 
 	//TODO this does not care for the TypeOfRepetition, currently it always does SameOrder
-	// Now setup repetitions
 	for (int r = 0; r < NumberOfRepetitions - 1; r++)
 	{
 		for (int i = 0; i < NumberOfConditions; i++)
@@ -322,18 +406,48 @@ int USFStudyPhase::GetMapFactorIndex() const
 	return -1;
 }
 
-void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices) const
+bool USFStudyPhase::SortFactors(TArray<USFStudyFactor*>& SortedFactors) const
 {
-	if (Index >= Factors.Num())
+	SortedFactors.Add(GetMapFactor());
+	USFStudyFactor* EnBlockFactor = nullptr;
+	bool bHasEnBlock = false;
+	for (USFStudyFactor* Factor : Factors)
+	{
+		if (Factor->IsA(USFMapFactor::StaticClass()))
+		{
+			continue; //already added it above
+		}
+		if (Factor->MixingOrder != EFactorMixingOrder::EnBlock)
+		{
+			SortedFactors.Add(Factor);
+		}
+		else if (Factor->MixingOrder == EFactorMixingOrder::EnBlock)
+		{
+			EnBlockFactor = Factor;
+		}
+	}
+	if (EnBlockFactor)
+	{
+		bHasEnBlock = true;
+		SortedFactors.Add(EnBlockFactor);
+	}
+	return bHasEnBlock;
+}
+
+void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> OrderPart,
+                                                   TArray<USFStudyFactor*>& SortedFactors,
+                                                   TArray<TArray<int>>& OrdersIndices) const
+{
+	if (Index >= SortedFactors.Num())
 	{
 		OrdersIndices.Add(OrderPart);
 		return;
 	}
 
-	for (int i = 0; i < Factors[Index]->Levels.Num(); ++i)
+	for (int i = 0; i < SortedFactors[Index]->Levels.Num(); ++i)
 	{
 		TArray<int> Order = OrderPart;
 		Order.Add(i);
-		CreateAllConditionsRecursively(Index + 1, Order, OrdersIndices);
+		CreateAllConditionsRecursively(Index + 1, Order, SortedFactors, OrdersIndices);
 	}
 }

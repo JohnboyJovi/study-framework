@@ -100,11 +100,12 @@ protected:
 
 private:
 	
-	void CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<TArray<int>>& OrdersIndices) const;
+	void CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<USFStudyFactor*>& SortedFactors, TArray<TArray<int>>& OrdersIndices) const;
 
 	bool ContainsAMapFactor() const;
 	USFMapFactor* GetMapFactor() const;
 	int GetMapFactorIndex() const;
+	bool SortFactors(TArray<USFStudyFactor*> &SortedFactors) const;
 };
 
 

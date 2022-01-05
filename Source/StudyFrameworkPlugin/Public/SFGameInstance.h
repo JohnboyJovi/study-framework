@@ -105,6 +105,8 @@ protected:
 
 	void PrepareWithStudySetup(ASFStudySetup* Setup);
 
+	void GenerateTestStudyRuns(int NrOfRuns) const;
+
 	UPROPERTY()
 	USFParticipant* Participant = nullptr;
 

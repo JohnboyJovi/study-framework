@@ -10,6 +10,7 @@ ASFStudySetup::ASFStudySetup()
 
 void ASFStudySetup::BeginPlay()
 {
+	Super::BeginPlay();
 }
 
 void ASFStudySetup::PostInitProperties()
@@ -18,9 +19,7 @@ void ASFStudySetup::PostInitProperties()
 	Super::PostInitProperties();
 }
 
-
-
-void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlends)
+void ASFStudySetup::PreSave(const ITargetPlatform* TargetPlatform)
 {
 	SaveToJson();
 	if(!ContainsNullptrInArrays()){
@@ -29,6 +28,12 @@ void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlen
 		// but we only do that if !ContainsNullptrInArrays, otherwise you cannot add
 		// new elements to the array, since the nullptr are not written to the json
 	}
+	Super::PreSave(TargetPlatform);
+}
+
+void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlends)
+{
+	SaveToJson();
 	Super::PostEditChangeProperty(MovieSceneBlends);
 }
 

@@ -18,6 +18,7 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void PostInitProperties() override;
+	virtual void PreSave(const ITargetPlatform* TargetPlatform) override;
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

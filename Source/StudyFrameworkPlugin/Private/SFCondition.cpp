@@ -79,7 +79,7 @@ void USFCondition::FromJson(TSharedPtr<FJsonObject> Json)
 
 FString USFCondition::CreateIdentifiableName()
 {
-	FString Name = PhaseName;
+	FString Name = PhaseName + "_" + Map;
 	for (auto FactorLevel : FactorLevels)
 	{
 		Name = Name + "_" + FactorLevel.Value;

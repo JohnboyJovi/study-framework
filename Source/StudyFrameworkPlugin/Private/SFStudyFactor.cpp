@@ -93,9 +93,10 @@ void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 
 TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int ParticipantId, int NrConditions)
 {
+	// Balanced Latin Square Generator
 	// Based on "Bradley, J. V. Complete counterbalancing of immediate sequential effects in a Latin square design. J. Amer. Statist. Ass.,.1958, 53, 525-528. "
-	// Addapted from infos on https://cs.uwaterloo.ca/~dmasson/tools/latin_square/
-	// IMPORTANT: for uneven NRConditions, there 2*NrConditions different orders!
+	// Adapted from code on https://cs.uwaterloo.ca/~dmasson/tools/latin_square/
+	// IMPORTANT: for uneven NrConditions, there 2*NrConditions different orders!
 	TArray<int> Result;
 	for (int i = 0, j = 0, h = 0; i < NrConditions; ++i)
 	{

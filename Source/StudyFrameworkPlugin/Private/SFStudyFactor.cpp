@@ -17,11 +17,12 @@ TSharedPtr<FJsonObject> USFStudyFactor::GetAsJson() const
 
 	TArray<TSharedPtr<FJsonValue>> LevelsArray;
 
-	for(FString Level : Levels){
+	for (FString Level : Levels)
+	{
 		TSharedPtr<FJsonValueString> JsonValue = MakeShared<FJsonValueString>(Level);
 		LevelsArray.Add(JsonValue);
 	}
-	Json->SetArrayField("Levels",LevelsArray);
+	Json->SetArrayField("Levels", LevelsArray);
 
 	switch (MixingOrder)
 	{
@@ -52,41 +53,41 @@ TSharedPtr<FJsonObject> USFStudyFactor::GetAsJson() const
 
 void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 {
-
 	FactorName = Json->GetStringField("FactorName");
 
 	TArray<TSharedPtr<FJsonValue>> LevelsArray = Json->GetArrayField("Levels");
 	Levels.Empty();
-	for(auto Level : LevelsArray){
+	for (auto Level : LevelsArray)
+	{
 		Levels.Add(Level->AsString());
 	}
 
 	FString MixingOrderStr = Json->GetStringField("MixingOrder");
-	if(MixingOrderStr == "EnBlock")
+	if (MixingOrderStr == "EnBlock")
 	{
 		MixingOrder = EFactorMixingOrder::EnBlock;
 	}
-	else if(MixingOrderStr == "RandomOrder")
+	else if (MixingOrderStr == "RandomOrder")
 	{
 		MixingOrder = EFactorMixingOrder::RandomOrder;
 	}
 	else
 	{
-		FSFUtils::Log("[USFStudyFactor::FromJson] unknown MixingOrder: "+MixingOrderStr, true);
+		FSFUtils::Log("[USFStudyFactor::FromJson] unknown MixingOrder: " + MixingOrderStr, true);
 	}
 
 	FString TypeStr = Json->GetStringField("Type");
-	if(TypeStr == "Within")
+	if (TypeStr == "Within")
 	{
 		Type = EFactorType::Within;
 	}
-	else if(TypeStr == "Between")
+	else if (TypeStr == "Between")
 	{
 		Type = EFactorType::Between;
 	}
 	else
 	{
-		FSFUtils::Log("[USFStudyFactor::FromJson] unknown Type: "+TypeStr, true);
+		FSFUtils::Log("[USFStudyFactor::FromJson] unknown Type: " + TypeStr, true);
 	}
 }
 
@@ -96,11 +97,15 @@ TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int ParticipantId, int NrCo
 	// Addapted from infos on https://cs.uwaterloo.ca/~dmasson/tools/latin_square/
 	// IMPORTANT: for uneven NRConditions, there 2*NrConditions different orders!
 	TArray<int> Result;
-	for (int i = 0, j = 0, h = 0; i < NrConditions; ++i) {
+	for (int i = 0, j = 0, h = 0; i < NrConditions; ++i)
+	{
 		int val = 0;
-		if (i < 2 || i % 2 != 0) {
+		if (i < 2 || i % 2 != 0)
+		{
 			val = j++;
-		} else {
+		}
+		else
+		{
 			val = NrConditions - h - 1;
 			++h;
 		}
@@ -109,15 +114,15 @@ TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int ParticipantId, int NrCo
 		Result.Add(idx);
 	}
 
-	if (NrConditions % 2 != 0 && ParticipantId % 2 != 0) {
+	if (NrConditions % 2 != 0 && ParticipantId % 2 != 0)
+	{
 		//reverse Result
 		TArray<int> TmpResult = Result;
-		for(int i=0; i<TmpResult.Num(); ++i)
+		for (int i = 0; i < TmpResult.Num(); ++i)
 		{
-			Result[i] = TmpResult[TmpResult.Num()-i-1];
+			Result[i] = TmpResult[TmpResult.Num() - i - 1];
 		}
 	}
 
 	return Result;
 }
-

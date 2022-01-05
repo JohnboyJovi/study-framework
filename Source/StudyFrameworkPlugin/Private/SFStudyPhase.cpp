@@ -21,9 +21,10 @@ USFStudyFactor* USFStudyPhase::AddStudyFactor(FString FactorName, const TArray<F
 
 USFMapFactor* USFStudyPhase::AddMapFactor(const TArray<FString>& FactorLevels)
 {
-	if(ContainsAMapFactor())
+	if (ContainsAMapFactor())
 	{
-		FSFUtils::Log("Already contains Map Factor, {"+FString::Join(FactorLevels, TEXT(", "))+"} will be ignored", true);
+		FSFUtils::Log("Already contains Map Factor, {" + FString::Join(FactorLevels, TEXT(", ")) + "} will be ignored",
+		              true);
 		return nullptr;
 	}
 	USFMapFactor* Factor = NewObject<USFMapFactor>(this);
@@ -149,23 +150,25 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 
 	// Factors
 	TArray<TSharedPtr<FJsonValue>> FactorsArray;
-	for(USFStudyFactor* Factor : Factors){
-		if(!Factor)
+	for (USFStudyFactor* Factor : Factors)
+	{
+		if (!Factor)
 			continue;
-		TSharedRef< FJsonValueObject > JsonValue = MakeShared<FJsonValueObject>(Factor->GetAsJson());
+		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(Factor->GetAsJson());
 		FactorsArray.Add(JsonValue);
 	}
-	Json->SetArrayField("Factors",FactorsArray);
+	Json->SetArrayField("Factors", FactorsArray);
 
 	// DependentVariables
 	TArray<TSharedPtr<FJsonValue>> DependentVarsArray;
-	for(USFDependentVariable* Var : DependentVariables){
-		if(!Var)
+	for (USFDependentVariable* Var : DependentVariables)
+	{
+		if (!Var)
 			continue;
-		TSharedRef< FJsonValueObject > JsonValue = MakeShared<FJsonValueObject>(Var->GetAsJson());
+		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(Var->GetAsJson());
 		DependentVarsArray.Add(JsonValue);
 	}
-	Json->SetArrayField("Dependent Variables",DependentVarsArray);
+	Json->SetArrayField("Dependent Variables", DependentVarsArray);
 
 	// NumberOfRepetitions
 	Json->SetNumberField("Number Of Repetitions", NumberOfRepetitions);
@@ -179,7 +182,7 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 	case EPhaseRepetitionType::DifferentOrder:
 		Json->SetStringField("TypeOfRepetition", "DifferentOrder");
 		break;
-		case EPhaseRepetitionType::FullyRandom:
+	case EPhaseRepetitionType::FullyRandom:
 		Json->SetStringField("TypeOfRepetition", "FullyRandom");
 		break;
 	default:
@@ -188,8 +191,9 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 
 	// SpawnInEveryMapOfThisPhase
 	TArray<TSharedPtr<FJsonValue>> SpawnActorsArray;
-	for(TSubclassOf<AActor> Class : SpawnInEveryMapOfThisPhase){
-		if(!Class)
+	for (TSubclassOf<AActor> Class : SpawnInEveryMapOfThisPhase)
+	{
+		if (!Class)
 			continue;
 		TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
 		JsonObject->SetStringField("ClassName", Class.Get()->GetName());
@@ -197,9 +201,9 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(JsonObject);
 		SpawnActorsArray.Add(JsonValue);
 	}
-	Json->SetArrayField("SpawnInEveryMapOfThisPhase",SpawnActorsArray);	
-	
-	return  Json;
+	Json->SetArrayField("SpawnInEveryMapOfThisPhase", SpawnActorsArray);
+
+	return Json;
 }
 
 void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
@@ -208,10 +212,11 @@ void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
 
 	// Factors
 	TArray<TSharedPtr<FJsonValue>> FactorsArray = Json->GetArrayField("Factors");
-	for(auto JsonFactor : FactorsArray){
+	for (auto JsonFactor : FactorsArray)
+	{
 		TSharedPtr<FJsonObject> FactorObj = JsonFactor->AsObject();
-		USFStudyFactor* Factor=nullptr;
-		if(FactorObj->HasField("MapFactor") && FactorObj->GetBoolField("MapFactor"))
+		USFStudyFactor* Factor = nullptr;
+		if (FactorObj->HasField("MapFactor") && FactorObj->GetBoolField("MapFactor"))
 		{
 			Factor = NewObject<USFMapFactor>(this);
 		}
@@ -225,7 +230,8 @@ void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
 
 	// DependentVariables
 	TArray<TSharedPtr<FJsonValue>> DependentVarsArray = Json->GetArrayField("Dependent Variables");;
-	for(auto Var : DependentVarsArray){
+	for (auto Var : DependentVarsArray)
+	{
 		USFDependentVariable* DependentVariable = NewObject<USFDependentVariable>(this);
 		DependentVariable->FromJson(Var->AsObject());
 		DependentVariables.Add(DependentVariable);
@@ -236,33 +242,34 @@ void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
 
 	// TypeOfRepetition
 	FString RepetitionTypeStr = Json->GetStringField("TypeOfRepetition");
-	if(RepetitionTypeStr == "SameOrder")
+	if (RepetitionTypeStr == "SameOrder")
 	{
 		TypeOfRepetition = EPhaseRepetitionType::SameOrder;
 	}
-	else if(RepetitionTypeStr == "DifferentOrder")
+	else if (RepetitionTypeStr == "DifferentOrder")
 	{
 		TypeOfRepetition = EPhaseRepetitionType::DifferentOrder;
 	}
-	else if(RepetitionTypeStr == "FullyRandom")
+	else if (RepetitionTypeStr == "FullyRandom")
 	{
 		TypeOfRepetition = EPhaseRepetitionType::FullyRandom;
 	}
 	else
 	{
-		FSFUtils::Log("[USFStudyPhase::FromJson] unknown TypeOfRepetition: "+RepetitionTypeStr, true);
+		FSFUtils::Log("[USFStudyPhase::FromJson] unknown TypeOfRepetition: " + RepetitionTypeStr, true);
 	}
 
 	// SpawnInEveryMapOfThisPhase
 	TArray<TSharedPtr<FJsonValue>> SpawnActorsArray = Json->GetArrayField("SpawnInEveryMapOfThisPhase");;
-	for(auto Class : SpawnActorsArray){
+	for (auto Class : SpawnActorsArray)
+	{
 		const FString Name = Class->AsObject()->GetStringField("ClassName");
 		const FString Path = Class->AsObject()->GetStringField("ClassPath");
 		const FString FullName = Path + "/" + Name;
 		UClass* ClassToSpawn = FindObject<UClass>(ANY_PACKAGE, *FullName);
-		if(!ClassToSpawn)
+		if (!ClassToSpawn)
 		{
-			FSFUtils::Log("[USFStudyPhase::FromJson] class does not exist: "+Path+"/"+Name, true);
+			FSFUtils::Log("[USFStudyPhase::FromJson] class does not exist: " + Path + "/" + Name, true);
 			continue;
 		}
 		SpawnInEveryMapOfThisPhase.Add(ClassToSpawn->GetClass());
@@ -271,16 +278,16 @@ void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
 
 bool USFStudyPhase::ContainsNullptrInArrays()
 {
-	for(USFStudyFactor* Factor : Factors)
+	for (USFStudyFactor* Factor : Factors)
 	{
-		if(Factor==nullptr)
+		if (Factor == nullptr)
 		{
 			return true;
 		}
 	}
-	for(USFDependentVariable* Var : DependentVariables)
+	for (USFDependentVariable* Var : DependentVariables)
 	{
-		if(Var==nullptr)
+		if (Var == nullptr)
 		{
 			return true;
 		}
@@ -290,13 +297,13 @@ bool USFStudyPhase::ContainsNullptrInArrays()
 
 bool USFStudyPhase::ContainsAMapFactor() const
 {
-	return GetMapFactor()!=nullptr;
+	return GetMapFactor() != nullptr;
 }
 
 USFMapFactor* USFStudyPhase::GetMapFactor() const
 {
 	int MapIdx = GetMapFactorIndex();
-	if( MapIdx==-1)
+	if (MapIdx == -1)
 	{
 		return nullptr;
 	}
@@ -305,9 +312,9 @@ USFMapFactor* USFStudyPhase::GetMapFactor() const
 
 int USFStudyPhase::GetMapFactorIndex() const
 {
-	for(int i=0; i<Factors.Num(); ++i)
+	for (int i = 0; i < Factors.Num(); ++i)
 	{
-		if(Factors[i]->IsA(USFMapFactor::StaticClass()))
+		if (Factors[i]->IsA(USFMapFactor::StaticClass()))
 		{
 			return i;
 		}

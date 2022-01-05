@@ -40,19 +40,19 @@ TSharedPtr<FJsonObject> USFCondition::GetAsJson() const
 	Json->SetStringField("Map", Map);
 
 	TSharedPtr<FJsonObject> FactorLevelsJson = MakeShared<FJsonObject>();
-	for(auto FactorLevel : FactorLevels)
+	for (auto FactorLevel : FactorLevels)
 	{
 		FactorLevelsJson->SetStringField(FactorLevel.Key, FactorLevel.Value);
 	}
-	Json->SetObjectField("FactorLevels",FactorLevelsJson);
+	Json->SetObjectField("FactorLevels", FactorLevelsJson);
 
 	TArray<TSharedPtr<FJsonValue>> DependentVariablesArray;
-	for(auto Var : DependentVariablesValues)
+	for (auto Var : DependentVariablesValues)
 	{
-		TSharedRef< FJsonValueObject > JsonValue = MakeShared<FJsonValueObject>(Var.Key->GetAsJson());
+		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(Var.Key->GetAsJson());
 		DependentVariablesArray.Add(JsonValue);
 	}
-	Json->SetArrayField("DependentVariables",DependentVariablesArray);
+	Json->SetArrayField("DependentVariables", DependentVariablesArray);
 	return Json;
 }
 
@@ -63,13 +63,13 @@ void USFCondition::FromJson(TSharedPtr<FJsonObject> Json)
 	Map = Json->GetStringField("Map");
 
 	TSharedPtr<FJsonObject> FactorLevelsJson = Json->GetObjectField("FactorLevels");
-	for(auto FactorLevel : FactorLevelsJson->Values)
+	for (auto FactorLevel : FactorLevelsJson->Values)
 	{
 		FactorLevels.Add(FactorLevel.Key, FactorLevel.Value->AsString());
 	}
 
 	TArray<TSharedPtr<FJsonValue>> DependentVariablesArray = Json->GetArrayField("DependentVariables");
-	for(auto Var : DependentVariablesArray)
+	for (auto Var : DependentVariablesArray)
 	{
 		USFDependentVariable* DependentVariable = NewObject<USFDependentVariable>();
 		DependentVariable->FromJson(Var->AsObject());
@@ -103,11 +103,11 @@ bool USFCondition::operator==(USFCondition& Other)
 	return UniqueName == Other.UniqueName;
 }
 
-bool USFCondition::StoreDependetVariableData(const FString & VarName, const FString & Value)
+bool USFCondition::StoreDependetVariableData(const FString& VarName, const FString& Value)
 {
-	for(auto& Var : DependentVariablesValues)
+	for (auto& Var : DependentVariablesValues)
 	{
-		if(Var.Key->Name == VarName)
+		if (Var.Key->Name == VarName)
 		{
 			Var.Value = Value;
 			return true;
@@ -142,9 +142,9 @@ void USFCondition::Begin()
 {
 	StartTime = FPlatformTime::Seconds();
 
-	for(auto Vars : DependentVariablesValues)
+	for (auto Vars : DependentVariablesValues)
 	{
-		Vars.Value="";
+		Vars.Value = "";
 	}
 
 	//TODO: anything else to setup?
@@ -154,15 +154,15 @@ bool USFCondition::End()
 {
 	const double EndTime = FPlatformTime::Seconds();
 
-	for(auto Vars : DependentVariablesValues)
+	for (auto Vars : DependentVariablesValues)
 	{
-		if(Vars.Key->bRequired && Vars.Value=="")
+		if (Vars.Key->bRequired && Vars.Value == "")
 		{
 			return false;
 		}
 	}
 
-	TimeTaken = EndTime-StartTime;
-	bConditionFinished=true;
+	TimeTaken = EndTime - StartTime;
+	bConditionFinished = true;
 	return true;
 }

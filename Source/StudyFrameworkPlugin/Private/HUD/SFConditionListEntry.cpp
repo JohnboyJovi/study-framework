@@ -60,8 +60,7 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 
 	for (int i = 3; i < Data.Num(); ++i)
 	{
-		Texts[UsedTexts++]->SetText(FText::FromString(Data[i]));
-		if (UsedTexts > Texts.Num())
+		if (UsedTexts >= Texts.Num())
 		{
 			FSFUtils::Log(
 				"[USFConditionListEntry::FillWithCondition] to few text fields to show everything, " + FString::FromInt(
@@ -69,6 +68,7 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 				" text fields would be needed.", true);
 			return;
 		}
+		Texts[UsedTexts++]->SetText(FText::FromString(Data[i]));
 	}
 
 	//hide unused texts

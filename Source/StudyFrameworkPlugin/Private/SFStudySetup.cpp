@@ -13,10 +13,10 @@ void ASFStudySetup::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ASFStudySetup::PostInitProperties()
+void ASFStudySetup::PostLoad()
 {
+	Super::PostLoad();
 	LoadFromJson();
-	Super::PostInitProperties();
 }
 
 void ASFStudySetup::PreSave(const ITargetPlatform* TargetPlatform)

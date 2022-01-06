@@ -31,16 +31,20 @@ public:
 	virtual TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
 
+	//Name of this factor, used for identifying it and also for getting its level during execution
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString FactorName = "undefined";
 
+	//the levels this factor can have (e.g., On, Off)
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<FString> Levels;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	//how to mix this Factor
 	EFactorMixingOrder MixingOrder = EFactorMixingOrder::RandomOrder;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	//Whether it is a within or between subjects factor
 	EFactorType Type = EFactorType::Within;
 
 	static TArray<int> GenerateLatinSquareOrder(int ParticipantId, int NrConditions);

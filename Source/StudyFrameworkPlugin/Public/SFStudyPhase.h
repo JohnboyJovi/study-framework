@@ -17,7 +17,7 @@ enum class EPhaseRepetitionType : uint8
 	FullyRandom = 2 UMETA(DisplayName = "Repeat all conditions NumberOfRepetitions times, but in an arbitrary order")
 };
 
-UCLASS(EditInlineNew)
+UCLASS(EditInlineNew, CollapseCategories)
 class STUDYFRAMEWORKPLUGIN_API USFStudyPhase : public UObject
 {
 	GENERATED_BODY()

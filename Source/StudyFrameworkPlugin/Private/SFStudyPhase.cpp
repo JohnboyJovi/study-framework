@@ -86,14 +86,6 @@ bool USFStudyPhase::PhaseValid() const
 			return false;
 		}
 
-		if (TypeOfRepetition != EPhaseRepetitionType::SameOrder && NumberOfRepetitions > 1)
-		{
-			FSFUtils::OpenMessageBox(
-				"[USFStudyPhase::PhaseValid] Only same order repetition is implemented but something else was requested in phase "
-				+ PhaseName, true);
-			return false;
-		}
-
 
 		// Other (permanent) problems
 		if (Factor->Levels.Num() == 0)
@@ -135,12 +127,11 @@ bool USFStudyPhase::PhaseValid() const
 	return true;
 }
 
-
 TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 {
 	// first restructure factors, such that:
-	// the map factor is the first one
-	// a potential enBlock factor is the last one
+	// - the map factor is the first one
+	// - a potential enBlock factor is the last one
 	TArray<USFStudyFactor*> SortedFactors;
 	bool bHasEnBlock = SortFactors(SortedFactors);
 
@@ -162,14 +153,29 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 
 	//create an array holding for each condition an array of each factors' level index
 	TArray<TArray<int>> ConditionsIndices;
-	ConditionsIndices.Reserve(NumberOfConditions*NumberOfRepetitions);
+	ConditionsIndices.Reserve(NumberOfConditions * NumberOfRepetitions);
 	CreateAllConditionsRecursively(0, {}, SortedFactors, ConditionsIndices);
+
+	if (TypeOfRepetition == EPhaseRepetitionType::FullyRandom)
+	{
+		//simply copy the conditions before shuffling, but always the same next to each other
+		//otherwise the latin square had problems due to its modulo nature (still due to doubling conditions not perfect)
+		TArray<TArray<int>> ConditionsIndicesCopy = ConditionsIndices;
+		ConditionsIndices.Empty();
+		for (int i = 0; i < ConditionsIndicesCopy.Num(); ++i)
+		{
+			for (int r = 0; r < NumberOfRepetitions; ++r)
+			{
+				TArray<int> ConditionIndices = ConditionsIndicesCopy[i]; //make a copy
+				ConditionsIndices.Add(ConditionIndices);
+			}
+		}
+	}
 
 
 	// ****************************
 	//          Randomize
 	// ****************************
-
 
 	int NrLatinSqConditions = ConditionsIndices.Num();
 	int enBlockConditions = 1;
@@ -180,31 +186,37 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 		enBlockConditions = SortedFactors.Last()->Levels.Num();
 		NrLatinSqConditions /= enBlockConditions;
 	}
-	const TArray<int> LatinSquareRndReOrder = USFStudyFactor::GenerateLatinSquareOrder(
-		ParticipantNr, NrLatinSqConditions);
-	const TArray<int> LatinSquareRndReOrderEnBlock = USFStudyFactor::GenerateLatinSquareOrder(
-		ParticipantNr, enBlockConditions);
+
 	TArray<TArray<int>> ConditionsIndicesCopy = ConditionsIndices;
 	ConditionsIndices.Empty();
-	for (int i = 0; i < enBlockConditions; ++i)
+
+	int NrDifferentOrderRepetitions =
+		TypeOfRepetition == EPhaseRepetitionType::DifferentOrder ? NumberOfRepetitions : 1;
+	for (int repetition = 0; repetition < NrDifferentOrderRepetitions; ++repetition)
 	{
-		// if we have enBlockConditions>1 we need to copy and shuffle the whole enBlock Block, otherwise the i loop is trivially run once only
-		for (int j = 0; j < LatinSquareRndReOrder.Num(); ++j)
+		const TArray<int> LatinSquareRndReOrder = USFStudyFactor::GenerateLatinSquareOrder(
+			ParticipantNr + repetition, NrLatinSqConditions);
+		const TArray<int> LatinSquareRndReOrderEnBlock = USFStudyFactor::GenerateLatinSquareOrder(
+			ParticipantNr + repetition, enBlockConditions);
+		for (int i = 0; i < enBlockConditions; ++i)
 		{
-			ConditionsIndices.Add(
-				ConditionsIndicesCopy[enBlockConditions * LatinSquareRndReOrder[j] + LatinSquareRndReOrderEnBlock[i]]);
+			// if we have enBlockConditions>1 we need to copy and shuffle the whole enBlock Block, otherwise the i loop is trivially run once only
+			for (int j = 0; j < LatinSquareRndReOrder.Num(); ++j)
+			{
+				ConditionsIndices.Add(
+					ConditionsIndicesCopy[enBlockConditions * LatinSquareRndReOrder[j] + LatinSquareRndReOrderEnBlock[i]]);
+			}
 		}
 	}
 
-
 	// ****************************
-	//        Add repetitions
+	//   Add SameOrder repetitions
 	// ****************************
 
 	if (TypeOfRepetition == EPhaseRepetitionType::SameOrder)
 	{
 		const int NrConditions = ConditionsIndices.Num();
-		for (int r = 1; r < NumberOfRepetitions; ++r)
+		for (int r = 0; r < NumberOfRepetitions - 1; ++r)
 		{
 			for (int i = 0; i < NrConditions; ++i)
 			{
@@ -246,11 +258,11 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 
 
 	// ****************************
-	//   Create actual conditons
+	//   Create actual conditions
 	// ****************************
 
 	Conditions.Empty();
-	Conditions.Reserve(ConditionsIndices.Num()); //so we have enough space, it is still empty, however
+	Conditions.Reserve(ConditionsIndices.Num()); 
 
 	for (TArray<int> ConditionIndices : ConditionsIndices)
 	{

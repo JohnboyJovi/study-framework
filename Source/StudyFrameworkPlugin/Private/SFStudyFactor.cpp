@@ -48,6 +48,8 @@ TSharedPtr<FJsonObject> USFStudyFactor::GetAsJson() const
 		FSFUtils::Log("[USFStudyFactor::GetAsJson] unknown FactorType!", true);
 	}
 
+	Json->SetBoolField("NonCombined", bNonCombined);
+
 	return Json;
 }
 
@@ -89,6 +91,8 @@ void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 	{
 		FSFUtils::Log("[USFStudyFactor::FromJson] unknown Type: " + TypeStr, true);
 	}
+
+	bNonCombined = Json->GetBoolField("NonCombined");
 }
 
 TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int ParticipantId, int NrConditions)

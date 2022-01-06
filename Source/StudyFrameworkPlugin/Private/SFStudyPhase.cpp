@@ -73,6 +73,7 @@ bool USFStudyPhase::PhaseValid() const
 
 	int NrEnBlockFactors = 0;
 	int NrRandomFactors = 0;
+	int NrNonCombinedFactors = 0;
 
 	for (USFStudyFactor* Factor : Factors)
 	{
@@ -120,6 +121,15 @@ bool USFStudyPhase::PhaseValid() const
 				" is already the second enBlock factor, how should that work? If you know, implement ;-)", true);
 			return false;
 		}
+
+		NrNonCombinedFactors += (Factor->bNonCombined ? 1 : 0);
+	}
+
+	if (NrNonCombinedFactors == Factors.Num())
+	{
+		FSFUtils::OpenMessageBox(
+			"[USFStudyPhase::PhaseValid] Phase " + PhaseName + " needs to have at least 1 not-nonCombined factor!", true);
+		return false;
 	}
 
 	return true;
@@ -136,9 +146,13 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 
 	TArray<USFCondition*> Conditions;
 	int NumberOfConditions = 1;
-	for (int i = 0; i < SortedFactors.Num(); i++)
+	for (USFStudyFactor* Factor : SortedFactors)
 	{
-		NumberOfConditions *= SortedFactors[i]->Levels.Num();
+		if (Factor->bNonCombined)
+		{
+			continue; //those are not part of the condition
+		}
+		NumberOfConditions *= Factor->Levels.Num();
 	}
 
 
@@ -146,12 +160,9 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 	// Generate Condition Indices
 	// ****************************
 
-	Conditions.Empty();
-	Conditions.Reserve(NumberOfRepetitions * NumberOfConditions); //so we have enough space, it is still empty, however
-
 	//create an array holding for each condition an array of each factors' level index
 	TArray<TArray<int>> ConditionsIndices;
-	ConditionsIndices.Reserve(NumberOfConditions);
+	ConditionsIndices.Reserve(NumberOfConditions*NumberOfRepetitions);
 	CreateAllConditionsRecursively(0, {}, SortedFactors, ConditionsIndices);
 
 
@@ -187,8 +198,59 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 
 
 	// ****************************
+	//        Add repetitions
+	// ****************************
+
+	if (TypeOfRepetition == EPhaseRepetitionType::SameOrder)
+	{
+		const int NrConditions = ConditionsIndices.Num();
+		for (int r = 1; r < NumberOfRepetitions; ++r)
+		{
+			for (int i = 0; i < NrConditions; ++i)
+			{
+				TArray<int> ConditionIndices = ConditionsIndices[i]; //make a copy
+				ConditionsIndices.Add(ConditionIndices);
+			}
+		}
+	}
+
+
+	// ****************************
+	//   Add non-combined factors
+	// ****************************
+
+	for (int i = 0; i < SortedFactors.Num(); ++i)
+	{
+		const USFStudyFactor* Factor = SortedFactors[i];
+		if (!Factor->bNonCombined)
+		{
+			continue;
+		}
+
+		TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(ParticipantNr, Factor->Levels.Num());
+		if (LatinSquare.Num() < ConditionsIndices.Num())
+		{
+			FSFUtils::Log(
+				"[USFStudyPhase::GenerateConditions] nonCombined factor levels will be repeated, since factor " + Factor->
+				FactorName + " only has " + FString::FromInt(Factor->Levels.Num()) + " levels but there are " +
+				FString::FromInt(ConditionsIndices.Num()) + " conditions.");
+		}
+		for (int j = 0; j < ConditionsIndices.Num(); ++j)
+		{
+			check(ConditionsIndices[j][i]==-1);
+
+			//repeat the latin square if it does not provide enough levels
+			ConditionsIndices[j][i] = LatinSquare[j % Factor->Levels.Num()];
+		}
+	}
+
+
+	// ****************************
 	//   Create actual conditons
 	// ****************************
+
+	Conditions.Empty();
+	Conditions.Reserve(ConditionsIndices.Num()); //so we have enough space, it is still empty, however
 
 	for (TArray<int> ConditionIndices : ConditionsIndices)
 	{
@@ -196,20 +258,6 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 		Condition->Generate(PhaseName, ConditionIndices, SortedFactors, DependentVariables);
 		Condition->SpawnInThisCondition.Append(SpawnInEveryMapOfThisPhase);
 		Conditions.Add(Condition);
-	}
-
-
-	// ****************************
-	//        Add repetitions
-	// ****************************
-
-	//TODO this does not care for the TypeOfRepetition, currently it always does SameOrder
-	for (int r = 0; r < NumberOfRepetitions - 1; r++)
-	{
-		for (int i = 0; i < NumberOfConditions; i++)
-		{
-			Conditions.Add(Conditions[i]);
-		}
 	}
 
 	return Conditions;
@@ -441,6 +489,14 @@ void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> OrderP
 	if (Index >= SortedFactors.Num())
 	{
 		OrdersIndices.Add(OrderPart);
+		return;
+	}
+
+	if (SortedFactors[Index]->bNonCombined)
+	{
+		//simply go on with next factor and add a placeholder "-1"
+		OrderPart.Add(-1);
+		CreateAllConditionsRecursively(Index + 1, OrderPart, SortedFactors, OrdersIndices);
 		return;
 	}
 

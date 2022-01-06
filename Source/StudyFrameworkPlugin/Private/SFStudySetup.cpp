@@ -77,7 +77,6 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 		return TArray<USFCondition*>();
 	}
 
-	//TODO: use the RunningParticipantNumber, e.g. for latin square and between factors
 	TArray<USFCondition*> Conditions;
 	for(USFStudyPhase* Phase : Phases)
 	{

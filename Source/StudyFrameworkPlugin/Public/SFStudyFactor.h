@@ -9,7 +9,7 @@
 UENUM()
 enum class EFactorMixingOrder : uint8
 {
-	RandomOrder = 0 UMETA(DisplayName = "Random: Using Latin Square to balance orders between participants"), 
+	RandomOrder = 0 UMETA(DisplayName = "Random: Using Latin Square to balance orders between participants"),
 	EnBlock = 1 UMETA(DisplayName = "En Block: All conditions with the same level of this factor will be shown en block")
 };
 
@@ -39,13 +39,24 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<FString> Levels;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	//how to mix this Factor
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (EditCondition="!bNonCombined"))
 	EFactorMixingOrder MixingOrder = EFactorMixingOrder::RandomOrder;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	//Whether it is a within or between subjects factor
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (EditCondition="!bNonCombined"))
 	EFactorType Type = EFactorType::Within;
+
+	/*
+	*	bNonCombined means this factor is just used to introduce randomness
+	*	In contrast to normal factors it is not combined with the other factors in
+	*	a n x m x ... design but run in parallel, e.g., to introduce some randomness
+	*	to repetitions of the same conditions (of the other factors).
+	*	Currently these are then randomized between all subjects using LatinSquare
+	*	(and repeated in the same order if not enough levels).
+	*/
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bNonCombined = false;
 
 	static TArray<int> GenerateLatinSquareOrder(int ParticipantId, int NrConditions);
 };

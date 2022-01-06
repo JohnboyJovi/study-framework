@@ -12,9 +12,9 @@
 UENUM()
 enum class EPhaseRepetitionType : uint8
 {
-	SameOrder = 0 UMETA(DisplayName = "Repeat all conditions in the same order again NumberOfRepetitions times"),
-	DifferentOrder = 1 UMETA(DisplayName = "Each repetition block is shuffeled, but 2nd repetitions are only done after each condition was seen once, and so on"),
-	FullyRandom = 2 UMETA(DisplayName = "Repeat all conditions NumberOfRepetitions times, but in an arbitrary order")
+	SameOrder = 0 UMETA(DisplayName = "SameOrder: Repeat all conditions in the same order again NumberOfRepetitions times"),
+	DifferentOrder = 1 UMETA(DisplayName = "DifferentOrder: Each repetition block is shuffeled, but 2nd repetitions are only done after each condition was seen once, and so on"),
+	FullyRandom = 2 UMETA(DisplayName = "FullyRandom: Repeat all conditions NumberOfRepetitions times, but in an arbitrary order")
 };
 
 UCLASS(EditInlineNew, CollapseCategories)

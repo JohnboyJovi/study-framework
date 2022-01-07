@@ -32,6 +32,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text1;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text2;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text3;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text4;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text5;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Time;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UBorder* BackgroundColor;
 
@@ -52,5 +54,6 @@ private:
 	UPROPERTY() const USFCondition* Condition;
 
 	void FillTextsHelper(const TArray<FString>& Data);
+	//the USFDependentVariable is owned by the Condition, so it is not garbage-collected
 	TMap<int, USFDependentVariable*> TextBlockIdToDependentVar;
 };

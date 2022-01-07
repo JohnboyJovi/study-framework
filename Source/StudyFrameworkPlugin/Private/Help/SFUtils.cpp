@@ -49,10 +49,10 @@ void FSFUtils::Log(const FString Text, const bool Error /*=false*/)
 
 void FSFUtils::SetupLoggingStreams()
 {
-	ILogStream* SFLog = UniLog.NewLogStream("SFLog", "Saved/Logs", "SFLog.txt", false);
+	ILogStream* SFLog = UniLog.NewLogStream("SFLog", "StudyFramework/Logs", "SFLog.txt", false);
 	SFLog->SetLogToDefaultLog(true);
 
-	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "Saved/Logs", "SFLog.txt", false);
+	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "StudyFramework/Logs", "SFLog.txt", false);
 	SFErrorLog->SetLogToDefaultLog(true);
 	SFErrorLog->SetPrefix(TEXT("Error: "));
 	SFErrorLog->SetLogOnScreenOnMaster(true);
@@ -79,13 +79,13 @@ TSharedPtr<FJsonObject> FSFUtils::StringToJson(FString String)
 
 void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName)
 {
-	FFileHelper::SaveStringToFile(JsonToString(Json), *(FPaths::ProjectSavedDir() + FilenName));
+	FFileHelper::SaveStringToFile(JsonToString(Json), *(FPaths::ProjectDir() + "StudyFramework/" + FilenName));
 }
 
 TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilenName)
 {
 	FString JsonString;
-	if(!FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectSavedDir() + FilenName)))
+	if(!FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectDir() + "StudyFramework/" + FilenName)))
 	{
 		return nullptr;
 	}

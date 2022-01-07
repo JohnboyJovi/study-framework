@@ -23,7 +23,7 @@ bool USFParticipant::Initialize(int Participant)
 	
 	const FString Timestamp = FDateTime::Now().ToString();
 	const FString Filename = "LogParticipant-" + FString::FromInt(ParticipantID) + "_" + Timestamp + ".txt";
-	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "Saved/Results",
+	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "StudyFramework/Results",
 	                                                 Filename, false);
 	StartTime = FPlatformTime::Seconds();
 

@@ -237,9 +237,9 @@ void USFFadeHandler::SetFadeConfig(FFadeConfig FadeConfig)
 
 void USFFadeHandler::SetTimerForNextTick(const float TimeToWait)
 {
-	FSFUtils::Log(
-		"[USFFadeHandler::SetTimerForNextTick()]: Setting Timer for " + FString::SanitizeFloat(TimeToWait, 4) +
-		" seconds", false);
+	//FSFUtils::Log(
+	//	"[USFFadeHandler::SetTimerForNextTick()]: Setting Timer for " + FString::SanitizeFloat(TimeToWait, 4) +
+	//	" seconds", false);
 	GameInstance->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &USFFadeHandler::Tick, 0.1f, true,
 	                                                     TimeToWait);
 }

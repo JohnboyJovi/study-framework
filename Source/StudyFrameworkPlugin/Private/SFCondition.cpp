@@ -1,5 +1,7 @@
 #include "SFCondition.h"
 
+#include "UObject/UObjectGlobals.h"
+
 #include "SFMapFactor.h"
 
 USFCondition::USFCondition()
@@ -26,7 +28,7 @@ void USFCondition::Generate(const FString& InPhaseName, const TArray<int>& Condi
 
 	for (USFDependentVariable* Var : DependentVars)
 	{
-		DependentVariablesValues.Add(Var, "");
+		DependentVariablesValues.Add(DuplicateObject(Var, this), "");
 	}
 	UniqueName = CreateIdentifiableName();
 }

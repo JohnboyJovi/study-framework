@@ -32,6 +32,9 @@ struct FFadeConfig
 	UPROPERTY(EditAnywhere)
 	FLinearColor FadeColor = FLinearColor::Black;
 
+	UPROPERTY(EditAnywhere)
+	bool bShowHUD = true;
+
 	TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
 };

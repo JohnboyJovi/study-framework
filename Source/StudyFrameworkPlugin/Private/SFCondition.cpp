@@ -81,17 +81,12 @@ void USFCondition::FromJson(TSharedPtr<FJsonObject> Json)
 
 FString USFCondition::CreateIdentifiableName()
 {
-	FString Name = PhaseName + "_" + Map;
-	for (auto FactorLevel : FactorLevels)
-	{
-		Name = Name + "_" + FactorLevel.Value;
-	}
-	return Name;
+	return ToString();
 }
 
 FString USFCondition::ToString() const
 {
-	FString Out = PhaseName + "_" + Map;
+	FString Out = PhaseName + "_" + FPaths::GetBaseFilename(Map);
 	for (auto Level : FactorLevels)
 	{
 		Out = Out + "_" + Level.Value;

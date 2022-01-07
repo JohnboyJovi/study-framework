@@ -136,8 +136,6 @@ void USFGameInstance::InitFadeHandler(FFadeConfig FadeConfig)
 	{
 		FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
 		FadeHandler->AddToRoot();
-		FadeHandler->SetGameInstance(this);
-		FadeHandler->SetInitialFadedOut(false);
 	}
 	FadeHandler->SetFadeConfig(FadeConfig);
 }

@@ -39,6 +39,8 @@ void USFFadeHandler::Tick()
 		return;
 	}
 
+	USFGameInstance* GameInstance = USFGameInstance::Get();
+
 	switch (FadeState)
 	{
 		// Its Faded out, Load new Level now
@@ -93,7 +95,7 @@ void USFFadeHandler::FadeToLevel(const FString LevelName, const bool bStartFadeF
 	}
 
 	FSFUtils::Log(
-		"[USFFadeHandler::FadeToLevel()]: Fading From level (" + GameInstance->GetWorld()->GetMapName() + ") to level (" +
+		"[USFFadeHandler::FadeToLevel()]: Fading From level (" + USFGameInstance::Get()->GetWorld()->GetMapName() + ") to level (" +
 		LevelName + ")", false);
 	if (bStartFadeFadedOut || bIsFadedOut)
 	{
@@ -130,7 +132,7 @@ void USFFadeHandler::FadeIn()
 
 float USFFadeHandler::FadeTimeRemaining() const
 {
-	const UWorld* World = GameInstance->GetWorld();
+	const UWorld* World = USFGameInstance::Get()->GetWorld();
 	if (World)
 	{
 		USFGlobalFadeGameViewportClient* GameViewportClient = Cast<USFGlobalFadeGameViewportClient>(
@@ -159,7 +161,7 @@ void USFFadeHandler::Fade(const float Duration, const bool bToBlack) const
 		}
 	}
 
-	const UWorld* World = GameInstance->GetWorld();
+	const UWorld* World = USFGameInstance::Get()->GetWorld();
 	if (World)
 	{
 		USFGlobalFadeGameViewportClient* GameViewportClient = Cast<USFGlobalFadeGameViewportClient>(
@@ -179,7 +181,7 @@ bool USFFadeHandler::GetIsFading() const
 
 APlayerCameraManager* USFFadeHandler::GetCameraManager() const
 {
-	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GameInstance->GetWorld(), 0);
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(USFGameInstance::Get()->GetWorld(), 0);
 
 	if (CameraManager == nullptr)
 	{
@@ -190,10 +192,6 @@ APlayerCameraManager* USFFadeHandler::GetCameraManager() const
 }
 
 
-void USFFadeHandler::SetGameInstance(USFGameInstance* Instance)
-{
-	GameInstance = Instance;
-}
 
 void USFFadeHandler::SetFadeDuration(const float FadeDurationN)
 {
@@ -240,6 +238,6 @@ void USFFadeHandler::SetTimerForNextTick(const float TimeToWait)
 	//FSFUtils::Log(
 	//	"[USFFadeHandler::SetTimerForNextTick()]: Setting Timer for " + FString::SanitizeFloat(TimeToWait, 4) +
 	//	" seconds", false);
-	GameInstance->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &USFFadeHandler::Tick, 0.1f, true,
+	USFGameInstance::Get()->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &USFFadeHandler::Tick, 0.1f, true,
 	                                                     TimeToWait);
 }

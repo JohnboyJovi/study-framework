@@ -53,7 +53,6 @@ public:
 	bool GetIsFading() const;
 	APlayerCameraManager* GetCameraManager() const;
 
-	void SetGameInstance(USFGameInstance* Instance);
 	void SetFadeDuration(float FadeDurationN);
 	void SetFadedOutDuration(float FadeOutWaitN);
 	void SetFadeColor(FLinearColor Color);
@@ -95,9 +94,6 @@ private:
 
 	UPROPERTY()
 	FString NewLevelName;
-
-	UPROPERTY()
-	USFGameInstance* GameInstance;
 
 	UPROPERTY()
 	FTimerHandle TimerHandle;

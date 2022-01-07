@@ -20,6 +20,7 @@ TSharedPtr<FJsonObject> FFadeConfig::GetAsJson() const
 	Json->SetNumberField("FadeDuration", FadeDuration);
 	Json->SetNumberField("FadeOutDuration", FadedOutDuration);
 	Json->SetStringField("FadeColor", FadeColor.ToString());
+	Json->SetBoolField("ShowHUD", bShowHUD);
 	return Json;
 }
 
@@ -29,6 +30,7 @@ void FFadeConfig::FromJson(TSharedPtr<FJsonObject> Json)
 	FadeDuration = Json->GetNumberField("FadeDuration");
 	FadedOutDuration = Json->GetNumberField("FadeOutDuration");
 	FadeColor.InitFromString(Json->GetStringField("FadeColor"));
+	bShowHUD = Json->GetBoolField("ShowHUD");
 }
 
 void USFFadeHandler::Tick()

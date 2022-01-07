@@ -65,7 +65,7 @@ TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 		FSFUtils::Log(
 			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
 			FString::FromInt(ParticipantID) + " cannot be read!", true);
-		return LoadedConditions;
+		return {};
 	}
 
 	TArray<TSharedPtr<FJsonValue>> ConditionsArray = Json->GetArrayField("Conditions");
@@ -125,7 +125,7 @@ bool USFParticipant::StartStudy()
 	// Set first condition
 	CurrentConditionIdx = -1;
 
-	LogComment("Start Study for ParticipantID: "+FString::FromInt(ParticipantID));
+	LogComment("Start Study for ParticipantID: " + FString::FromInt(ParticipantID));
 
 	return true;
 }
@@ -219,7 +219,7 @@ bool USFParticipant::LoadConditionsFromJson()
 {
 	if (ParticipantID == -1)
 	{
-		FSFUtils::Log("[USFParticipant::LoadContitionsFromJson] ParticipantID == -1, maybe nothing stored?", true);
+		FSFUtils::Log("[USFParticipant::LoadConditionsFromJson] ParticipantID == -1, maybe nothing stored?", true);
 		return false;
 	}
 

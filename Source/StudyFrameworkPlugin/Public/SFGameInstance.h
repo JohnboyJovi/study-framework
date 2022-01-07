@@ -22,7 +22,7 @@ class STUDYFRAMEWORKPLUGIN_API USFGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 
-public: // TODO check what can be protected:
+public: 
 
 	//override UGameInstance methods
 	virtual void Init() override;
@@ -58,13 +58,20 @@ public: // TODO check what can be protected:
 	UFUNCTION()
 	void LogToHUD(FString Text);
 
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnFadedInDelegate OnFadedInDelegate;
+
+
 	// ****************************************************************** // 
 	// ******* Executing Study  (called by other parts of the framework)* //
 	// ****************************************************************** //
 
-	// Fade Handler
 	UFUNCTION()
 	USFFadeHandler* GetFadeHandler();
+	UFUNCTION()
+	ASFStudySetup* GetStudySetup();
+
 
 	UFUNCTION()
 	void SpawnAllActorsForLevel();
@@ -77,16 +84,11 @@ public: // TODO check what can be protected:
 
 
 	// ****************************************************************** // 
-	// *******   Delegates   ******************************************** //
+	// *******      HUD      ******************************************** //
 	// ****************************************************************** //
-
-	UPROPERTY(BlueprintAssignable)
-	FOnFadedInDelegate OnFadedInDelegate;
-
 
 	UFUNCTION()
 	void UpdateHUD(FString Status);
-
 
 	//this is used by the SFMasterHUD to store content between levels
 	FHUDSavedData HUDSavedData;

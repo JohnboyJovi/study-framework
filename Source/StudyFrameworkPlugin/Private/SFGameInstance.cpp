@@ -24,6 +24,8 @@ void USFGameInstance::Init()
 
 	GoToConditionSyncedEvent.Attach(this);
 
+	Instance = this;
+
 	if (ConditionToStartAtInit)
 	{
 		FSFUtils::Log(
@@ -32,8 +34,6 @@ void USFGameInstance::Init()
 	}
 
 	InitFadeHandler(StudySetup->FadeConfig);
-
-	Instance = this;
 }
 
 void USFGameInstance::Shutdown()
@@ -70,31 +70,36 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 		}
 	}
 
-	if (!IsInitialized())
+	if (FirstMapCondition)
 	{
-		//this is potentially called before init was called
-		ConditionToStartAtInit = FirstMapCondition;
-	}
-	else if (FirstMapCondition)
-	{
-		FSFUtils::Log("Started on a map that was part of the last study, so start the study run for debug reasons");
-		RestoreLastParticipant(FirstMapCondition);
+		if (!IsInitialized())
+		{
+			//this is potentially called before init was called
+			ConditionToStartAtInit = FirstMapCondition;
+		}
+		else
+		{
+			FSFUtils::Log(
+				"[USFGameInstance::OnWorldChanged] Started on a map that was part of the last study, so start the study run for debug reasons.");
+			RestoreLastParticipant(FirstMapCondition);
+		}
+		return;
 	}
 
 	// otherwise check whether a setup is present
 	TArray<AActor*> StudySetups;
 	UGameplayStatics::GetAllActorsOfClass(NewWorld, ASFStudySetup::StaticClass(), StudySetups);
 
-	if (!FirstMapCondition && StudySetups.Num() != 1)
+	if (StudySetups.Num() == 1)
+	{
+		PrepareWithStudySetup(Cast<ASFStudySetup>(StudySetups[0]));
+	}
+	else
 	{
 		FSFUtils::Log(
 			"[USFGameInstance::OnWorldChanged] world started that neither contains exactly one SFStudySetup actor, nor is a level that is part of one of the conditions from the last study run!",
 			true);
 		return;
-	}
-	if (StudySetups.Num() == 1)
-	{
-		PrepareWithStudySetup(Cast<ASFStudySetup>(StudySetups[0]));
 	}
 }
 
@@ -105,7 +110,13 @@ void USFGameInstance::RestoreLastParticipant(USFCondition* StartCondition)
 	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
 	Participant->Initialize(ParticipantID);
 	Participant->LoadConditionsFromJson();
+
+	StudySetup = USFParticipant::GetLastParticipantSetup();
+	InitFadeHandler(StudySetup->FadeConfig);
+
 	StartStudy(StartCondition);
+
+	//cannot directly fade in here, since Init might not be done, so we wait a second for safety
 	GetTimerManager().SetTimer(StartFadingTimerHandle, this, &USFGameInstance::StartFadingIn, 1.0f);
 }
 
@@ -142,7 +153,7 @@ void USFGameInstance::InitFadeHandler(FFadeConfig FadeConfig)
 
 void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 {
-	StudySetup = Setup;
+	StudySetup = DuplicateObject(Setup, this);
 
 	//can be used for debugging orders
 	//GenerateTestStudyRuns(20);
@@ -170,7 +181,10 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	Participant->Initialize(ParticipantID);
 	Participant->SetStudyConditions(Conditions);
 
-	InitFadeHandler(Setup->FadeConfig);
+	if (IsInitialized())
+	{
+		InitFadeHandler(Setup->FadeConfig);
+	}
 }
 
 void USFGameInstance::GenerateTestStudyRuns(int NrOfRuns) const
@@ -344,6 +358,11 @@ USFFadeHandler* USFGameInstance::GetFadeHandler()
 	return FadeHandler;
 }
 
+ASFStudySetup* USFGameInstance::GetStudySetup()
+{
+	return StudySetup;
+}
+
 // ****************************************************************** // 
 // ******* Executing Study ****************************************** //
 // ****************************************************************** //
@@ -383,6 +402,8 @@ USFParticipant* USFGameInstance::GetParticipant() const
 
 void USFGameInstance::UpdateHUD(FString Status)
 {
+	if (!GetWorld() || !GetWorld()->GetFirstPlayerController())
+		return;
 	ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 	if (MasterHUD)
 		MasterHUD->UpdateHUD(Participant, Status);

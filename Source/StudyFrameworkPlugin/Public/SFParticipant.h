@@ -48,6 +48,7 @@ public:
 	static TArray<USFCondition*> GetLastParticipantsConditions();
 	static int GetLastParticipantId();
 	static bool GetLastParticipantFinished();
+	static ASFStudySetup* GetLastParticipantSetup();
 	bool LoadConditionsFromJson();
 
 

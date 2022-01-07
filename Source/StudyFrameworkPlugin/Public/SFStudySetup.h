@@ -58,22 +58,24 @@ public:
 	TArray<TSubclassOf<AActor>> GetSpawnActors() const;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
-	FFadeConfig FadeConfig; 
+	FFadeConfig FadeConfig;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	FString JsonFile = "StudySetup.json";
+
+	void LoadFromJson();
 
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
-	void LoadFromJson();
+	
 	void SaveToJson() const;
 
 	bool ContainsNullptrInArrays();
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "PhaseName", Category = "Study Setup"))
 	TArray<USFStudyPhase*> Phases;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
-	FString JsonFile = "StudySetup.json";
 
 	// Spawn in every Level of every phase
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))

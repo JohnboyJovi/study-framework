@@ -215,6 +215,22 @@ bool USFParticipant::GetLastParticipantFinished()
 	return ParticpantJson->GetBoolField("Finished");
 }
 
+ASFStudySetup* USFParticipant::GetLastParticipantSetup()
+{
+	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticipantJson == nullptr || !ParticipantJson->HasField("StudySetup"))
+	{
+		//file does not exist or something else went wrong
+		return nullptr;
+	}
+	FString SetupFile = ParticipantJson->GetStringField("StudySetup");
+	ASFStudySetup* Setup = NewObject<ASFStudySetup>();
+	Setup->JsonFile = SetupFile;
+	Setup->LoadFromJson();
+
+	return Setup;
+}
+
 bool USFParticipant::LoadConditionsFromJson()
 {
 	if (ParticipantID == -1)
@@ -280,6 +296,15 @@ void USFParticipant::LogCurrentParticipant() const
 	}
 	Json->SetBoolField("Finished", bFinished);
 	Json->SetNumberField("CurrentConditionIdx", CurrentConditionIdx);
+	if(USFGameInstance::Get() && USFGameInstance::Get()->GetStudySetup())
+	{
+		Json->SetStringField("StudySetup", USFGameInstance::Get()->GetStudySetup()->JsonFile);
+	}
+	else
+	{
+		FSFUtils::Log("[USFParticipant::LogCurrentParticipant] StudySetup not accessible!", true);
+	}
+	
 
 
 	FSFUtils::WriteJsonToFile(Json, "StudyRuns/LastParticipant.txt");

@@ -161,7 +161,7 @@ void USFFadeHandler::Fade(const float Duration, const bool bToBlack) const
 		}
 	}
 
-	if (USFGameInstance::Get() && USFGameInstance::Get()->GetWorld())
+	if (USFGameInstance::IsInitialized() && USFGameInstance::Get()->GetWorld())
 	{
 		USFGlobalFadeGameViewportClient* GameViewportClient = Cast<USFGlobalFadeGameViewportClient>(
 			USFGameInstance::Get()->GetWorld()->GetGameViewport());

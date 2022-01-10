@@ -356,6 +356,20 @@ void USFGameInstance::LogToHUD(FString Text)
 	}
 }
 
+void USFGameInstance::UpdateHUD(FString Status)
+{
+	if (GetWorld() && GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()))
+	{
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->UpdateHUD(Participant, Status);
+	}
+	else
+	{
+		HUDSavedData.Status=Status;
+		if(Participant)
+			HUDSavedData.Participant = FString::FromInt(Participant->GetID());
+	}
+}
+
 USFFadeHandler* USFGameInstance::GetFadeHandler()
 {
 	return FadeHandler;
@@ -383,7 +397,6 @@ void USFGameInstance::SpawnAllActorsForLevel()
 void USFGameInstance::OnLevelLoaded()
 {
 	//do we need to do something here?
-	//Participant->GetCurrentPhase()->ApplyCondition();
 	UpdateHUD("Fading In");
 }
 
@@ -403,11 +416,3 @@ USFParticipant* USFGameInstance::GetParticipant() const
 }
 
 
-void USFGameInstance::UpdateHUD(FString Status)
-{
-	if (!GetWorld() || !GetWorld()->GetFirstPlayerController())
-		return;
-	ASFMasterHUD* MasterHUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-	if (MasterHUD)
-		MasterHUD->UpdateHUD(Participant, Status);
-}

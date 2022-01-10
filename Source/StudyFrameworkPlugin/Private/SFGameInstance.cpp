@@ -295,7 +295,7 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName)
 	}
 
 	USFCondition* LastCondition = Participant->GetCurrentCondition();
-	if (LastCondition)
+	if (LastCondition && LastCondition->WasStarted())
 		LastCondition->End();
 
 	bool bConditionPresent = Participant->SetCondition(NextCondition);
@@ -311,6 +311,8 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName)
 		FadeHandler->FadeToLevel(NextCondition->Map);
 		UpdateHUD("Fading out");
 	}
+
+	bStudyStarted = true;
 }
 
 bool USFGameInstance::IsStarted() const

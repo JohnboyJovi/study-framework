@@ -256,7 +256,7 @@ bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 	if (!NextCondition)
 		return false;
 
-	if (GetCurrentCondition())
+	if (GetCurrentCondition() && GetCurrentCondition()->WasStarted())
 	{
 		//we already ran a condition so store it
 		if (GetCurrentCondition()->IsFinished())

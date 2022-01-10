@@ -123,6 +123,11 @@ bool USFCondition::IsFinished() const
 	return bConditionFinished;
 }
 
+bool USFCondition::WasStarted() const
+{
+	return bStarted;
+}
+
 FString USFCondition::GetPrettyName()
 {
 	FString ConditionString = "(";
@@ -143,6 +148,8 @@ void USFCondition::Begin()
 	{
 		Vars.Value = "";
 	}
+
+	bStarted=true;
 
 	//TODO: anything else to setup?
 }

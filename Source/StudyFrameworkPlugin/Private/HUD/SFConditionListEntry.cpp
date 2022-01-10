@@ -85,7 +85,8 @@ void USFConditionListEntry::GoTo()
 
 void USFConditionListEntry::UpdateData()
 {
-	IsActive = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() == Condition;
+	IsActive = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() == Condition && USFGameInstance::Get()->
+		GetParticipant()->GetCurrentCondition()->WasStarted();
 	IsDone = Condition->IsFinished();
 
 	if (IsHeader)

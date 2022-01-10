@@ -34,6 +34,7 @@ public:
 
 	float GetTimeTaken() const;
 	bool IsFinished() const;
+	bool WasStarted() const;
 
 	// in the form (Map:...; Factor1:Level1; ...)
 	FString GetPrettyName();
@@ -71,5 +72,6 @@ protected:
 
 private:
 
+	bool bStarted=false;
 	double StartTime;
 };

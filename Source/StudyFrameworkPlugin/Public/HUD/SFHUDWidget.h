@@ -22,7 +22,6 @@ struct FHUDSavedData
 	FString Phase;
 	FString Condition;
 	TArray<FString> LogMessages;
-	bool bSet = false;
 };
 
 /**

@@ -76,14 +76,9 @@ void ASFMasterHUD::BeginPlay()
 		return;
 
 	FHUDSavedData& Data = USFGameInstance::Get()->HUDSavedData;
-	if (Data.bSet)
-	{
-		HUDWidget->SetData(Data);
-	}
-	else
-	{
-		HUDWidget->SetStatus("Wait for start");
-	}
+
+	HUDWidget->SetData(Data);
+
 
 	if (USFGameInstance::Get()->IsStarted())
 	{
@@ -121,15 +116,24 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, const FString& Status)
 
 	HUDWidget->SetStatus(Status);
 
-	if (Participant == nullptr)
+	if (Participant == nullptr){
+		USFGameInstance::Get()->HUDSavedData = HUDWidget->GetData();
 		return;
+	}
 
 	HUDWidget->SetParticipant(FString::FromInt(Participant->GetID()));
 
 	USFCondition* Condition = Participant->GetCurrentCondition();
-	HUDWidget->SetPhase(Condition->PhaseName);
 
+	if(!Condition){
+		USFGameInstance::Get()->HUDSavedData = HUDWidget->GetData();
+		return;
+	}
+
+	HUDWidget->SetPhase(Condition->PhaseName);
 	HUDWidget->SetCondition(Condition->GetPrettyName());
+
+	USFGameInstance::Get()->HUDSavedData = HUDWidget->GetData();
 }
 
 void ASFMasterHUD::AddLogMessage(const FString& Text)

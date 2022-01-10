@@ -63,7 +63,6 @@ void USFHUDWidget::ClearWidget()
 FHUDSavedData USFHUDWidget::GetData()
 {
 	FHUDSavedData Data;
-	Data.bSet = true;
 	Data.Status = StatusTextBox->GetText().ToString();
 	Data.Participant = ParticipantTextBox->GetText().ToString();
 	Data.Phase = PhaseTextBox->GetText().ToString();
@@ -74,10 +73,26 @@ FHUDSavedData USFHUDWidget::GetData()
 
 void USFHUDWidget::SetData(FHUDSavedData Data)
 {
-	StatusTextBox->SetText(FText::FromString(Data.Status));
-	ParticipantTextBox->SetText(FText::FromString(Data.Participant));
-	PhaseTextBox->SetText(FText::FromString(Data.Phase));
-	ConditionTextBox->SetText(FText::FromString(Data.Condition));
+	if(Data.Status.StartsWith("Status:"))
+		StatusTextBox->SetText(FText::FromString(Data.Status));
+	else
+		SetStatus(Data.Status);
+
+	if(Data.Participant.StartsWith("Participant:"))
+		ParticipantTextBox->SetText(FText::FromString(Data.Participant));
+	else
+		SetParticipant(Data.Participant);
+
+	if(Data.Phase.StartsWith("Phase:"))
+		PhaseTextBox->SetText(FText::FromString(Data.Phase));
+	else
+		SetPhase(Data.Phase);
+
+	if(Data.Condition.StartsWith("Condition:"))
+		ConditionTextBox->SetText(FText::FromString(Data.Condition));
+	else
+		SetCondition(Data.Condition);
+
 	LogMessages = Data.LogMessages;
 	AddLogMessage("");
 }

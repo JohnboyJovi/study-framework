@@ -185,6 +185,7 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	{
 		InitFadeHandler(Setup->FadeConfig);
 	}
+	UpdateHUD("Wait for Start");
 }
 
 void USFGameInstance::GenerateTestStudyRuns(int NrOfRuns) const

@@ -222,14 +222,11 @@ bool USFGameInstance::StartStudy(const USFCondition* StartCondition /*= nullptr*
 		}
 	}
 
-	bStudyStarted = true;
-
 	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()))
 	{
 		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->SetStartStudyButtonVisibility(
 			ESlateVisibility::Collapsed);
 	}
-
 
 	if (!StartCondition)
 	{

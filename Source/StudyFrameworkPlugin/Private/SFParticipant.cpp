@@ -88,7 +88,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 {
 	USFCondition* CurrCondition = GetCurrentCondition();
 
-	FString Filename = FPaths::ProjectSavedDir() + "Results/Phase_" + CurrCondition->PhaseName + ".csv";
+	FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + CurrCondition->PhaseName + ".csv";
 
 	if (!FPaths::FileExists(Filename))
 	{
@@ -101,7 +101,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 		{
 			Header += "," + Var.Key->Name;
 		}
-		Header += "\n";
+		Header += ",Time\n";
 		FFileHelper::SaveStringToFile(*Header, *Filename);
 	}
 
@@ -114,6 +114,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 	{
 		ConditionResults += "," + Var.Value;
 	}
+	ConditionResults += "," + FString::Printf(TEXT("%.2f"), CurrCondition->GetTimeTaken());
 	//append this
 	ConditionResults += "\n";
 	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::AutoDetect,

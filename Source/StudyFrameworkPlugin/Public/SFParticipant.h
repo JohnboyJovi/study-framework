@@ -47,9 +47,16 @@ public:
 	// (or when directly starting an intermediate map for testing)
 	static TArray<USFCondition*> GetLastParticipantsConditions();
 	static int GetLastParticipantId();
+	static int GetLastParticipantLastConditionStarted();
 	static bool GetLastParticipantFinished();
 	static ASFStudySetup* GetLastParticipantSetup();
 	bool LoadConditionsFromJson();
+
+	// the results of all participants are stored in a file per phase (called longtable)
+	// for the data to be ready to use in statistics software, this methods clears all
+	// of that data (e.g. if study is entirely restarted=
+	// So: USE WITH CARE!
+	static void ClearPhaseLongtables(ASFStudySetup* StudySetup);
 
 
 protected:

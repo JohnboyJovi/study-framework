@@ -205,6 +205,17 @@ int USFParticipant::GetLastParticipantId()
 	return ParticpantJson->GetNumberField("ParticipantID");
 }
 
+int USFParticipant::GetLastParticipantLastConditionStarted()
+{
+	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticpantJson == nullptr)
+	{
+		//file does not exist or something else went wrong
+		return -1;
+	}
+	return ParticpantJson->GetNumberField("CurrentConditionIdx");
+}
+
 bool USFParticipant::GetLastParticipantFinished()
 {
 	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
@@ -250,6 +261,20 @@ bool USFParticipant::LoadConditionsFromJson()
 		return false;
 	}
 	return true;
+}
+
+void USFParticipant::ClearPhaseLongtables(ASFStudySetup * StudySetup)
+{
+	for(int i=0; i<StudySetup->GetNumberOfPhases(); ++i)
+	{
+		const FString PhaseName = StudySetup->GetPhase(i)->PhaseName;
+		const FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + PhaseName + ".csv";
+		if (FPaths::FileExists(Filename))
+		{
+			IFileManager& FileManager = IFileManager::Get();
+			FileManager.Delete(*Filename);
+		}
+	}
 }
 
 bool USFParticipant::SetCondition(const USFCondition* NextCondition)

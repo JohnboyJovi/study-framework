@@ -30,7 +30,7 @@ void USFGameInstance::Init()
 	{
 		FSFUtils::Log(
 			"Started on a map that was part of the last study, so start the study run for debug reasons from Init()");
-		RestoreLastParticipant(ConditionToStartAtInit);
+		RestoreLastParticipantForDebugStart(ConditionToStartAtInit);
 	}
 
 	InitFadeHandler(StudySetup->FadeConfig);
@@ -81,7 +81,7 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 		{
 			FSFUtils::Log(
 				"[USFGameInstance::OnWorldChanged] Started on a map that was part of the last study, so start the study run for debug reasons.");
-			RestoreLastParticipant(FirstMapCondition);
+			RestoreLastParticipantForDebugStart(FirstMapCondition);
 		}
 		return;
 	}
@@ -93,17 +93,15 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 	if (StudySetups.Num() == 1)
 	{
 		PrepareWithStudySetup(Cast<ASFStudySetup>(StudySetups[0]));
-	}
-	else
-	{
-		FSFUtils::Log(
-			"[USFGameInstance::OnWorldChanged] world started that neither contains exactly one SFStudySetup actor, nor is a level that is part of one of the conditions from the last study run!",
-			true);
 		return;
 	}
+
+	FSFUtils::Log(
+		"[USFGameInstance::OnWorldChanged] world started that neither contains exactly one SFStudySetup actor, nor is a level that is part of one of the conditions from the last study run!",
+		true);
 }
 
-void USFGameInstance::RestoreLastParticipant(USFCondition* StartCondition)
+void USFGameInstance::RestoreLastParticipantForDebugStart(USFCondition* InStartCondition)
 {
 	const int ParticipantID = USFParticipant::GetLastParticipantId();
 	Participant = NewObject<USFParticipant>(this,
@@ -114,7 +112,8 @@ void USFGameInstance::RestoreLastParticipant(USFCondition* StartCondition)
 	StudySetup = USFParticipant::GetLastParticipantSetup();
 	InitFadeHandler(StudySetup->FadeConfig);
 
-	StartStudy(StartCondition);
+	StartCondition = InStartCondition;
+	StartStudy();
 
 	//cannot directly fade in here, since Init might not be done, so we wait a second for safety
 	GetTimerManager().SetTimer(StartFadingTimerHandle, this, &USFGameInstance::StartFadingIn, 1.0f);
@@ -159,6 +158,7 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	//GenerateTestStudyRuns(20);
 
 	int ParticipantID = USFParticipant::GetLastParticipantId();
+	int StartConditionIndex = 0;
 	TArray<USFCondition*> Conditions;
 	if (USFParticipant::GetLastParticipantFinished())
 	{
@@ -167,11 +167,41 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	}
 	else
 	{
-		//TODO restore run?!?!??!?!
-		FSFUtils::Log("[USFGameInstance::PrepareForParticipant] Restoring run not yet implemented, but would be needed!",
-		              true);
-		//for now just restart the same participant again, without recovery
+		const FText MessageText = FText::FromString(
+			FString("The last participant did not finish the study run. Would you like to:") +
+			"\n[Retry] Retry last participant (Participant ID: " +
+			FString::FromInt(ParticipantID) + ") where he/she left off in condition # " +
+			FString::FromInt(USFParticipant::GetLastParticipantLastConditionStarted()) +
+			"\n[Continue] Continue with the next participant (Participant ID: " + FString::FromInt(ParticipantID + 1) +
+			")\n[Cancel] Restart the entire study anew (Participant ID: 0)");
+		const FText MessageTitle = FText::FromString("WARNING: Unfinished study run detected");
+		const EAppReturnType::Type Answer = FMessageDialog::Open(EAppMsgType::CancelRetryContinue, MessageText,
+		                                                         &MessageTitle);
+
+		switch (Answer)
+		{
+		case EAppReturnType::Cancel:
+			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Restart entire study");
+			ParticipantID = 0;
+			//clear data
+			USFParticipant::ClearPhaseLongtables(Setup);
+			break;
+		case EAppReturnType::Retry:
+			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Retry last participant");
+			StartConditionIndex = USFParticipant::GetLastParticipantLastConditionStarted();
+			break;
+		case EAppReturnType::Continue:
+			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Continue with the next participant");
+			ParticipantID++;
+			break;
+		default: ;
+		}
+
 		Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
+		if (StartConditionIndex != 0)
+		{
+			StartCondition = Conditions[StartConditionIndex];
+		}
 	}
 
 
@@ -204,7 +234,7 @@ void USFGameInstance::GenerateTestStudyRuns(int NrOfRuns) const
 // ******* Control Study ******************************************** //
 // ****************************************************************** //
 
-bool USFGameInstance::StartStudy(const USFCondition* StartCondition /*= nullptr*/)
+bool USFGameInstance::StartStudy()
 {
 	if (bStudyStarted)
 	{

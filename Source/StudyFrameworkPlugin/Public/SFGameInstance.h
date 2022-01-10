@@ -42,7 +42,7 @@ public:
 
 	//Start the study
 	UFUNCTION(BlueprintCallable)
-	bool StartStudy(const USFCondition* StartCondition = nullptr);
+	bool StartStudy();
 
 	//End the study (called internally, not sure whether this shoul be used from outside)
 	UFUNCTION(BlueprintCallable)
@@ -119,7 +119,7 @@ protected:
 	void GoToConditionSynced(FString ConditionName);
 	DECLARE_DISPLAY_CLUSTER_EVENT(USFGameInstance, GoToConditionSynced);
 
-	void RestoreLastParticipant(USFCondition* StartCondition);
+	void RestoreLastParticipantForDebugStart(USFCondition* InStartCondition);
 	//method called by a timer if we want to directly fade in on startup
 	void StartFadingIn();
 	FTimerHandle StartFadingTimerHandle;
@@ -138,6 +138,11 @@ protected:
 	USFFadeHandler* FadeHandler = nullptr;
 	UPROPERTY()
 	ASFStudySetup* StudySetup;
+
+	// this is used if the study should not be started from the beginning
+	// e.g., when starting a map directly for debugging in the editor
+	// or when continuing a crashed study run
+	USFCondition* StartCondition;
 
 	// State of Study / GameInstance
 	UPROPERTY()

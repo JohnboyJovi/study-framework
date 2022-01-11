@@ -60,16 +60,18 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
 	FFadeConfig FadeConfig;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup Json Storage"))
 	FString JsonFile = "StudySetup.json";
 
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
 	void LoadFromJson();
 
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
-	
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
 	void SaveToJson() const;
 
 	bool ContainsNullptrInArrays();

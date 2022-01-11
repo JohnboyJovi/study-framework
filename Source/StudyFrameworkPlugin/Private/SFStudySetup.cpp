@@ -33,7 +33,7 @@ void ASFStudySetup::PreSave(const ITargetPlatform* TargetPlatform)
 
 void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlends)
 {
-	SaveToJson();
+	//SaveToJson();
 	Super::PostEditChangeProperty(MovieSceneBlends);
 }
 

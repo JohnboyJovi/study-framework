@@ -34,6 +34,7 @@ public:
 
 	float GetTimeTaken() const;
 	bool IsFinished() const;
+	bool HasRequiredVariables() const;
 	bool WasStarted() const;
 
 	// in the form (Map:...; Factor1:Level1; ...)

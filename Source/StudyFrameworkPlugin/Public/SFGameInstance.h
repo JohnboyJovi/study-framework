@@ -44,10 +44,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool StartStudy();
 
-	//End the study (called internally, not sure whether this shoul be used from outside)
-	UFUNCTION(BlueprintCallable)
-	void EndStudy();
-
 	//Fade to the next condition (use this to proceed in the study once condition is done)
 	UFUNCTION(BlueprintCallable)
 	bool NextCondition();
@@ -115,6 +111,8 @@ public:
 	FHUDSavedData HUDSavedData;
 
 protected:
+
+	void EndStudy();
 
 	void GoToConditionSynced(FString ConditionName);
 	DECLARE_DISPLAY_CLUSTER_EVENT(USFGameInstance, GoToConditionSynced);

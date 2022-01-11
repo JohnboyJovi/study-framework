@@ -32,7 +32,7 @@ public:
 	void SetStudyConditions(TArray<USFCondition*> NewConditions);
 
 	bool StartStudy();
-	void EndStudy(); // TODO implement Participant::EndStudy()
+	void EndStudy();
 
 	void LogData(const FString& DependentVariableName, const FString& Value);
 	void LogComment(const FString& Comment);

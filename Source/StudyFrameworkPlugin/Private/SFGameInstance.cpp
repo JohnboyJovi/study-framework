@@ -272,11 +272,15 @@ bool USFGameInstance::StartStudy()
 
 void USFGameInstance::EndStudy()
 {
+	USFCondition* LastCondition = Participant->GetCurrentCondition();
+	if (LastCondition && LastCondition->WasStarted())
+		LastCondition->End();
+
 	Participant->EndStudy();
 
 	UpdateHUD("Study ended");
 
-	//TODO: reactivate the start study button?
+	FadeHandler->FadeOut();
 }
 
 
@@ -322,8 +326,13 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName)
 	}
 
 	USFCondition* LastCondition = Participant->GetCurrentCondition();
-	if (LastCondition && LastCondition->WasStarted())
-		LastCondition->End();
+	if (LastCondition && LastCondition->WasStarted()){
+		if(!LastCondition->End())
+		{
+			FSFUtils::Log("[USFGameInstance::GoToCondition()]: Cannot go to next condition, since current one is not finished!", true);
+			return;
+		}
+	}
 
 	bool bConditionPresent = Participant->SetCondition(NextCondition);
 	if (!bConditionPresent)

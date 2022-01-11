@@ -134,6 +134,7 @@ bool USFParticipant::StartStudy()
 void USFParticipant::EndStudy()
 {
 	LogComment("EndStudy");
+	LogCurrentParticipant();
 	StoreInPhaseLongTable();
 }
 
@@ -318,7 +319,7 @@ void USFParticipant::LogCurrentParticipant() const
 	bool bFinished = true;
 	for (USFCondition* Condition : Conditions)
 	{
-		bFinished = bFinished && Condition->IsFinished();
+		bFinished = bFinished && (Condition->IsFinished() || !Condition->HasRequiredVariables());
 	}
 	Json->SetBoolField("Finished", bFinished);
 	Json->SetNumberField("CurrentConditionIdx", CurrentConditionIdx);

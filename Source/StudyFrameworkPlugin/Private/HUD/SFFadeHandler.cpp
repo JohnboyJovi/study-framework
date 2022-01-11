@@ -47,10 +47,14 @@ void USFFadeHandler::Tick()
 	{
 		// Its Faded out, Load new Level now
 	case EFadeState::FadingOut:
-		FSFUtils::Log("[USFFadeHandler::Tick()]: Opening Level now", false);
-		UGameplayStatics::OpenLevel(GameInstance->GetWorld(), *NewLevelName, false);
-		SetTimerForNextTick();
-		FadeState = EFadeState::WaitForLevelLoaded;
+		if(!NewLevelName.IsEmpty())
+		{
+			FSFUtils::Log("[USFFadeHandler::Tick()]: Opening Level now", false);
+			UGameplayStatics::OpenLevel(GameInstance->GetWorld(), *NewLevelName, false);
+			SetTimerForNextTick();
+			FadeState = EFadeState::WaitForLevelLoaded;
+		}
+		//else just do nothing so we stay faded out NewLevelName=="" is the case for a simple FadeOut()
 		break;
 
 		// Its Faded out, New Level is loaded, prepare it
@@ -129,6 +133,11 @@ void USFFadeHandler::FadeIn()
 	Fade(FadeDuration, false);
 	FadeState = EFadeState::FadingIn;
 	SetTimerForNextTick();
+}
+
+void USFFadeHandler::FadeOut()
+{
+	FadeToLevel("");
 }
 
 

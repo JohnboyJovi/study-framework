@@ -85,6 +85,12 @@ void ASFMasterHUD::BeginPlay()
 		HUDWidget->GetStartButton()->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
+	if(!USFGameInstance::Get()->GetParticipant()->GetNextCondition())
+	{
+		Cast<UTextBlock>(HUDWidget->GetNextButton()->GetAllChildren()[0])->SetText(
+			FText::FromString("End Study"));
+	}
+
 	HUDWidget->GetConditionList()->SetVisibility(ESlateVisibility::Collapsed);
 
 	HUDWidget->GetStartButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnStartButtonPressed);
@@ -168,6 +174,10 @@ void ASFMasterHUD::OnStartButtonPressed()
 void ASFMasterHUD::OnNextButtonPressed()
 {
 	USFGameInstance::Get()->NextCondition();
+	if(!USFGameInstance::Get()->GetParticipant()->GetNextCondition())
+	{
+		HUDWidget->GetNextButton()->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void ASFMasterHUD::OnShowConditionsButtonPressed()

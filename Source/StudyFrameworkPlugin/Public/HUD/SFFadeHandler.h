@@ -50,6 +50,7 @@ public:
 
 	void FadeToLevel(FString LevelName, bool bStartFadedOut = false);
 	void FadeIn();
+	void FadeOut();
 	float FadeTimeRemaining() const;
 
 

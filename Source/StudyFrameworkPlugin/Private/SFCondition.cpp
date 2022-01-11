@@ -123,6 +123,18 @@ bool USFCondition::IsFinished() const
 	return bConditionFinished;
 }
 
+bool USFCondition::HasRequiredVariables() const
+{
+	for (auto Var : DependentVariablesValues)
+	{
+		if (Var.Key->bRequired)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool USFCondition::WasStarted() const
 {
 	return bStarted;

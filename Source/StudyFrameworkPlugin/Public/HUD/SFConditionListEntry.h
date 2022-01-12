@@ -34,6 +34,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text3;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text4;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text5;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text6;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text7;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Time;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UBorder* BackgroundColor;
 

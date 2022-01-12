@@ -56,7 +56,7 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 	Time->SetText(FText::FromString(Data[2]));
 
 	int UsedTexts = 0;
-	TArray<UTextBlock*> Texts = {Text0, Text1, Text2, Text3, Text4, Text5};
+	TArray<UTextBlock*> Texts = {Text0, Text1, Text2, Text3, Text4, Text5, Text6, Text7};
 
 	for (int i = 3; i < Data.Num(); ++i)
 	{
@@ -107,7 +107,7 @@ void USFConditionListEntry::UpdateData()
 		BackgroundColor->SetBrushColor(DefaultColor);
 	}
 
-	TArray<UTextBlock*> Texts = {Text0, Text1, Text2, Text3, Text4, Text5, Time};
+	TArray<UTextBlock*> Texts = {Text0, Text1, Text2, Text3, Text4, Text5, Text6, Text7, Time};
 	for (int i = 0; i < Texts.Num(); ++i)
 	{
 		if (Texts[i]->Text.ToString() != "-")

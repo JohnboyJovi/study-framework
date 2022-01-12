@@ -63,7 +63,7 @@ public:
 	void SetInitialFadedOut(bool bFadedOut);
 
 	FFadeConfig GetFadeConfig() const;
-	void SetFadeConfig(FFadeConfig FadeConfig);
+	void SetFadeConfig(FFadeConfig InFadeConfig);
 
 
 private:
@@ -78,23 +78,13 @@ private:
 private:
 
 	UPROPERTY()
-	float FadeDuration = 2.0f; // Time the fade takes
-
-	UPROPERTY()
-	float FadeOutWait = 1.0f; // Time to wait when level is loaded
-
+	FFadeConfig FadeConfig;
 
 	UPROPERTY()
 	bool bIsFadedOut = true;
 
 	UPROPERTY()
 	TEnumAsByte<EFadeState> FadeState = EFadeState::NotFading;
-
-	UPROPERTY()
-	FLinearColor FadeColor = FLinearColor::Black;
-
-	UPROPERTY()
-	bool bStartFadedOut=true;
 
 	UPROPERTY()
 	FString NewLevelName;

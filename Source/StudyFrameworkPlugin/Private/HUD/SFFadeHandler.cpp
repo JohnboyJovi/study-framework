@@ -63,7 +63,7 @@ void USFFadeHandler::Tick()
 		GameInstance->SpawnAllActorsForLevel();
 		Fade(0.0, true);
 		FadeState = EFadeState::WaitForTimerFadedOut;
-		SetTimerForNextTick(FadeOutWait);
+		SetTimerForNextTick(FadeConfig.FadedOutDuration);
 		break;
 
 		// Its Faded out, Timer for Fading in is done
@@ -114,7 +114,7 @@ void USFFadeHandler::FadeToLevel(const FString LevelName, const bool bStartFadeF
 	}
 	else
 	{
-		Fade(FadeDuration, true);
+		Fade(FadeConfig.FadeDuration, true);
 		FadeState = EFadeState::FadingOut;
 	}
 
@@ -130,7 +130,7 @@ void USFFadeHandler::FadeIn()
 	{
 		return;
 	}
-	Fade(FadeDuration, false);
+	Fade(FadeConfig.FadeDuration, false);
 	FadeState = EFadeState::FadingIn;
 	SetTimerForNextTick();
 }
@@ -178,7 +178,7 @@ void USFFadeHandler::Fade(const float Duration, const bool bToBlack) const
 			USFGameInstance::Get()->GetWorld()->GetGameViewport());
 		if (GameViewportClient)
 		{
-			GameViewportClient->Fade(Duration, bToBlack, FadeColor);
+			GameViewportClient->Fade(Duration, bToBlack, FadeConfig.FadeColor);
 		}
 	}
 }
@@ -195,7 +195,7 @@ APlayerCameraManager* USFFadeHandler::GetCameraManager() const
 
 	if (CameraManager == nullptr)
 	{
-		FSFUtils::Log("[USFFadeHandler::GetCameraManager()]: Cannot get CameraManager", true);
+		FSFUtils::Log("[USFFadeHandler::GetCameraManager()]: Cannot get CameraManager", false);
 	}
 
 	return CameraManager;
@@ -205,42 +205,34 @@ APlayerCameraManager* USFFadeHandler::GetCameraManager() const
 
 void USFFadeHandler::SetFadeDuration(const float FadeDurationN)
 {
-	FadeDuration = FadeDurationN;
+	FadeConfig.FadeDuration = FadeDurationN;
 }
 
 void USFFadeHandler::SetFadedOutDuration(const float FadeOutWaitN)
 {
-	FadeOutWait = FadeOutWaitN;
+	FadeConfig.FadedOutDuration = FadeOutWaitN;
 }
 
 void USFFadeHandler::SetFadeColor(FLinearColor Color)
 {
-	FadeColor = Color;
+	FadeConfig.FadeColor = Color;
 }
 
 void USFFadeHandler::SetInitialFadedOut(const bool bFadedOut)
 {
 	bIsFadedOut = bFadedOut;
 	Fade(0.0f, bFadedOut);
-	bStartFadedOut=bFadedOut;
+	FadeConfig.bStartFadedOut = bFadedOut;
 }
 
 FFadeConfig USFFadeHandler::GetFadeConfig() const
 {
-	FFadeConfig Config;
-	Config.FadeColor = FadeColor;
-	Config.FadeDuration = FadeDuration;
-	Config.FadedOutDuration = FadeOutWait;
-	Config.bStartFadedOut = bStartFadedOut;
-	return Config;
+	return FadeConfig;
 }
 
-void USFFadeHandler::SetFadeConfig(FFadeConfig FadeConfig)
+void USFFadeHandler::SetFadeConfig(FFadeConfig InFadeConfig)
 {
-	SetInitialFadedOut(FadeConfig.bStartFadedOut);
-	SetFadeColor(FadeConfig.FadeColor);
-	SetFadeDuration(FadeConfig.FadeDuration);
-	SetFadedOutDuration(FadeConfig.FadedOutDuration);
+	FadeConfig = InFadeConfig;
 }
 
 void USFFadeHandler::SetTimerForNextTick(const float TimeToWait)

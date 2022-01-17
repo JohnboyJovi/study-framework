@@ -31,6 +31,9 @@ public:
 	virtual TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
 
+	//check what properties can be changed/used dependent on other properties
+	virtual bool CanEditChange(const FProperty* InProperty) const override;
+
 	//Name of this factor, used for identifying it and also for getting its level during execution
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString FactorName = "undefined";
@@ -40,11 +43,11 @@ public:
 	TArray<FString> Levels;
 
 	//how to mix this Factor
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (EditCondition="!bNonCombined"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	EFactorMixingOrder MixingOrder = EFactorMixingOrder::RandomOrder;
 
 	//Whether it is a within or between subjects factor
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (EditCondition="!bNonCombined"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	EFactorType Type = EFactorType::Within;
 
 	/*

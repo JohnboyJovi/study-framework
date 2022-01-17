@@ -79,6 +79,8 @@ public:
 
 	bool ContainsNullptrInArrays();
 
+	virtual bool CanEditChange(const FProperty* InProperty) const override;
+
 protected:
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced,  meta = (TitleProperty = "FactorName"))
@@ -88,7 +90,7 @@ protected:
 	TArray<USFDependentVariable*> DependentVariables;
 
 	// Repetitions
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin="1"))
 	int NumberOfRepetitions = 1;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)

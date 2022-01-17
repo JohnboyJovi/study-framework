@@ -439,6 +439,15 @@ bool USFStudyPhase::ContainsNullptrInArrays()
 	return false;
 }
 
+bool USFStudyPhase::CanEditChange(const FProperty * InProperty) const
+{
+	if(InProperty->GetFName() == "TypeOfRepetition" && NumberOfRepetitions<=1 )
+	{
+		return false;
+	}
+	return true;
+}
+
 bool USFStudyPhase::ContainsAMapFactor() const
 {
 	return GetMapFactor() != nullptr;

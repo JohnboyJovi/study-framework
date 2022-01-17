@@ -28,7 +28,7 @@ public:
 	// ****************************************************************** // 
 	// ******* Setting up the Study Phase ******************************* //
 	// ****************************************************************** //
-	
+
 	UFUNCTION()
 	USFStudyFactor* AddStudyFactor(FString FactorName, const TArray<FString>& FactorLevels);
 	UFUNCTION()
@@ -49,12 +49,12 @@ public:
 	// ****************************************************************** // 
 	// ******* Preparing the Study Phase ******************************** //
 	// ****************************************************************** //
-	
+
 	UFUNCTION()
 	bool PhaseValid() const;
 
 	UFUNCTION()
-	TArray<USFCondition*> GenerateConditions(int ParticipantNr); 
+	TArray<USFCondition*> GenerateConditions(int ParticipantNr);
 
 
 	// ****************************************************************** // 
@@ -82,11 +82,10 @@ public:
 	virtual bool CanEditChange(const FProperty* InProperty) const override;
 
 protected:
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced,  meta = (TitleProperty = "FactorName"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "FactorName"))
 	TArray<USFStudyFactor*> Factors;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced,  meta = (TitleProperty = "Name"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "Name"))
 	TArray<USFDependentVariable*> DependentVariables;
 
 	// Repetitions
@@ -107,7 +106,5 @@ private:
 	bool ContainsAMapFactor() const;
 	USFMapFactor* GetMapFactor() const;
 	int GetMapFactorIndex() const;
-	bool SortFactors(TArray<USFStudyFactor*> &SortedFactors) const;
+	bool SortFactors(TArray<USFStudyFactor*>& SortedFactors) const;
 };
-
-

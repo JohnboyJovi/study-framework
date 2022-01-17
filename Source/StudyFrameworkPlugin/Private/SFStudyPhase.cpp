@@ -77,17 +77,7 @@ bool USFStudyPhase::PhaseValid() const
 
 	for (USFStudyFactor* Factor : Factors)
 	{
-		// Not Implemented YET errors
-		if (Factor->Type == EFactorType::Between)
-		{
-			FSFUtils::OpenMessageBox(
-				"[USFStudyPhase::PhaseValid] Between factors are not yet implemented! Used for factor " + Factor->FactorName
-				+ " in phase " + PhaseName, true);
-			return false;
-		}
 
-
-		// Other (permanent) problems
 		if (Factor->Levels.Num() == 0)
 		{
 			FSFUtils::OpenMessageBox(
@@ -143,6 +133,10 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 		{
 			continue; //those are not part of the condition
 		}
+		if (Factor->Type == EFactorType::Between)
+		{
+			continue; //each participant will only see one level of this factor
+		}
 		NumberOfConditions *= Factor->Levels.Num();
 	}
 
@@ -154,7 +148,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 	//create an array holding for each condition an array of each factors' level index
 	TArray<TArray<int>> ConditionsIndices;
 	ConditionsIndices.Reserve(NumberOfConditions * NumberOfRepetitions);
-	CreateAllConditionsRecursively(0, {}, SortedFactors, ConditionsIndices);
+	CreateAllConditionsRecursively(0, {}, SortedFactors, ParticipantNr, ConditionsIndices);
 
 	if (TypeOfRepetition == EPhaseRepetitionType::FullyRandom)
 	{
@@ -262,7 +256,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 	// ****************************
 
 	Conditions.Empty();
-	Conditions.Reserve(ConditionsIndices.Num()); 
+	Conditions.Reserve(ConditionsIndices.Num());
 
 	for (TArray<int> ConditionIndices : ConditionsIndices)
 	{
@@ -439,9 +433,9 @@ bool USFStudyPhase::ContainsNullptrInArrays()
 	return false;
 }
 
-bool USFStudyPhase::CanEditChange(const FProperty * InProperty) const
+bool USFStudyPhase::CanEditChange(const FProperty* InProperty) const
 {
-	if(InProperty->GetFName() == "TypeOfRepetition" && NumberOfRepetitions<=1 )
+	if (InProperty->GetFName() == "TypeOfRepetition" && NumberOfRepetitions <= 1)
 	{
 		return false;
 	}
@@ -503,28 +497,36 @@ bool USFStudyPhase::SortFactors(TArray<USFStudyFactor*>& SortedFactors) const
 	return bHasEnBlock;
 }
 
-void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> OrderPart,
-                                                   TArray<USFStudyFactor*>& SortedFactors,
-                                                   TArray<TArray<int>>& OrdersIndices) const
+void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> TmpOrderPart,
+                                                   TArray<USFStudyFactor*>& InSortedFactors, int ParticipantID,
+                                                   TArray<TArray<int>>& OutOrdersIndices) const
 {
-	if (Index >= SortedFactors.Num())
+	if (Index >= InSortedFactors.Num())
 	{
-		OrdersIndices.Add(OrderPart);
+		OutOrdersIndices.Add(TmpOrderPart);
 		return;
 	}
 
-	if (SortedFactors[Index]->bNonCombined)
+	if (InSortedFactors[Index]->bNonCombined)
 	{
 		//simply go on with next factor and add a placeholder "-1"
-		OrderPart.Add(-1);
-		CreateAllConditionsRecursively(Index + 1, OrderPart, SortedFactors, OrdersIndices);
+		TmpOrderPart.Add(-1);
+		CreateAllConditionsRecursively(Index + 1, TmpOrderPart, InSortedFactors, ParticipantID, OutOrdersIndices);
 		return;
 	}
 
-	for (int i = 0; i < SortedFactors[Index]->Levels.Num(); ++i)
+	if (InSortedFactors[Index]->Type == EFactorType::Between)
 	{
-		TArray<int> Order = OrderPart;
+		//participants only see one level of this factor, set it, and go on
+		TmpOrderPart.Add(ParticipantID % InSortedFactors[Index]->Levels.Num());
+		CreateAllConditionsRecursively(Index + 1, TmpOrderPart, InSortedFactors, ParticipantID, OutOrdersIndices);
+		return;
+	}
+
+	for (int i = 0; i < InSortedFactors[Index]->Levels.Num(); ++i)
+	{
+		TArray<int> Order = TmpOrderPart;
 		Order.Add(i);
-		CreateAllConditionsRecursively(Index + 1, Order, SortedFactors, OrdersIndices);
+		CreateAllConditionsRecursively(Index + 1, Order, InSortedFactors, ParticipantID, OutOrdersIndices);
 	}
 }

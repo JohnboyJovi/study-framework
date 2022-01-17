@@ -101,8 +101,8 @@ protected:
 	TArray<TSubclassOf<AActor>> SpawnInEveryMapOfThisPhase;
 
 private:
-	
-	void CreateAllConditionsRecursively(int Index, TArray<int> OrderPart, TArray<USFStudyFactor*>& SortedFactors, TArray<TArray<int>>& OrdersIndices) const;
+	void CreateAllConditionsRecursively(int Index, TArray<int> TmpOrderPart, TArray<USFStudyFactor*>& InSortedFactors,
+	                                    int ParticipantID, TArray<TArray<int>>& OutOrdersIndices) const;
 
 	bool ContainsAMapFactor() const;
 	USFMapFactor* GetMapFactor() const;

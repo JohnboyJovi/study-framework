@@ -394,14 +394,15 @@ void USFGameInstance::LogToHUD(FString Text)
 
 void USFGameInstance::UpdateHUD(FString Status)
 {
-	if (GetWorld() && GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()))
+	if (GetWorld() && GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(
+		GetWorld()->GetFirstPlayerController()->GetHUD()))
 	{
 		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->UpdateHUD(Participant, Status);
 	}
 	else
 	{
-		HUDSavedData.Status=Status;
-		if(Participant)
+		HUDSavedData.Status = Status;
+		if (Participant)
 			HUDSavedData.Participant = FString::FromInt(Participant->GetID());
 	}
 }
@@ -450,5 +451,3 @@ USFParticipant* USFGameInstance::GetParticipant() const
 {
 	return Participant;
 }
-
-

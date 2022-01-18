@@ -80,7 +80,7 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 
 void USFConditionListEntry::GoTo()
 {
-	USFGameInstance::Get()->GoToCondition(Condition);
+	USFGameInstance::Get()->GoToCondition(Condition, true); //force the change
 }
 
 void USFConditionListEntry::UpdateData()

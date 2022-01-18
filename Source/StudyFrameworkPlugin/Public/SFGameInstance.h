@@ -45,12 +45,14 @@ public:
 	bool StartStudy();
 
 	//Fade to the next condition (use this to proceed in the study once condition is done)
+	//bForce also goes to the next condition if the current condition was not finished (not all required dependent variables gathered)
 	UFUNCTION(BlueprintCallable)
-	bool NextCondition();
+	bool NextCondition(bool bForce = false);
 
 	//This method can be used to jump to a specific condition (DO NOT USE during normal study run)
+	//bForce also goes to the next condition if the current condition was not finished (not all required dependent variables gathered)
 	UFUNCTION(BlueprintCallable)
-	bool GoToCondition(const USFCondition* Condition);
+	bool GoToCondition(const USFCondition* Condition, bool bForce = false);
 
 	//Whether the study was started already
 	UFUNCTION(BlueprintCallable)
@@ -114,7 +116,7 @@ protected:
 
 	void EndStudy();
 
-	void GoToConditionSynced(FString ConditionName);
+	void GoToConditionSynced(FString ConditionName, bool bForced);
 	DECLARE_DISPLAY_CLUSTER_EVENT(USFGameInstance, GoToConditionSynced);
 
 	void RestoreLastParticipantForDebugStart(USFCondition* InStartCondition);

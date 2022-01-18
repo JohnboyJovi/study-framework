@@ -173,7 +173,7 @@ void ASFMasterHUD::OnStartButtonPressed()
 
 void ASFMasterHUD::OnNextButtonPressed()
 {
-	USFGameInstance::Get()->NextCondition();
+	USFGameInstance::Get()->NextCondition(true); //force it to change, so use with care!
 	if(!USFGameInstance::Get()->GetParticipant()->GetNextCondition())
 	{
 		HUDWidget->GetNextButton()->SetVisibility(ESlateVisibility::Collapsed);

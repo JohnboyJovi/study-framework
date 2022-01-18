@@ -284,7 +284,7 @@ void USFGameInstance::EndStudy()
 }
 
 
-bool USFGameInstance::NextCondition()
+bool USFGameInstance::NextCondition(bool bForced /*=false*/)
 {
 	USFCondition* NextCondition = Participant->GetNextCondition();
 	if (!NextCondition)
@@ -292,10 +292,10 @@ bool USFGameInstance::NextCondition()
 		EndStudy();
 		return false;
 	}
-	return GoToCondition(NextCondition);
+	return GoToCondition(NextCondition, bForced);
 }
 
-bool USFGameInstance::GoToCondition(const USFCondition* Condition)
+bool USFGameInstance::GoToCondition(const USFCondition* Condition, bool bForced /*=false*/)
 {
 	// Check if is already fading
 	if (FadeHandler->GetIsFading())
@@ -310,11 +310,11 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition)
 		return false;
 	}
 
-	GoToConditionSyncedEvent.Send(Condition->UniqueName);
+	GoToConditionSyncedEvent.Send(Condition->UniqueName, bForced);
 	return true;
 }
 
-void USFGameInstance::GoToConditionSynced(FString ConditionName)
+void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced)
 {
 	USFCondition* NextCondition = nullptr;
 	for (USFCondition* Condition : Participant->GetAllConditions())
@@ -326,11 +326,23 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName)
 	}
 
 	USFCondition* LastCondition = Participant->GetCurrentCondition();
-	if (LastCondition && LastCondition->WasStarted()){
-		if(!LastCondition->End())
+	if (LastCondition && LastCondition->WasStarted())
+	{
+		if (!LastCondition->End())
 		{
-			FSFUtils::Log("[USFGameInstance::GoToCondition()]: Cannot go to next condition, since current one is not finished!", true);
-			return;
+			if (bForced)
+			{
+				FSFUtils::Log(
+					"[USFGameInstance::GoToCondition()]: Forced to go to next condition, but current one is not finished!",
+					true);
+			}
+			else
+			{
+				FSFUtils::Log(
+					"[USFGameInstance::GoToCondition()]: Cannot go to next condition, since current one is not finished!",
+					true);
+				return;
+			}
 		}
 	}
 

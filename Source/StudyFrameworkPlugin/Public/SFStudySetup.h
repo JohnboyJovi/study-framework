@@ -83,4 +83,11 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	TArray<TSubclassOf<AActor>> SpawnInEveryPhase;
 
+	
+	// A UBillboardComponent to hold Icon sprite
+	UPROPERTY()
+	UBillboardComponent* SpriteComponent;
+	// Icon sprite
+	UTexture2D* SpriteTexture;;
+
 };

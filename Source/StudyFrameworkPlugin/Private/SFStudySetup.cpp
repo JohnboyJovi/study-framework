@@ -6,6 +6,21 @@
 
 ASFStudySetup::ASFStudySetup()
 {
+	ConstructorHelpers::FObjectFinderOptional<UTexture2D> IconTextureObject(TEXT("/StudyFrameworkPlugin/SetupIcon"));
+	// We need a scene component to attach Icon sprite
+	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
+	RootComponent = SceneComponent;
+	RootComponent->Mobility = EComponentMobility::Static;
+
+#if WITH_EDITORONLY_DATA
+	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
+	if (SpriteComponent)
+	{
+		SpriteComponent->Sprite = IconTextureObject.Get(); // Get the sprite texture from helper class object
+		SpriteComponent->SetupAttachment(RootComponent); // Attach sprite to scene component
+		SpriteComponent->Mobility = EComponentMobility::Static;
+	}
+#endif // WITH_EDITORONLY_DATA
 }
 
 void ASFStudySetup::BeginPlay()

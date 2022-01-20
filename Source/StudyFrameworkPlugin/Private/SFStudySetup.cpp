@@ -37,7 +37,8 @@ void ASFStudySetup::PostLoad()
 void ASFStudySetup::PreSave(const ITargetPlatform* TargetPlatform)
 {
 	SaveToJson();
-	if(!ContainsNullptrInArrays()){
+	if (!ContainsNullptrInArrays())
+	{
 		LoadFromJson();
 		// otherwise you get "Graph is linked to external private object" error
 		// but we only do that if !ContainsNullptrInArrays, otherwise you cannot add
@@ -87,7 +88,6 @@ bool ASFStudySetup::CheckPhases()
 
 TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber)
 {
-
 	if (!CheckPhases())
 	{
 		FSFUtils::Log("[ASFStudySetup::GetAllConditionsForRun]: Not all Phases are valid", true);
@@ -95,11 +95,11 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 	}
 
 	TArray<USFCondition*> Conditions;
-	for(USFStudyPhase* Phase : Phases)
+	for (USFStudyPhase* Phase : Phases)
 	{
 		Conditions.Append(Phase->GenerateConditions(RunningParticipantNumber));
 	}
-	for(USFCondition* Condition : Conditions)
+	for (USFCondition* Condition : Conditions)
 	{
 		Condition->SpawnInThisCondition.Append(SpawnInEveryPhase);
 	}
@@ -129,7 +129,7 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 	TArray<TSharedPtr<FJsonValue>> PhasesArray;
 	for (USFStudyPhase* Phase : Phases)
 	{
-		if(!Phase)
+		if (!Phase)
 			continue;
 		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(Phase->GetAsJson());
 		PhasesArray.Add(JsonValue);
@@ -138,8 +138,9 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 
 	// SpawnInEveryMapOfThisPhase
 	TArray<TSharedPtr<FJsonValue>> SpawnActorsArray;
-	for(TSubclassOf<AActor> Class : SpawnInEveryPhase){
-		if(!Class)
+	for (TSubclassOf<AActor> Class : SpawnInEveryPhase)
+	{
+		if (!Class)
 			continue;
 		TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
 		JsonObject->SetStringField("ClassName", Class.Get()->GetName());
@@ -147,10 +148,10 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(JsonObject);
 		SpawnActorsArray.Add(JsonValue);
 	}
-	Json->SetArrayField("SpawnInEveryPhase",SpawnActorsArray);
+	Json->SetArrayField("SpawnInEveryPhase", SpawnActorsArray);
 
 	Json->SetObjectField("FadeConfig", FadeConfig.GetAsJson());
-	
+
 	return Json;
 }
 
@@ -168,13 +169,13 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 	//TODO SpawnActor
 
 	FadeConfig.FromJson(Json->GetObjectField("FadeConfig"));
-	
 }
 
 void ASFStudySetup::LoadFromJson()
 {
 	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(JsonFile);
-	if(Json){
+	if (Json)
+	{
 		FromJson(Json);
 	}
 }
@@ -187,9 +188,9 @@ void ASFStudySetup::SaveToJson() const
 
 bool ASFStudySetup::ContainsNullptrInArrays()
 {
-	for(USFStudyPhase* Phase : Phases)
+	for (USFStudyPhase* Phase : Phases)
 	{
-		if(Phase==nullptr || Phase->ContainsNullptrInArrays())
+		if (Phase == nullptr || Phase->ContainsNullptrInArrays())
 		{
 			return true;
 		}

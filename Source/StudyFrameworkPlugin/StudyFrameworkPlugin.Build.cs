@@ -55,12 +55,16 @@ public class StudyFrameworkPlugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                "UniversalLogging",
-                "UnrealEd"
+                "UniversalLogging"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
-		
+			
+		//this is needed to register on Editor delegates, i.e., BeginPIE and EndPIE, but only in Editor builds
+        if (Target.Type == TargetRules.TargetType.Editor)
+        {
+            PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
+        }
 		
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]

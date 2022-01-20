@@ -1,6 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/BillboardComponent.h"
+#include "Engine/Texture2D.h"
 
 #include "SFStudyPhase.h"
 #include "HUD/SFFadeHandler.h"
@@ -87,7 +89,9 @@ protected:
 	// A UBillboardComponent to hold Icon sprite
 	UPROPERTY()
 	UBillboardComponent* SpriteComponent;
+
 	// Icon sprite
+	UPROPERTY()
 	UTexture2D* SpriteTexture;;
 
 };

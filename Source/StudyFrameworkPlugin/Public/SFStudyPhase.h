@@ -79,7 +79,9 @@ public:
 
 	bool ContainsNullptrInArrays();
 
-	virtual bool CanEditChange(const FProperty* InProperty) const override;
+#if WITH_EDITOR
+	virtual bool CanEditChange(const FProperty* InProperty) const;
+#endif
 
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "FactorName"))

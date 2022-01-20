@@ -31,11 +31,13 @@ void ASFStudySetup::PreSave(const ITargetPlatform* TargetPlatform)
 	Super::PreSave(TargetPlatform);
 }
 
+#if WITH_EDITOR
 void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlends)
 {
 	//SaveToJson();
 	Super::PostEditChangeProperty(MovieSceneBlends);
 }
+#endif
 
 USFStudyPhase* ASFStudySetup::AddStudyPhase(FString InPhaseName)
 {

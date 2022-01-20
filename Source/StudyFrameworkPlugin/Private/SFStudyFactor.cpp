@@ -95,6 +95,7 @@ void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 	bNonCombined = Json->GetBoolField("NonCombined");
 }
 
+#if WITH_EDITOR
 bool USFStudyFactor::CanEditChange(const FProperty * InProperty) const
 {
 	if(InProperty->GetFName()=="MixingOrder" && (bNonCombined || Type==EFactorType::Between))
@@ -107,6 +108,7 @@ bool USFStudyFactor::CanEditChange(const FProperty * InProperty) const
 	}
 	return true;
 }
+#endif
 
 TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int ParticipantId, int NrConditions)
 {

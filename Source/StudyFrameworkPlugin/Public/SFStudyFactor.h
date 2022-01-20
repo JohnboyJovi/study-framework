@@ -31,8 +31,10 @@ public:
 	virtual TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
 
+#if WITH_EDITOR
 	//check what properties can be changed/used dependent on other properties
-	virtual bool CanEditChange(const FProperty* InProperty) const override;
+	virtual bool CanEditChange(const FProperty* InProperty) const;
+#endif
 
 	//Name of this factor, used for identifying it and also for getting its level during execution
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)

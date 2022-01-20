@@ -38,7 +38,7 @@ void ASFMasterHUD::BeginPlay()
 	//is called also every time the map is changed (a new condition is loaded)
 	Super::BeginPlay();
 
-	if(!USFGameInstance::Get()->GetStudySetup()->FadeConfig.bShowHUD)
+	if(USFGameInstance::Get()->GetStudySetup() && !USFGameInstance::Get()->GetStudySetup()->FadeConfig.bShowHUD)
 	{
 		return;
 	}
@@ -85,7 +85,7 @@ void ASFMasterHUD::BeginPlay()
 		HUDWidget->GetStartButton()->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
-	if(!USFGameInstance::Get()->GetParticipant()->GetNextCondition())
+	if(USFGameInstance::Get()->GetParticipant() && !USFGameInstance::Get()->GetParticipant()->GetNextCondition())
 	{
 		Cast<UTextBlock>(HUDWidget->GetNextButton()->GetAllChildren()[0])->SetText(
 			FText::FromString("End Study"));

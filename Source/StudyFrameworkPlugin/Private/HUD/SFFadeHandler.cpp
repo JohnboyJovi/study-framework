@@ -2,8 +2,9 @@
 
 #include "HUD/SFFadeHandler.h"
 
-
+#if WITH_EDITOR
 #include "EditorWidgets/Public/EditorWidgets.h"
+#endif
 #include "Kismet/GameplayStatics.h"
 #include "SFGameInstance.h"
 

@@ -433,6 +433,7 @@ bool USFStudyPhase::ContainsNullptrInArrays()
 	return false;
 }
 
+#if WITH_EDITOR
 bool USFStudyPhase::CanEditChange(const FProperty* InProperty) const
 {
 	if (InProperty->GetFName() == "TypeOfRepetition" && NumberOfRepetitions <= 1)
@@ -441,6 +442,7 @@ bool USFStudyPhase::CanEditChange(const FProperty* InProperty) const
 	}
 	return true;
 }
+#endif
 
 bool USFStudyPhase::ContainsAMapFactor() const
 {

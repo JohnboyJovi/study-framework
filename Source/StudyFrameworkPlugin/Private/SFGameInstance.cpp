@@ -32,8 +32,10 @@ void USFGameInstance::Init()
 			"Started on a map that was part of the last study, so start the study run for debug reasons from Init()");
 		RestoreLastParticipantForDebugStart(ConditionToStartAtInit);
 	}
-
-	InitFadeHandler(StudySetup->FadeConfig);
+	
+	if(StudySetup){
+		InitFadeHandler(StudySetup->FadeConfig);
+	}
 }
 
 void USFGameInstance::Shutdown()

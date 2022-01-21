@@ -50,6 +50,7 @@ void ASFStudySetup::PreSave(const ITargetPlatform* TargetPlatform)
 #if WITH_EDITOR
 void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlends)
 {
+	//not needed anymore (done on saving map and on clicking the respective button for full control)
 	//SaveToJson();
 	Super::PostEditChangeProperty(MovieSceneBlends);
 }
@@ -68,7 +69,8 @@ void ASFStudySetup::AddActorForEveryLevelInEveryPhase(TSubclassOf<AActor> Actor)
 	SpawnInEveryPhase.Add(Actor);
 }
 
-void ASFStudySetup::AddActorForEveryLevelInEveryPhaseBlueprint(const FString& BlueprintPath, const FString& BlueprintName)
+void ASFStudySetup::AddActorForEveryLevelInEveryPhaseBlueprint(const FString& BlueprintPath,
+                                                               const FString& BlueprintName)
 {
 	SpawnInEveryPhase.Add(FSFUtils::GetBlueprintClass(BlueprintName, BlueprintPath));
 }

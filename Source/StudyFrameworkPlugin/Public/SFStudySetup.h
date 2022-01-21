@@ -45,9 +45,9 @@ public:
 
 	//This methods generates NrOfRunsToGenerate study runs and puts them into StudyFrame/StudyRuns
 	//it can be used to chek randomization etc. manually to see what participant sees which conditions
-	UFUNCTION(CallInEditor, Category = "Study Setup Debug Run Generation")
+	UFUNCTION(CallInEditor, Category = "Study Setup Debug")
 	void GenerateTestStudyRuns() const;
-	UPROPERTY(EditAnywhere, Category = "Study Setup Debug Run Generation")
+	UPROPERTY(EditAnywhere, Category = "Study Setup Debug")
 	int NrOfRunsToGenerate = 1;
 
 	// ****************************************************************** // 

@@ -50,7 +50,10 @@ public:
 	static int GetLastParticipantLastConditionStarted();
 	static bool GetLastParticipantFinished();
 	static ASFStudySetup* GetLastParticipantSetup();
+
 	bool LoadConditionsFromJson();
+	void RecoverStudyResultsOfFinishedConditions();
+
 
 	// the results of all participants are stored in a file per phase (called longtable)
 	// for the data to be ready to use in statistics software, this methods clears all

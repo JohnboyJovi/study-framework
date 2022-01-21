@@ -140,6 +140,33 @@ bool USFCondition::WasStarted() const
 	return bStarted;
 }
 
+bool USFCondition::RecoverStudyResults(TArray<FString>& Header, TArray<FString>& Entries)
+{
+	check(Header.Num()==Entries.Num())
+
+	for (auto FactorLevel : FactorLevels)
+	{
+		if (!Header.Contains(FactorLevel.Key) || Entries[Header.Find(FactorLevel.Key)] != FactorLevel.Value)
+		{
+			return false;
+		}
+	}
+	if (!Header.Contains("Map") || Entries[Header.Find("Map")] != Map)
+	{
+		return false;
+	}
+
+	//so this is the right condition
+	for (auto& DepVar : DependentVariablesValues)
+	{
+		DepVar.Value = Entries[Header.Find(DepVar.Key->Name)];
+	}
+	TimeTaken = FCString::Atof(*Entries[Entries.Num()-1]);
+	bConditionFinished = true;
+
+	return true;
+}
+
 FString USFCondition::GetPrettyName()
 {
 	FString ConditionString = "(";
@@ -161,7 +188,7 @@ void USFCondition::Begin()
 		Vars.Value = "";
 	}
 
-	bStarted=true;
+	bStarted = true;
 
 	//TODO: anything else to setup?
 }

@@ -34,8 +34,9 @@ void USFGameInstance::Init()
 			"Started on a map that was part of the last study, so start the study run for debug reasons from Init()");
 		RestoreLastParticipantForDebugStart(ConditionToStartAtInit);
 	}
-	
-	if(StudySetup){
+
+	if (StudySetup)
+	{
 		InitFadeHandler(StudySetup->FadeConfig);
 	}
 }
@@ -62,7 +63,7 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 		return;
 	}
 
-	FSFUtils::Log("USFGameInstance::OnWorldStart for "+NewWorld->GetName());
+	FSFUtils::Log("USFGameInstance::OnWorldStart for " + NewWorld->GetName());
 
 	// so we have loaded a new world and the study is not running, so check whether this is a map in one of the conditions
 	TArray<USFCondition*> LastConditions = USFParticipant::GetLastParticipantsConditions();
@@ -96,7 +97,7 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 	TArray<AActor*> StudySetups;
 	UGameplayStatics::GetAllActorsOfClass(NewWorld, ASFStudySetup::StaticClass(), StudySetups);
 
-	FSFUtils::Log("Found "+FString::FromInt(StudySetups.Num())+" ASFStudySetup actors on this map.");
+	FSFUtils::Log("Found " + FString::FromInt(StudySetups.Num()) + " ASFStudySetup actors on this map.");
 
 	if (StudySetups.Num() == 1)
 	{
@@ -164,6 +165,7 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 
 	int ParticipantID = USFParticipant::GetLastParticipantId();
 	TArray<USFCondition*> Conditions;
+	bool bRecoverParticipantData = false;
 	if (USFParticipant::GetLastParticipantFinished())
 	{
 		ParticipantID++;
@@ -195,6 +197,7 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Retry last participant");
 			Conditions = USFParticipant::GetLastParticipantsConditions();
 			StartCondition = Conditions[USFParticipant::GetLastParticipantLastConditionStarted()];
+			bRecoverParticipantData = true;
 			break;
 		case EAppReturnType::Continue:
 			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Continue with the next participant");
@@ -211,6 +214,11 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
 	Participant->Initialize(ParticipantID);
 	Participant->SetStudyConditions(Conditions);
+
+	if (bRecoverParticipantData)
+	{
+		Participant->RecoverStudyResultsOfFinishedConditions();
+	}
 
 	if (IsInitialized())
 	{
@@ -269,7 +277,8 @@ void USFGameInstance::EndStudy()
 	Participant->EndStudy();
 
 	UpdateHUD("Study ended");
-	if(GetHUD()){
+	if (GetHUD())
+	{
 		GetHUD()->SetNextConditionButtonVisibility(ESlateVisibility::Collapsed);
 	}
 

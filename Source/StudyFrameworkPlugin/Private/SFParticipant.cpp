@@ -20,7 +20,7 @@ bool USFParticipant::Initialize(int Participant)
 {
 	ParticipantID = Participant;
 
-	
+
 	const FString Timestamp = FDateTime::Now().ToString();
 	const FString Filename = "LogParticipant-" + FString::FromInt(ParticipantID) + "_" + Timestamp + ".txt";
 	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "StudyFramework/Results",
@@ -93,6 +93,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 	if (!FPaths::FileExists(Filename))
 	{
 		FString Header = "ParticipantID";
+		Header += ",Map";
 		for (auto Factor : CurrCondition->FactorLevels)
 		{
 			Header += "," + Factor.Key;
@@ -106,6 +107,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 	}
 
 	FString ConditionResults = FString::FromInt(ParticipantID);
+	ConditionResults += "," + CurrCondition->Map;
 	for (auto Factor : CurrCondition->FactorLevels)
 	{
 		ConditionResults += "," + Factor.Value;
@@ -264,9 +266,40 @@ bool USFParticipant::LoadConditionsFromJson()
 	return true;
 }
 
-void USFParticipant::ClearPhaseLongtables(ASFStudySetup * StudySetup)
+void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 {
-	for(int i=0; i<StudySetup->GetNumberOfPhases(); ++i)
+	//this is not the most effective way of recovering but the most trivial (long tables will be read multiple times)
+	for (USFCondition* Condition : Conditions)
+	{
+		const FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + Condition->PhaseName + ".csv";
+		TArray<FString> Lines;
+		if (!FFileHelper::LoadANSITextFileToStrings(*Filename, nullptr, Lines))
+		{
+			FSFUtils::Log("[USFParticipant::RecoverStudyResultsOfFinishedConditions] Cannot read file: " + Filename, true);
+		}
+
+		TArray<FString> HeaderEntries;
+		if(Lines.Num()>0)
+		{
+			Lines[0].ParseIntoArray(HeaderEntries,TEXT(","), false);
+		}
+
+		for (int i=1; i<Lines.Num(); ++i)
+		{
+			TArray<FString> Entries;
+			Lines[i].ParseIntoArray(Entries,TEXT(","), false);
+
+			if(Entries.Num()>0 && FCString::Atoi(*Entries[0]) == ParticipantID)
+			{
+				Condition->RecoverStudyResults(HeaderEntries, Entries);
+			}
+		}
+	}
+}
+
+void USFParticipant::ClearPhaseLongtables(ASFStudySetup* StudySetup)
+{
+	for (int i = 0; i < StudySetup->GetNumberOfPhases(); ++i)
 	{
 		const FString PhaseName = StudySetup->GetPhase(i)->PhaseName;
 		const FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + PhaseName + ".csv";
@@ -323,7 +356,7 @@ void USFParticipant::LogCurrentParticipant() const
 	}
 	Json->SetBoolField("Finished", bFinished);
 	Json->SetNumberField("CurrentConditionIdx", CurrentConditionIdx);
-	if(USFGameInstance::Get() && USFGameInstance::Get()->GetStudySetup())
+	if (USFGameInstance::Get() && USFGameInstance::Get()->GetStudySetup())
 	{
 		Json->SetStringField("StudySetup", USFGameInstance::Get()->GetStudySetup()->JsonFile);
 	}
@@ -331,7 +364,6 @@ void USFParticipant::LogCurrentParticipant() const
 	{
 		FSFUtils::Log("[USFParticipant::LogCurrentParticipant] StudySetup not accessible!", true);
 	}
-	
 
 
 	FSFUtils::WriteJsonToFile(Json, "StudyRuns/LastParticipant.txt");

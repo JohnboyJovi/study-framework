@@ -37,6 +37,10 @@ public:
 	bool HasRequiredVariables() const;
 	bool WasStarted() const;
 
+	//this is used to recover study results from the phase long table if a participant's run is continued
+	//return false if this entry does not match this condition
+	bool RecoverStudyResults(TArray<FString>& Header, TArray<FString>& Entries);
+
 	// in the form (Map:...; Factor1:Level1; ...)
 	FString GetPrettyName();
 

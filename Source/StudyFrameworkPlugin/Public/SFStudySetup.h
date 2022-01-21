@@ -41,14 +41,21 @@ public:
 	void AddActorForEveryLevelInEveryPhaseBlueprint(const FString& BlueprintPath, const FString& BlueprintName);
 
 	UFUNCTION()
-	bool CheckPhases();
+	bool CheckPhases() const;
+
+	//This methods generates NrOfRunsToGenerate study runs and puts them into StudyFrame/StudyRuns
+	//it can be used to chek randomization etc. manually to see what participant sees which conditions
+	UFUNCTION(CallInEditor, Category = "Study Setup Debug Run Generation")
+	void GenerateTestStudyRuns() const;
+	UPROPERTY(EditAnywhere, Category = "Study Setup Debug Run Generation")
+	int NrOfRunsToGenerate = 1;
 
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //
 
 	UFUNCTION()
-	TArray<USFCondition*> GetAllConditionsForRun(int RunningParticipantNumber);
+	TArray<USFCondition*> GetAllConditionsForRun(int RunningParticipantNumber) const;
 	
 	UFUNCTION()
 	int GetNumberOfPhases();

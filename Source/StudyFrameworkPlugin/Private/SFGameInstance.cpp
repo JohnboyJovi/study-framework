@@ -162,9 +162,6 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 {
 	StudySetup = DuplicateObject(Setup, this);
 
-	//can be used for debugging orders
-	//GenerateTestStudyRuns(20);
-
 	int ParticipantID = USFParticipant::GetLastParticipantId();
 	int StartConditionIndex = 0;
 	TArray<USFCondition*> Conditions;
@@ -224,17 +221,6 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 		InitFadeHandler(Setup->FadeConfig);
 	}
 	UpdateHUD("Wait for Start");
-}
-
-void USFGameInstance::GenerateTestStudyRuns(int NrOfRuns) const
-{
-	for (int ParticipantID = 0; ParticipantID < NrOfRuns; ++ParticipantID)
-	{
-		const TArray<USFCondition*> Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
-		USFParticipant* TmpParticipant = NewObject<USFParticipant>();
-		TmpParticipant->Initialize(ParticipantID);
-		TmpParticipant->SetStudyConditions(Conditions); //this also saves it to json
-	}
 }
 
 

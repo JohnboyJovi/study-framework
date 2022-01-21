@@ -73,7 +73,7 @@ void ASFStudySetup::AddActorForEveryLevelInEveryPhaseBlueprint(const FString& Bl
 	SpawnInEveryPhase.Add(FSFUtils::GetBlueprintClass(BlueprintName, BlueprintPath));
 }
 
-bool ASFStudySetup::CheckPhases()
+bool ASFStudySetup::CheckPhases() const
 {
 	for (auto EntryPhase : Phases)
 	{
@@ -86,7 +86,18 @@ bool ASFStudySetup::CheckPhases()
 	return true;
 }
 
-TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber)
+void ASFStudySetup::GenerateTestStudyRuns() const
+{
+	for (int ParticipantID = 0; ParticipantID < NrOfRunsToGenerate; ++ParticipantID)
+	{
+		const TArray<USFCondition*> Conditions = GetAllConditionsForRun(ParticipantID);
+		USFParticipant* TmpParticipant = NewObject<USFParticipant>();
+		TmpParticipant->Initialize(ParticipantID);
+		TmpParticipant->SetStudyConditions(Conditions); //this also saves it to json
+	}
+}
+
+TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber) const
 {
 	if (!CheckPhases())
 	{

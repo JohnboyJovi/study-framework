@@ -27,7 +27,6 @@ public:
 	//override UGameInstance methods
 	virtual void Init() override;
 	virtual void Shutdown() override;
-	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
 
 
 	// getter for the GameInstance itself
@@ -130,6 +129,9 @@ protected:
 	void InitFadeHandler(FFadeConfig FadeConfig);
 
 	void PrepareWithStudySetup(ASFStudySetup* Setup);
+
+	UFUNCTION(BlueprintCallable)
+	void OnWorldStart();
 
 	UPROPERTY()
 	USFParticipant* Participant = nullptr;

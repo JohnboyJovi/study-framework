@@ -47,10 +47,9 @@ void USFGameInstance::Shutdown()
 	Instance = nullptr;
 }
 
-void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
+void USFGameInstance::OnWorldStart()
 {
-	Super::OnWorldChanged(OldWorld, NewWorld);
-
+	UWorld* NewWorld = GetWorld();
 	//when unloading map, NewWorld==nullptr, when loading new map OldWorld==nullptr
 	if (NewWorld == nullptr)
 	{

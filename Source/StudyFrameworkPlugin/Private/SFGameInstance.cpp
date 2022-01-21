@@ -163,7 +163,6 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	StudySetup = DuplicateObject(Setup, this);
 
 	int ParticipantID = USFParticipant::GetLastParticipantId();
-	int StartConditionIndex = 0;
 	TArray<USFCondition*> Conditions;
 	if (USFParticipant::GetLastParticipantFinished())
 	{
@@ -188,24 +187,21 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 		case EAppReturnType::Cancel:
 			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Restart entire study");
 			ParticipantID = 0;
+			Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
 			//clear data
 			USFParticipant::ClearPhaseLongtables(Setup);
 			break;
 		case EAppReturnType::Retry:
 			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Retry last participant");
-			StartConditionIndex = USFParticipant::GetLastParticipantLastConditionStarted();
+			Conditions = USFParticipant::GetLastParticipantsConditions();
+			StartCondition = Conditions[USFParticipant::GetLastParticipantLastConditionStarted()];
 			break;
 		case EAppReturnType::Continue:
 			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Continue with the next participant");
 			ParticipantID++;
+			Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
 			break;
 		default: ;
-		}
-
-		Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
-		if (StartConditionIndex != 0)
-		{
-			StartCondition = Conditions[StartConditionIndex];
 		}
 	}
 

@@ -46,6 +46,8 @@ public:
 
 	UFUNCTION()
 	void SetStartStudyButtonVisibility(ESlateVisibility Visibility);
+	UFUNCTION()
+	void SetNextConditionButtonVisibility(ESlateVisibility Visibility);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interactive")
 	TSubclassOf<USFHUDWidget> SFWidgetClass;

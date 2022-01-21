@@ -287,6 +287,9 @@ void USFGameInstance::EndStudy()
 	Participant->EndStudy();
 
 	UpdateHUD("Study ended");
+	if(GetHUD()){
+		GetHUD()->SetNextConditionButtonVisibility(ESlateVisibility::Collapsed);
+	}
 
 	FadeHandler->FadeOut();
 }
@@ -414,10 +417,9 @@ void USFGameInstance::LogToHUD(FString Text)
 
 void USFGameInstance::UpdateHUD(FString Status)
 {
-	if (GetWorld() && GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(
-		GetWorld()->GetFirstPlayerController()->GetHUD()))
+	if (GetHUD())
 	{
-		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->UpdateHUD(Participant, Status);
+		GetHUD()->UpdateHUD(Participant, Status);
 	}
 	else
 	{
@@ -425,6 +427,15 @@ void USFGameInstance::UpdateHUD(FString Status)
 		if (Participant)
 			HUDSavedData.Participant = FString::FromInt(Participant->GetID());
 	}
+}
+
+ASFMasterHUD* USFGameInstance::GetHUD()
+{
+	if (GetWorld() && GetWorld()->GetFirstPlayerController())
+	{
+		return Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	}
+	return nullptr;
 }
 
 USFFadeHandler* USFGameInstance::GetFadeHandler()

@@ -109,6 +109,9 @@ public:
 	UFUNCTION()
 	void UpdateHUD(FString Status);
 
+	UFUNCTION(BlueprintCallable)
+	ASFMasterHUD* GetHUD();
+
 	//this is used by the SFMasterHUD to store content between levels
 	FHUDSavedData HUDSavedData;
 

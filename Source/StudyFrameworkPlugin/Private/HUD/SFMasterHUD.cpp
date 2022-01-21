@@ -163,6 +163,13 @@ void ASFMasterHUD::SetStartStudyButtonVisibility(ESlateVisibility Visibility)
 	HUDWidget->GetStartButton()->SetVisibility(Visibility);
 }
 
+void ASFMasterHUD::SetNextConditionButtonVisibility(ESlateVisibility Visibility)
+{
+	if(!HUDWidget)
+		return;
+	HUDWidget->GetNextButton()->SetVisibility(Visibility);
+}
+
 void ASFMasterHUD::DrawBackground()
 {
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());

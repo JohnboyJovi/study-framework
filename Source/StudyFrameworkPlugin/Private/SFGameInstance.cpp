@@ -20,6 +20,8 @@ void USFGameInstance::Init()
 {
 	Super::Init();
 
+	FSFUtils::Log("USFGameInstance::Init");
+
 	GEngine->GameViewportClientClass = USFGlobalFadeGameViewportClient::StaticClass();
 
 	GoToConditionSyncedEvent.Attach(this);
@@ -60,6 +62,8 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 		return;
 	}
 
+	FSFUtils::Log("USFGameInstance::OnWorldStart for "+NewWorld->GetName());
+
 	// so we have loaded a new world and the study is not running, so check whether this is a map in one of the conditions
 	TArray<USFCondition*> LastConditions = USFParticipant::GetLastParticipantsConditions();
 	USFCondition* FirstMapCondition = nullptr;
@@ -91,6 +95,8 @@ void USFGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 	// otherwise check whether a setup is present
 	TArray<AActor*> StudySetups;
 	UGameplayStatics::GetAllActorsOfClass(NewWorld, ASFStudySetup::StaticClass(), StudySetups);
+
+	FSFUtils::Log("Found "+FString::FromInt(StudySetups.Num())+" ASFStudySetup actors on this map.");
 
 	if (StudySetups.Num() == 1)
 	{

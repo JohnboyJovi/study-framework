@@ -20,7 +20,7 @@ struct FHUDSavedData
 	FString Status;
 	FString Participant;
 	FString Phase;
-	FString Condition;
+	TMap<FString, FString> Condition;
 	TArray<FString> LogMessages;
 };
 
@@ -41,7 +41,7 @@ public:
 
 	void SetParticipant(const FString& Text);
 	void SetPhase(const FString& Text);
-	void SetCondition(const FString& Text);
+	void SetCondition(const TMap<FString, FString>& Texts);
 	void SetStatus(const FString& Text);
 
 	void AddLogMessage(const FString& Text);
@@ -60,29 +60,25 @@ public:
 
 private:
 
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* StatusTextBox;
-
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* ParticipantTextBox;
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* PhaseTextBox;
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* ConditionTextBox;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* StatusTextBox;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* ParticipantTextBox;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* PhaseTextBox;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* ConditionText1;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* ConditionText2;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* ConditionText3;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* ConditionText4;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* ConditionText5;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* ConditionText6;
+	TMap<FString, FString> ConditionTexts;
 
 	TArray<FString> LogMessages;
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* LogsTextBox;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UTextBlock* LogsTextBox;
 
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* StartButton;
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* NextButton;
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* ShowConditionList;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UButton* StartButton;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UButton* NextButton;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UButton* ShowConditionList;
 
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UScrollBox* ConditionList;
+	UPROPERTY(EditAnywhere, meta = (BindWidget)) UScrollBox* ConditionList;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UImage* CursorImage; //only used for HMD fake HUD

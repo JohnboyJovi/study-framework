@@ -25,9 +25,21 @@ void USFHUDWidget::SetPhase(const FString& Text)
 	PhaseTextBox->SetText(FText::FromString(FString(TEXT("Phase: ")) + Text));
 }
 
-void USFHUDWidget::SetCondition(const FString& Text)
+void USFHUDWidget::SetCondition(const TMap<FString, FString>& Texts)
 {
-	ConditionTextBox->SetText(FText::FromString(FString(TEXT("Condition: ")) + Text));
+	TArray<UTextBlock*> TextBlocks = {
+		ConditionText1, ConditionText2, ConditionText3, ConditionText4, ConditionText5, ConditionText6
+	};
+	int TextIndex=0;
+	for(auto FactorLevel : Texts)
+	{
+		TextBlocks[TextIndex++]->SetText(FText::FromString(FactorLevel.Key + ": "+FactorLevel.Value));
+	}
+	while(TextIndex<TextBlocks.Num())
+	{
+		TextBlocks[TextIndex++]->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	ConditionTexts = Texts;
 }
 
 void USFHUDWidget::SetStatus(const FString& Text)
@@ -54,7 +66,7 @@ void USFHUDWidget::AddLogMessage(const FString& Text)
 
 void USFHUDWidget::ClearWidget()
 {
-	SetCondition("???");
+	SetCondition({});
 	SetParticipant("???");
 	SetPhase("???");
 	SetStatus("???");
@@ -66,32 +78,29 @@ FHUDSavedData USFHUDWidget::GetData()
 	Data.Status = StatusTextBox->GetText().ToString();
 	Data.Participant = ParticipantTextBox->GetText().ToString();
 	Data.Phase = PhaseTextBox->GetText().ToString();
-	Data.Condition = ConditionTextBox->GetText().ToString();
+	Data.Condition = ConditionTexts;
 	Data.LogMessages = LogMessages;
 	return Data;
 }
 
 void USFHUDWidget::SetData(FHUDSavedData Data)
 {
-	if(Data.Status.StartsWith("Status:"))
+	if (Data.Status.StartsWith("Status:"))
 		StatusTextBox->SetText(FText::FromString(Data.Status));
 	else
 		SetStatus(Data.Status);
 
-	if(Data.Participant.StartsWith("Participant:"))
+	if (Data.Participant.StartsWith("Participant:"))
 		ParticipantTextBox->SetText(FText::FromString(Data.Participant));
 	else
 		SetParticipant(Data.Participant);
 
-	if(Data.Phase.StartsWith("Phase:"))
+	if (Data.Phase.StartsWith("Phase:"))
 		PhaseTextBox->SetText(FText::FromString(Data.Phase));
 	else
 		SetPhase(Data.Phase);
 
-	if(Data.Condition.StartsWith("Condition:"))
-		ConditionTextBox->SetText(FText::FromString(Data.Condition));
-	else
-		SetCondition(Data.Condition);
+	SetCondition(Data.Condition);
 
 	LogMessages = Data.LogMessages;
 	AddLogMessage("");

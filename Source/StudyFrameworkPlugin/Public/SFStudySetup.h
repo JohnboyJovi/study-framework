@@ -50,6 +50,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Study Setup Debug")
 	int NrOfRunsToGenerate = 1;
 
+	//CAUTION: this removes results, should only be called to prepare before starting the actual study!
+	UFUNCTION(CallInEditor, Category = "Study Setup Debug")
+	void ClearStudyResults() const;
+
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //

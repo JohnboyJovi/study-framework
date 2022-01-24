@@ -1,6 +1,7 @@
 #include "SFStudySetup.h"
 
 #include "SFGameInstance.h"
+#include "HAL/FileManagerGeneric.h"
 #include "Help/SFUtils.h"
 
 
@@ -97,6 +98,32 @@ void ASFStudySetup::GenerateTestStudyRuns() const
 		TmpParticipant->Initialize(ParticipantID);
 		TmpParticipant->SetStudyConditions(Conditions); //this also saves it to json
 	}
+}
+
+void ASFStudySetup::ClearStudyResults() const
+{
+	const FText MessageText = FText::FromString(
+		"You are about to delete all results. This is meant for deleting produced data during debug. So only use BEFORE starting the actual study!\n\nAre you sure you want to proceed?");
+	const FText MessageTitle = FText::FromString("CAUTION: Delete gathered data?");
+	const EAppReturnType::Type Answer = FMessageDialog::Open(EAppMsgType::YesNo, EAppReturnType::No, MessageText, &MessageTitle);
+	if(Answer!=EAppReturnType::Yes)
+	{
+		return;
+	}
+
+	auto DeleteFolder = [] (FString FolderName)
+	{
+		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+		FString CompletePath = FPaths::ProjectDir() + "StudyFramework/" + FolderName;
+		if (PlatformFile.DirectoryExists(*CompletePath))
+     {
+         FFileManagerGeneric::Get().DeleteDirectory(*CompletePath, true, true);
+     }
+	};
+
+	DeleteFolder("StudyRuns");
+	DeleteFolder("Results");
+
 }
 
 TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber) const

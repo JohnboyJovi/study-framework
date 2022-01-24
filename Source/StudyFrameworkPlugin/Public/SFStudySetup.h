@@ -9,7 +9,7 @@
 
 #include "SFStudySetup.generated.h"
 
-UCLASS()
+UCLASS(HideCategories=(Transform, Rendering, Replication, Collision, Input, Actor, LOD, Cooking))
 class STUDYFRAMEWORKPLUGIN_API ASFStudySetup : public AActor
 {
 	GENERATED_BODY()

@@ -59,9 +59,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TMap<USFDependentVariable*,FString> DependentVariablesValues;
 
-	UPROPERTY(BlueprintReadOnly)
-	TArray<TSubclassOf<AActor>> SpawnInThisCondition;
-
 protected:
 
 	UPROPERTY(BlueprintReadOnly)

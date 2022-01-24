@@ -90,9 +90,6 @@ public:
 	UFUNCTION()
 	ASFStudySetup* GetStudySetup();
 
-
-	UFUNCTION()
-	void SpawnAllActorsForLevel();
 	UFUNCTION()
 	void OnLevelLoaded();
 	UFUNCTION()

@@ -41,16 +41,6 @@ void USFStudyPhase::AddDependentVariable(FString Name)
 	DependentVariables.Add(Variable);
 }
 
-void USFStudyPhase::AddActorForEveryMapInThisPhase(TSubclassOf<AActor> Actor)
-{
-	SpawnInEveryMapOfThisPhase.Add(Actor);
-}
-
-void USFStudyPhase::AddBlueprintActorForEveryMapInThisPhase(const FString& BlueprintPath, const FString& BlueprintName)
-{
-	SpawnInEveryMapOfThisPhase.Add(FSFUtils::GetBlueprintClass(BlueprintName, BlueprintPath));
-}
-
 void USFStudyPhase::SetRepetitions(int Num, EPhaseRepetitionType Type)
 {
 	NumberOfRepetitions = Num;
@@ -262,18 +252,12 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 	{
 		USFCondition* Condition = NewObject<USFCondition>();
 		Condition->Generate(PhaseName, ConditionIndices, SortedFactors, DependentVariables);
-		Condition->SpawnInThisCondition.Append(SpawnInEveryMapOfThisPhase);
 		Conditions.Add(Condition);
 	}
 
 	return Conditions;
 }
 
-
-TArray<TSubclassOf<AActor>> USFStudyPhase::GetSpawnActors() const
-{
-	return SpawnInEveryMapOfThisPhase;
-}
 
 const TArray<USFStudyFactor*> USFStudyPhase::GetFactors() const
 {
@@ -326,20 +310,6 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 	default:
 		FSFUtils::Log("[USFStudyPhase::GetAsJson] unknown TypeOfRepetition!", true);
 	}
-
-	// SpawnInEveryMapOfThisPhase
-	TArray<TSharedPtr<FJsonValue>> SpawnActorsArray;
-	for (TSubclassOf<AActor> Class : SpawnInEveryMapOfThisPhase)
-	{
-		if (!Class)
-			continue;
-		TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
-		JsonObject->SetStringField("ClassName", Class.Get()->GetName());
-		JsonObject->SetStringField("ClassPath", Class.Get()->GetPathName());
-		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(JsonObject);
-		SpawnActorsArray.Add(JsonValue);
-	}
-	Json->SetArrayField("SpawnInEveryMapOfThisPhase", SpawnActorsArray);
 
 	return Json;
 }
@@ -397,21 +367,6 @@ void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
 		FSFUtils::Log("[USFStudyPhase::FromJson] unknown TypeOfRepetition: " + RepetitionTypeStr, true);
 	}
 
-	// SpawnInEveryMapOfThisPhase
-	TArray<TSharedPtr<FJsonValue>> SpawnActorsArray = Json->GetArrayField("SpawnInEveryMapOfThisPhase");;
-	for (auto Class : SpawnActorsArray)
-	{
-		const FString Name = Class->AsObject()->GetStringField("ClassName");
-		const FString Path = Class->AsObject()->GetStringField("ClassPath");
-		const FString FullName = Path + "/" + Name;
-		UClass* ClassToSpawn = FindObject<UClass>(ANY_PACKAGE, *FullName);
-		if (!ClassToSpawn)
-		{
-			FSFUtils::Log("[USFStudyPhase::FromJson] class does not exist: " + Path + "/" + Name, true);
-			continue;
-		}
-		SpawnInEveryMapOfThisPhase.Add(ClassToSpawn->GetClass());
-	}
 }
 
 bool USFStudyPhase::ContainsNullptrInArrays()

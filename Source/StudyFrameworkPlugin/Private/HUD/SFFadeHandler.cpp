@@ -61,7 +61,6 @@ void USFFadeHandler::Tick()
 		// Its Faded out, New Level is loaded, prepare it
 	case EFadeState::WaitForLevelLoaded:
 		FSFUtils::Log("[USFFadeHandler::Tick()]: Set Scene to black on new Level (pre) loaded", false);
-		GameInstance->SpawnAllActorsForLevel();
 		Fade(0.0, true);
 		FadeState = EFadeState::WaitForTimerFadedOut;
 		SetTimerForNextTick(FadeConfig.FadedOutDuration);

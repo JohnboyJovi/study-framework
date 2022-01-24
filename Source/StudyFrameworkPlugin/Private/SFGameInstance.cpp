@@ -442,16 +442,6 @@ ASFStudySetup* USFGameInstance::GetStudySetup()
 // ******* Executing Study ****************************************** //
 // ****************************************************************** //
 
-void USFGameInstance::SpawnAllActorsForLevel()
-{
-	// Spawn all level specific actor
-	TArray<TSubclassOf<AActor>> SpawnInThisPhase = Participant->GetCurrentCondition()->SpawnInThisCondition;
-	for (auto EntryC : SpawnInThisPhase)
-	{
-		GetWorld()->SpawnActor(EntryC);
-	}
-}
-
 void USFGameInstance::OnLevelLoaded()
 {
 	//do we need to do something here?

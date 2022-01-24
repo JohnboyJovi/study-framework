@@ -65,17 +65,6 @@ USFStudyPhase* ASFStudySetup::AddStudyPhase(FString InPhaseName)
 	return Phase;
 }
 
-void ASFStudySetup::AddActorForEveryLevelInEveryPhase(TSubclassOf<AActor> Actor)
-{
-	SpawnInEveryPhase.Add(Actor);
-}
-
-void ASFStudySetup::AddActorForEveryLevelInEveryPhaseBlueprint(const FString& BlueprintPath,
-                                                               const FString& BlueprintName)
-{
-	SpawnInEveryPhase.Add(FSFUtils::GetBlueprintClass(BlueprintName, BlueprintPath));
-}
-
 bool ASFStudySetup::CheckPhases() const
 {
 	for (auto EntryPhase : Phases)
@@ -139,10 +128,6 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 	{
 		Conditions.Append(Phase->GenerateConditions(RunningParticipantNumber));
 	}
-	for (USFCondition* Condition : Conditions)
-	{
-		Condition->SpawnInThisCondition.Append(SpawnInEveryPhase);
-	}
 	return Conditions;
 }
 
@@ -156,10 +141,6 @@ USFStudyPhase* ASFStudySetup::GetPhase(int Index)
 	return Phases[Index];
 }
 
-TArray<TSubclassOf<AActor>> ASFStudySetup::GetSpawnActors() const
-{
-	return SpawnInEveryPhase;
-}
 
 TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 {
@@ -175,20 +156,6 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 		PhasesArray.Add(JsonValue);
 	}
 	Json->SetArrayField("Phases", PhasesArray);
-
-	// SpawnInEveryMapOfThisPhase
-	TArray<TSharedPtr<FJsonValue>> SpawnActorsArray;
-	for (TSubclassOf<AActor> Class : SpawnInEveryPhase)
-	{
-		if (!Class)
-			continue;
-		TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
-		JsonObject->SetStringField("ClassName", Class.Get()->GetName());
-		JsonObject->SetStringField("ClassPath", Class.Get()->GetPathName());
-		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(JsonObject);
-		SpawnActorsArray.Add(JsonValue);
-	}
-	Json->SetArrayField("SpawnInEveryPhase", SpawnActorsArray);
 
 	Json->SetObjectField("FadeConfig", FadeConfig.GetAsJson());
 

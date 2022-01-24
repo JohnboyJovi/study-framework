@@ -92,27 +92,3 @@ TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilenName)
 	return StringToJson(JsonString);
 }
 
-TSubclassOf<AActor> FSFUtils::GetBlueprintClass(FString BlueprintName, FString BlueprintPath)
-{
-	const FString FullName = BlueprintPath + "/" + BlueprintName + "." + BlueprintName;
-	UBlueprint* BlueprintToSpawn = FindObject<UBlueprint>(ANY_PACKAGE, *FullName);
-
-	if(!BlueprintToSpawn)
-	{
-		FSFUtils::Log("[FSFUtils::GetBlueprintClass)]: Cannot find blueprint actor ("
-	              + BlueprintPath + "/" + BlueprintName + ")!", true);
-		return nullptr;
-	}
-
-	UClass* Class = BlueprintToSpawn->GeneratedClass;
-	
-	if (!Class->IsChildOf(AActor::StaticClass()))
-	{
-		FSFUtils::Log("[FSFUtils::GetBlueprintClass)]: blueprint actor ("
-		              + BlueprintPath + "/" + BlueprintName + ") is not a subclass of AActor!", true);
-		return nullptr;
-	}
-
-	return Class;
-}
-

@@ -36,11 +36,6 @@ public:
 	USFStudyPhase* AddStudyPhase(FString PhaseName);
 
 	UFUNCTION()
-	void AddActorForEveryLevelInEveryPhase(TSubclassOf<AActor> Actor);
-	UFUNCTION()
-	void AddActorForEveryLevelInEveryPhaseBlueprint(const FString& BlueprintPath, const FString& BlueprintName);
-
-	UFUNCTION()
 	bool CheckPhases() const;
 
 	//This methods generates NrOfRunsToGenerate study runs and puts them into StudyFrame/StudyRuns
@@ -67,9 +62,6 @@ public:
 	UFUNCTION()
 	USFStudyPhase* GetPhase(int Index);
 
-	UFUNCTION()
-	TArray<TSubclassOf<AActor>> GetSpawnActors() const;
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
 	FFadeConfig FadeConfig;
 
@@ -91,10 +83,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "PhaseName", Category = "Study Setup"))
 	TArray<USFStudyPhase*> Phases;
-
-	// Spawn in every Level of every phase
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
-	TArray<TSubclassOf<AActor>> SpawnInEveryPhase;
 
 	
 	// A UBillboardComponent to hold Icon sprite

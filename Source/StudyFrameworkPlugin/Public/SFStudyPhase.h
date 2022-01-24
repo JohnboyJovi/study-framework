@@ -38,12 +38,6 @@ public:
 
 
 	UFUNCTION()
-	void AddActorForEveryMapInThisPhase(TSubclassOf<AActor> Actor);
-	UFUNCTION()
-	void AddBlueprintActorForEveryMapInThisPhase(const FString& BlueprintPath, const FString& BlueprintName);
-
-
-	UFUNCTION()
 	void SetRepetitions(int Num, EPhaseRepetitionType RepetitionType);
 
 	// ****************************************************************** // 
@@ -60,9 +54,6 @@ public:
 	// ****************************************************************** // 
 	// ******* Getter for the Study Phase ******************************* //
 	// ****************************************************************** //
-
-	UFUNCTION()
-	TArray<TSubclassOf<AActor>> GetSpawnActors() const;
 
 	UFUNCTION()
 	const TArray<USFStudyFactor*> GetFactors() const;
@@ -96,10 +87,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	EPhaseRepetitionType TypeOfRepetition = EPhaseRepetitionType::SameOrder;
-
-	// Spawn in every level once loaded
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TArray<TSubclassOf<AActor>> SpawnInEveryMapOfThisPhase;
 
 private:
 	void CreateAllConditionsRecursively(int Index, TArray<int> TmpOrderPart, TArray<USFStudyFactor*>& InSortedFactors,

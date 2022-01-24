@@ -170,7 +170,8 @@ bool USFCondition::RecoverStudyResults(TArray<FString>& Header, TArray<FString>&
 FString USFCondition::GetPrettyName()
 {
 	FString ConditionString = "(";
-	ConditionString += "Map: " + FPaths::GetBaseFilename(Map);
+	ConditionString += "Phase: " + PhaseName;
+	ConditionString += "; Map: " + FPaths::GetBaseFilename(Map);
 	for (auto FactorLevel : FactorLevels)
 	{
 		ConditionString += "; " + FactorLevel.Key + ": " + FactorLevel.Value;

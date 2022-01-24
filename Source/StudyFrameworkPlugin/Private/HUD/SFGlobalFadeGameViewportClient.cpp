@@ -34,35 +34,24 @@ void USFGlobalFadeGameViewportClient::ClearFade()
 
 void USFGlobalFadeGameViewportClient::Fade(const float Duration, const bool bToBlackN, const FLinearColor FadeColorN)
 {
-	if (GetWorld())
-	{
-		bFading = true;
-		bToBlack = bToBlackN;
-		FadeDuration = Duration;
-		FadeStartTime = World->GetTimeSeconds();
-		FadeColor = FadeColorN;
-	}
+	bFading = true;
+	bToBlack = bToBlackN;
+	FadeDuration = Duration;
+	FadeStartTime = FPlatformTime::Seconds();
+	FadeColor = FadeColorN;
 }
 
 float USFGlobalFadeGameViewportClient::FadeTimeRemaining()
 {
 	if (bFading)
 	{
-		if (GetWorld())
+		const double Time = FPlatformTime::Seconds();
+		const float TimeLeft = FadeDuration - (Time - FadeStartTime);
+		if (TimeLeft > 0.0f)
 		{
-			const float Time = World->GetTimeSeconds();
-			const float TimeLeft = FadeDuration - (Time - FadeStartTime);
-			if (TimeLeft > 0.0f)
-			{
-				return TimeLeft;
-			}
-			else
-			{
-				return 0.0f;
-			}
+			return TimeLeft;
 		}
 	}
-
 	return 0.0f;
 }
 
@@ -70,46 +59,37 @@ void USFGlobalFadeGameViewportClient::DrawScreenFade(UCanvas* Canvas)
 {
 	if (bFading)
 	{
-		if (GetWorld())
+		float Alpha = 1.0f;
+		if (FadeDuration > 0.0f)
 		{
-			const float Time = World->GetTimeSeconds();
-			float Alpha = 1.0f;
-			if (FadeDuration > 0.0f)
+			Alpha = FadeTimeRemaining() / FadeDuration;
+		}
+
+		if (Alpha < 1.0f)
+		{
+			FLinearColor FadeColorTmp = FadeColor;
+			FadeColorTmp.A = bToBlack ? 1 - Alpha : Alpha;
+
+			ASFMasterHUD* MasterHUD = nullptr;
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			if (PlayerController)
 			{
-				Alpha = FMath::Clamp((Time - FadeStartTime) / FadeDuration, 0.f, 1.f);
+				MasterHUD = Cast<ASFMasterHUD>(PlayerController->GetHUD());
 			}
 
-			// Make sure that we stay black in a fade to black
-			if (Alpha == 1.f && !bToBlack)
+			if (MasterHUD && UVirtualRealityUtilities::IsMaster())
 			{
-				bFading = false;
+				//if we use the HUD let it do the fading, so it can still be seen when faded out
+				MasterHUD->SetBackgroundColor(FadeColorTmp);
 			}
 			else
 			{
-				FLinearColor FadeColorTmp = FadeColor;
-				FadeColorTmp.A = bToBlack ? Alpha : 1 - Alpha;
-
-				ASFMasterHUD* MasterHUD=nullptr;
-				APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-				if(PlayerController)
-				{
-					MasterHUD = Cast<ASFMasterHUD>(PlayerController->GetHUD());
-				}
-
-				if (MasterHUD && UVirtualRealityUtilities::IsMaster())
-				{
-					//if we use the HUD let it do the fading, so it can still be seen when faded out
-					MasterHUD->SetBackgroundColor(FadeColorTmp);
-				}
-				else
-				{
-					const FColor OldColor = Canvas->DrawColor;
-					Canvas->DrawColor = FadeColorTmp.ToFColor(true);
-					// TheJamsh: "4.10 cannot convert directly to FColor, so need to use FLinearColor::ToFColor() :)
-					Canvas->DrawTile(Canvas->DefaultTexture, 0, 0, Canvas->ClipX, Canvas->ClipY, 0, 0,
-					                 Canvas->DefaultTexture->GetSizeX(), Canvas->DefaultTexture->GetSizeY());
-					Canvas->DrawColor = OldColor;
-				}
+				const FColor OldColor = Canvas->DrawColor;
+				Canvas->DrawColor = FadeColorTmp.ToFColor(true);
+				// TheJamsh: "4.10 cannot convert directly to FColor, so need to use FLinearColor::ToFColor() :)
+				Canvas->DrawTile(Canvas->DefaultTexture, 0, 0, Canvas->ClipX, Canvas->ClipY, 0, 0,
+				                 Canvas->DefaultTexture->GetSizeX(), Canvas->DefaultTexture->GetSizeY());
+				Canvas->DrawColor = OldColor;
 			}
 		}
 	}

@@ -45,7 +45,7 @@ private:
 	// Values used by our screen fading
 	bool bFading = true;
 	bool bToBlack = true; // Fading to black will be applied even if alpha is 1
-	float FadeStartTime = 0.0f;
+	double FadeStartTime = 0.0;
 	float FadeDuration = 0.0f;
 	FLinearColor FadeColor = FLinearColor::Black;
 };

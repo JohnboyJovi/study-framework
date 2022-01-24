@@ -57,6 +57,13 @@ void USFParticipant::GenerateExecutionJsonFile() const
 
 TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 {
+	if(ParticipantID==-1)
+	{
+		FSFUtils::Log(
+			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
+			FString::FromInt(ParticipantID) + " is not to be read, propablyc called on init so everything is fine!", false);
+		return {};
+	}
 	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(
 		"StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
 	TArray<USFCondition*> LoadedConditions;

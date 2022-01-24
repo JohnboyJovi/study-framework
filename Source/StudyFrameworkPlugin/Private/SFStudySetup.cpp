@@ -94,25 +94,25 @@ void ASFStudySetup::ClearStudyResults() const
 	const FText MessageText = FText::FromString(
 		"You are about to delete all results. This is meant for deleting produced data during debug. So only use BEFORE starting the actual study!\n\nAre you sure you want to proceed?");
 	const FText MessageTitle = FText::FromString("CAUTION: Delete gathered data?");
-	const EAppReturnType::Type Answer = FMessageDialog::Open(EAppMsgType::YesNo, EAppReturnType::No, MessageText, &MessageTitle);
-	if(Answer!=EAppReturnType::Yes)
+	const EAppReturnType::Type Answer = FMessageDialog::Open(EAppMsgType::YesNo, EAppReturnType::No, MessageText,
+	                                                         &MessageTitle);
+	if (Answer != EAppReturnType::Yes)
 	{
 		return;
 	}
 
-	auto DeleteFolder = [] (FString FolderName)
+	auto DeleteFolder = [](FString FolderName)
 	{
 		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 		FString CompletePath = FPaths::ProjectDir() + "StudyFramework/" + FolderName;
 		if (PlatformFile.DirectoryExists(*CompletePath))
-     {
-         FFileManagerGeneric::Get().DeleteDirectory(*CompletePath, true, true);
-     }
+		{
+			FFileManagerGeneric::Get().DeleteDirectory(*CompletePath, true, true);
+		}
 	};
 
 	DeleteFolder("StudyRuns");
 	DeleteFolder("Results");
-
 }
 
 TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber) const
@@ -172,9 +172,6 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 		Phase->FromJson(PhaseJson->AsObject());
 		Phases.Add(Phase);
 	}
-
-	//TODO SpawnActor
-
 	FadeConfig.FromJson(Json->GetObjectField("FadeConfig"));
 }
 

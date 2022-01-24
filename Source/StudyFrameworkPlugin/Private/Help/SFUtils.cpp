@@ -5,7 +5,6 @@
 #include "Misc/MessageDialog.h"
 #include "Misc/FileHelper.h"
 
-#include "EngineUtils.h"            // For Spawning in Actor in each level
 #include "Json.h"
 
 #include "SFPlugin.h"

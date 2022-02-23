@@ -251,8 +251,9 @@ bool USFGameInstance::StartStudy()
 
 	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()))
 	{
-		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->SetStartStudyButtonVisibility(
-			ESlateVisibility::Collapsed);
+		ASFMasterHUD* HUD = Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+		HUD->SetStartStudyButtonVisibility(ESlateVisibility::Collapsed);
+		HUD->SetNextConditionButtonVisibility(ESlateVisibility::Visible);
 	}
 
 	if (!StartCondition)

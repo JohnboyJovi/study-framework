@@ -82,7 +82,11 @@ void ASFMasterHUD::BeginPlay()
 
 	if (USFGameInstance::Get()->IsStarted())
 	{
-		HUDWidget->GetStartButton()->SetVisibility(ESlateVisibility::Collapsed);
+		SetStartStudyButtonVisibility(ESlateVisibility::Collapsed);
+	}
+	else
+	{
+		SetNextConditionButtonVisibility(ESlateVisibility::Collapsed);
 	}
 
 	if(USFGameInstance::Get()->GetParticipant() && !USFGameInstance::Get()->GetParticipant()->GetNextCondition())

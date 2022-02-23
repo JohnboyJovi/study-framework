@@ -32,6 +32,9 @@ TSharedPtr<FJsonObject> USFStudyFactor::GetAsJson() const
 	case EFactorMixingOrder::RandomOrder:
 		Json->SetStringField("MixingOrder", "RandomOrder");
 		break;
+	case EFactorMixingOrder::InOrder:
+		Json->SetStringField("MixingOrder", "InOrder");
+		break;
 	default:
 		FSFUtils::Log("[USFStudyFactor::GetAsJson] unknown MixingOrder!", true);
 	}
@@ -72,6 +75,10 @@ void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 	else if (MixingOrderStr == "RandomOrder")
 	{
 		MixingOrder = EFactorMixingOrder::RandomOrder;
+	}
+	else if (MixingOrderStr == "InOrder")
+	{
+		MixingOrder = EFactorMixingOrder::InOrder;
 	}
 	else
 	{

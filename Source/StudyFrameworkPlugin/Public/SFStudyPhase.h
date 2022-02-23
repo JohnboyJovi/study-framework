@@ -95,5 +95,7 @@ private:
 	bool ContainsAMapFactor() const;
 	USFMapFactor* GetMapFactor() const;
 	int GetMapFactorIndex() const;
-	bool SortFactors(TArray<USFStudyFactor*>& SortedFactors) const;
+
+	//puts any enBlock or InOrder factor first
+	TArray<USFStudyFactor*> SortFactors() const;
 };

@@ -88,6 +88,7 @@ void USFGameInstance::OnWorldStart()
 			FSFUtils::Log(
 				"[USFGameInstance::OnWorldChanged] Started on a map that was part of the last study, so start the study run for debug reasons.");
 			RestoreLastParticipantForDebugStart(FirstMapCondition);
+			LogToHUD("Start map "+NewWorld->GetName()+" for debugging!");
 		}
 		return;
 	}
@@ -372,6 +373,10 @@ bool USFGameInstance::IsStarted() const
 
 FString USFGameInstance::GetFactorLevel(FString FactorName) const
 {
+	if(!Participant)
+	{
+		return "ParticipantNotSet";
+	}
 	if (Participant->GetCurrentCondition()->FactorLevels.Contains(FactorName))
 	{
 		return Participant->GetCurrentCondition()->FactorLevels[FactorName];

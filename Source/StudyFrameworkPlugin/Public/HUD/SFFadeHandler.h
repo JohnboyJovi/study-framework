@@ -61,6 +61,7 @@ public:
 	void SetFadedOutDuration(float FadeOutWaitN);
 	void SetFadeColor(FLinearColor Color);
 	void SetInitialFadedOut(bool bFadedOut);
+	void SetShowHUD(bool bShow);
 
 	FFadeConfig GetFadeConfig() const;
 	void SetFadeConfig(FFadeConfig InFadeConfig);

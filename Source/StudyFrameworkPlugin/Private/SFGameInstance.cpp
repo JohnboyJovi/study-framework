@@ -105,9 +105,15 @@ void USFGameInstance::OnWorldStart()
 		return;
 	}
 
+	// else we started on an unrelated map and just disable the HUD, so people can test their stuff
+	bStartedOnUnrelatedMap = true;
+	FFadeConfig FadeConfig;
+	FadeConfig.bShowHUD = false;
+	InitFadeHandler(FadeConfig);
+	FadeHandler->FadeIn();
 	FSFUtils::Log(
 		"[USFGameInstance::OnWorldChanged] world started that neither contains exactly one SFStudySetup actor, nor is a level that is part of one of the conditions from the last study run!",
-		true);
+		false);
 }
 
 void USFGameInstance::RestoreLastParticipantForDebugStart(USFCondition* InStartCondition)
@@ -155,6 +161,10 @@ void USFGameInstance::InitFadeHandler(FFadeConfig FadeConfig)
 	{
 		FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
 		FadeHandler->AddToRoot();
+	}
+	if(bStartedOnUnrelatedMap)
+	{
+		FadeConfig.bShowHUD=false;
 	}
 	FadeHandler->SetFadeConfig(FadeConfig);
 }
@@ -457,6 +467,11 @@ void USFGameInstance::OnLevelLoaded()
 void USFGameInstance::OnFadedIn()
 {
 	OnFadedInDelegate.Broadcast();
+
+	if(bStartedOnUnrelatedMap)
+	{
+		return;
+	}
 
 	Participant->GetCurrentCondition()->Begin();
 	Participant->LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());

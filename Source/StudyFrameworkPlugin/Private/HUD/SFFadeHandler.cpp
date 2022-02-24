@@ -225,6 +225,11 @@ void USFFadeHandler::SetInitialFadedOut(const bool bFadedOut)
 	FadeConfig.bStartFadedOut = bFadedOut;
 }
 
+void USFFadeHandler::SetShowHUD(bool bShow)
+{
+	FadeConfig.bShowHUD = bShow;
+}
+
 FFadeConfig USFFadeHandler::GetFadeConfig() const
 {
 	return FadeConfig;

@@ -38,7 +38,7 @@ void ASFMasterHUD::BeginPlay()
 	//is called also every time the map is changed (a new condition is loaded)
 	Super::BeginPlay();
 
-	if(USFGameInstance::Get()->GetStudySetup() && !USFGameInstance::Get()->GetStudySetup()->FadeConfig.bShowHUD)
+	if(USFGameInstance::Get()->GetFadeHandler() && !USFGameInstance::Get()->GetFadeHandler()->GetFadeConfig().bShowHUD)
 	{
 		return;
 	}

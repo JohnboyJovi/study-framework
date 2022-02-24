@@ -154,5 +154,7 @@ protected:
 	// this is only needed if a map should be started for debugging, but Init wasn't called
 	UPROPERTY()
 	USFCondition* ConditionToStartAtInit=nullptr;
+
+	bool bStartedOnUnrelatedMap = false;
 };
 

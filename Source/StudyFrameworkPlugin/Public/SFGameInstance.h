@@ -2,11 +2,14 @@
 
 #pragma once
 
-#include "SFParticipant.h"
+
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+
 #include "SFStudySetup.h"
+#include "SFParticipant.h"
 #include "HUD/SFMasterHUD.h"
+#include "EyeTracking/SFEyeTracker.h"
 
 #include "Events/DisplayClusterEventWrapper.h"
 
@@ -79,6 +82,9 @@ public:
 	//NOTE: BeginPlay is called while it is still faded out!
 	UPROPERTY(BlueprintAssignable)
 	FOnFadedInDelegate OnFadedInDelegate;
+
+	UFUNCTION(BlueprintCallable)
+	USFEyeTracker* GetEyeTracker() const;
 
 
 	// ****************************************************************** // 
@@ -156,5 +162,8 @@ protected:
 	USFCondition* ConditionToStartAtInit=nullptr;
 
 	bool bStartedOnUnrelatedMap = false;
+	
+	UPROPERTY()
+	USFEyeTracker* EyeTracker;
 };
 

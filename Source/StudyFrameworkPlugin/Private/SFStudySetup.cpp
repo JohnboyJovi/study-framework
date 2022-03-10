@@ -159,6 +159,8 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 
 	Json->SetObjectField("FadeConfig", FadeConfig.GetAsJson());
 
+	Json->SetBoolField("UseEyeTracker", bUseEyeTracker);
+
 	return Json;
 }
 
@@ -173,6 +175,7 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 		Phases.Add(Phase);
 	}
 	FadeConfig.FromJson(Json->GetObjectField("FadeConfig"));
+	bUseEyeTracker = Json->GetBoolField("UseEyeTracker");
 }
 
 void ASFStudySetup::LoadFromJson()

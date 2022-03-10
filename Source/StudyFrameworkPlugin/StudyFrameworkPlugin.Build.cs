@@ -1,6 +1,7 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class StudyFrameworkPlugin : ModuleRules
 {
@@ -66,11 +67,19 @@ public class StudyFrameworkPlugin : ModuleRules
             PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
         }
 		
-		DynamicallyLoadedModuleNames.AddRange(
-			new string[]
-			{
-				// ... add any modules that your module loads dynamically here ...
-			}
-			);
+        //check for SRanipal which we would need if eyetracking should be used
+        //see https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/plugins/unreal-study-framework/-/wikis/EyeTracking how to add it
+        string PluginsPath = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../.."));
+        bool bSRanipalPlugin = Directory.Exists(Path.Combine(PluginsPath, "SRanipal"));
+        if(bSRanipalPlugin)
+        {
+            PrivateDefinitions.Add("WITH_SRANIPAL");
+            PrivateDependencyModuleNames.AddRange(new string[] {"SRanipal", "SRanipalEye" });
+        }
+        else
+        {
+            PrivateDefinitions.Add("SRANIPAL_PLUGINS_DIR="+PluginsPath);
+        }
+        
 	}
 }

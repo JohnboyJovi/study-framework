@@ -65,6 +65,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
 	FFadeConfig FadeConfig;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Logging"))
+	bool bUseEyeTracker = false;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup Json Storage"))
 	FString JsonFile = "StudySetup.json";
 
@@ -91,6 +94,6 @@ protected:
 
 	// Icon sprite
 	UPROPERTY()
-	UTexture2D* SpriteTexture;;
+	UTexture2D* SpriteTexture;
 
 };

@@ -3,6 +3,7 @@
 #include "EyeTracking/SFGazeTarget.h"
 #include "Help/SFUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "KismetTraceUtils.h"
 
 #ifdef WITH_SRANIPAL
 #include "SRanipalEye_FunctionLibrary.h"
@@ -37,8 +38,10 @@ FString USFEyeTracker::GetCurrentGazeTarget()
 	float Distance = 1000.0f;
 	USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, Origin, Direction);
 	FHitResult HitResult;
+	//KismetSystemLibrary::LineTraceSingle(GetWorld(), Origin, Origin + Distance * Direction.GetSafeNormal(), EYE_TRACKING_TRACE_CHANNEL, false, {}, EDrawDebugTrace::Persistent, HitResult, true);
 	GetWorld()->LineTraceSingleByChannel(HitResult, Origin, Origin + Distance * Direction.GetSafeNormal(),
-	                                     ECC_GameTraceChannel1);
+		EYE_TRACKING_TRACE_CHANNEL);
+	DrawDebugLineTraceSingle(World, Start, End, DrawDebugType, bHit, OutHit, TraceColor, TraceHitColor, DrawTime);
 	if (HitResult.bBlockingHit)
 	{
 		//we hit something check whether it is one of our SFGazeTarget components

@@ -8,7 +8,7 @@ void USFGazeTarget::OnComponentCreated()
 	Collision->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 
 	//we use GameTraceChannel 1 for gazing traces
-	Collision->SetCollisionObjectType(ECC_GameTraceChannel1);
+	Collision->SetCollisionObjectType(EYE_TRACKING_TRACE_CHANNEL);
 }
 
 

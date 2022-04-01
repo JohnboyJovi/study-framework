@@ -76,6 +76,17 @@ bool USFStudyPhase::PhaseValid() const
 			return false;
 		}
 
+		TSet<FString> ContainedLevels;
+		for(const FString& Level : Factor->Levels) {
+			if(ContainedLevels.Contains(Level)) {
+				FSFUtils::OpenMessageBox(
+				"[USFStudyPhase::PhaseValid] Two levels with identical name ("+Level+")  found for factor " + Factor->FactorName + " in phase " + PhaseName,
+				true);
+				return false;
+			}
+			ContainedLevels.Add(Level);
+		}
+
 		if (Factor->FactorName == "")
 		{
 			FSFUtils::OpenMessageBox("[USFStudyPhase::PhaseValid] No name set for a factor in phase " + PhaseName, true);

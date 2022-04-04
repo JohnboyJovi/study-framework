@@ -107,9 +107,7 @@ void USFGameInstance::OnWorldStart()
 
 	// else we started on an unrelated map and just disable the HUD, so people can test their stuff
 	bStartedOnUnrelatedMap = true;
-	FFadeConfig FadeConfig;
-	FadeConfig.bShowHUD = false;
-	InitFadeHandler(FadeConfig);
+	InitFadeHandler(FFadeConfig());
 	FadeHandler->FadeIn();
 	FSFUtils::Log(
 		"[USFGameInstance::OnWorldChanged] world started that neither contains exactly one SFStudySetup actor, nor is a level that is part of one of the conditions from the last study run!",

@@ -106,34 +106,38 @@ const FVector2D ASFHMDSpectatorHUDHelp::OffsetCursorWidgetFromMouseLocationForMi
 	return Result;
 }
 
-const FVector2D ASFHMDSpectatorHUDHelp::GetSpectatorDisplayResolution()
+FSceneViewport* ASFHMDSpectatorHUDHelp::GetSceneViewport(bool bRequireStereo /*= falss*/)
 {
-	FSceneViewport* sceneViewport = nullptr;
-
 	if (!GIsEditor)
 	{
 		UGameEngine* GameEngine = Cast<UGameEngine>(GEngine);
-		sceneViewport = GameEngine->SceneViewport.Get();
+		return GameEngine->SceneViewport.Get();
 	}
 #if WITH_EDITOR
 	else
 	{
 		UEditorEngine* EditorEngine = CastChecked<UEditorEngine>(GEngine);
 		FSceneViewport* PIEViewport = (FSceneViewport*)EditorEngine->GetPIEViewport();
-		if (PIEViewport != nullptr && PIEViewport->IsStereoRenderingAllowed())
+		if (PIEViewport != nullptr && (!bRequireStereo || PIEViewport->IsStereoRenderingAllowed()))
 		{
-			sceneViewport = PIEViewport;
+			return PIEViewport;
 		}
 		else
 		{
 			FSceneViewport* EditorViewport = (FSceneViewport*)EditorEngine->GetActiveViewport();
-			if (EditorViewport != nullptr && EditorViewport->IsStereoRenderingAllowed())
+			if (EditorViewport != nullptr && (!bRequireStereo || EditorViewport->IsStereoRenderingAllowed()))
 			{
-				sceneViewport = EditorViewport;
+				return EditorViewport;
 			}
 		}
 	}
 #endif
+	return nullptr;
+}
+
+const FVector2D ASFHMDSpectatorHUDHelp::GetSpectatorDisplayResolution()
+{
+	FSceneViewport* sceneViewport = GetSceneViewport(true);
 	if (sceneViewport != nullptr)
 	{
 		return sceneViewport->FindWindow()->GetSizeInScreen();
@@ -153,3 +157,4 @@ void ASFHMDSpectatorHUDHelp::OnMouseReleased()
 	//We need to forward the clicks to the right user (see VirtualUserIndex=1 above)
 	InteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
 }
+

@@ -6,6 +6,7 @@
 
 #include "SFStudyPhase.h"
 #include "HUD/SFFadeHandler.h"
+#include "HUD/SFExperimenterWindow.h"
 
 #include "SFStudySetup.generated.h"
 
@@ -49,6 +50,13 @@ public:
 	UFUNCTION(CallInEditor, Category = "Study Setup Debug")
 	void ClearStudyResults() const;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
+	FFadeConfig FadeConfig;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Experimenter View"))
+	FExperimenterViewConfig ExperimenterViewConfig;
+
+
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //
@@ -61,9 +69,6 @@ public:
 
 	UFUNCTION()
 	USFStudyPhase* GetPhase(int Index);
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
-	FFadeConfig FadeConfig;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup Json Storage"))
 	FString JsonFile = "StudySetup.json";

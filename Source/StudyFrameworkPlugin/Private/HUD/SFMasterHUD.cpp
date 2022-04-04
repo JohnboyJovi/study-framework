@@ -38,7 +38,7 @@ void ASFMasterHUD::BeginPlay()
 	//is called also every time the map is changed (a new condition is loaded)
 	Super::BeginPlay();
 
-	if(USFGameInstance::Get()->GetFadeHandler() && !USFGameInstance::Get()->GetFadeHandler()->GetFadeConfig().bShowHUD)
+	if(!USFGameInstance::Get()->GetExperimenterViewConfig().bShowHUD)
 	{
 		return;
 	}
@@ -100,6 +100,11 @@ void ASFMasterHUD::BeginPlay()
 	HUDWidget->GetStartButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnStartButtonPressed);
 	HUDWidget->GetNextButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnNextButtonPressed);
 	HUDWidget->GetShowConditionsButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnShowConditionsButtonPressed);
+
+	if(USFGameInstance::Get()->GetExperimenterViewConfig().bShowConditionsPanelByDefault)
+	{
+		OnShowConditionsButtonPressed();
+	}
 }
 
 void ASFMasterHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)

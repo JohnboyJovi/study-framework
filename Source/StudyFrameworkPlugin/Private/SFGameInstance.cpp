@@ -44,6 +44,10 @@ void USFGameInstance::Init()
 void USFGameInstance::Shutdown()
 {
 	GoToConditionSyncedEvent.Detach();
+	if(ExperimenterWindow)
+	{
+		ExperimenterWindow->DestroyWindow();
+	}
 	Instance = nullptr;
 }
 
@@ -160,11 +164,18 @@ void USFGameInstance::InitFadeHandler(FFadeConfig FadeConfig)
 		FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
 		FadeHandler->AddToRoot();
 	}
+	FadeHandler->SetFadeConfig(FadeConfig);
+
 	if(bStartedOnUnrelatedMap)
 	{
-		FadeConfig.bShowHUD=false;
+		ExperimenterViewConfig.bShowHUD=false;
 	}
-	FadeHandler->SetFadeConfig(FadeConfig);
+	if(ExperimenterViewConfig.bShowExperimenterViewInSecondWindow)
+	{
+		ExperimenterWindow = NewObject<USFExperimenterWindow>(GetTransientPackage(), "ExperimenterWindow");
+		ExperimenterWindow->CreateWindow(ExperimenterViewConfig);
+	}
+	
 }
 
 void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
@@ -228,12 +239,16 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 		Participant->RecoverStudyResultsOfFinishedConditions();
 	}
 
+	ExperimenterViewConfig = StudySetup->ExperimenterViewConfig;
+
 	if (IsInitialized())
 	{
 		InitFadeHandler(Setup->FadeConfig);
 	}
 	UpdateHUD("Wait for Start");
+
 }
+
 
 
 // ****************************************************************** // 
@@ -440,6 +455,11 @@ ASFMasterHUD* USFGameInstance::GetHUD()
 		return Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 	}
 	return nullptr;
+}
+
+FExperimenterViewConfig USFGameInstance::GetExperimenterViewConfig() const
+{
+	return ExperimenterViewConfig;
 }
 
 USFFadeHandler* USFGameInstance::GetFadeHandler()

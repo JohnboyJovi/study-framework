@@ -462,6 +462,11 @@ FExperimenterViewConfig USFGameInstance::GetExperimenterViewConfig() const
 	return ExperimenterViewConfig;
 }
 
+USFExperimenterWindow* USFGameInstance::GetExperimenterWindow() const
+{
+	return ExperimenterWindow;
+}
+
 USFFadeHandler* USFGameInstance::GetFadeHandler()
 {
 	return FadeHandler;

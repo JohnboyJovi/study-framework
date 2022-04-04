@@ -113,6 +113,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FExperimenterViewConfig GetExperimenterViewConfig() const;
 
+	UFUNCTION(BlueprintCallable)
+	USFExperimenterWindow* GetExperimenterWindow() const;
+
 	//this is used by the SFMasterHUD to store content between levels
 	FHUDSavedData HUDSavedData;
 

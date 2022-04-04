@@ -41,9 +41,12 @@ public:
 
 	void CreateWindow(FExperimenterViewConfig Config);
 	void DestroyWindow();
+	void AddHUDWidget(TSharedRef<SWidget>& Widget);
 
 
 private:
 
 	TSharedPtr<SWindow> SecondWindow;
+	TSharedPtr<SViewport> Viewport;
+	SOverlay::FOverlaySlot* HUDWidgetOverlay;
 };

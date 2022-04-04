@@ -49,29 +49,25 @@ void USFExperimenterWindow::CreateWindow(FExperimenterViewConfig Config)
 
 	SlateApp.AddWindow(SecondWindow.ToSharedRef(), true);
 
+	// add the viewport of the primary window :-)
+	SecondWindow->SetContent(ASFHMDSpectatorHUDHelp::GetSceneViewport()->GetViewportWidget().Pin().ToSharedRef());
 
-		// Create Viewport Widget
-	TSharedPtr<SViewport> Viewport = SNew(SViewport)
-		.IsEnabled(true)
-		.EnableGammaCorrection(false)
-		.ShowEffectWhenDisabled(false)
-		.EnableBlending(true)
-		.ToolTip(SNew(SToolTip).Text(FText::FromString("ExperimenterViewport")));
-
-
-	// Create Scene Viewport
-	//TSharedPtr<FSceneViewport> SceneViewport = MakeShareable(ASFHMDSpectatorHUDHelp::GetSceneViewport());
-
-	// Assign SceneViewport to Viewport widget. It needed for rendering
-	//Viewport->SetViewportInterface(SceneViewport.ToSharedRef());
-
-	//SecondWindow->SetContent(Viewport.ToSharedRef());
+	//add overlay where we attach HUD widget to later on
+	HUDWidgetOverlay = &SecondWindow->AddOverlaySlot();
 }
 
 void USFExperimenterWindow::DestroyWindow()
 {
-	SecondWindow->DestroyWindowImmediately();
-	SecondWindow = nullptr;
+	SecondWindow->RequestDestroyWindow();
+	SecondWindow.Reset();
+	Viewport.Reset();
+
+}
+
+void USFExperimenterWindow::AddHUDWidget(TSharedRef<SWidget>& Widget)
+{
+	HUDWidgetOverlay->DetachWidget();
+	HUDWidgetOverlay->AttachWidget(Widget);
 }
 
 

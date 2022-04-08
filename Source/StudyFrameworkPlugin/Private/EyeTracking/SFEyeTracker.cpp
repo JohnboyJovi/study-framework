@@ -1,9 +1,8 @@
 #include "EyeTracking/SFEyeTracker.h"
 
+#include "SFGameInstance.h"
 #include "EyeTracking/SFGazeTarget.h"
 #include "Help/SFUtils.h"
-#include "Kismet/GameplayStatics.h"
-#include "KismetTraceUtils.h"
 
 #ifdef WITH_SRANIPAL
 #include "SRanipalEye_FunctionLibrary.h"
@@ -33,15 +32,20 @@ FGazeRay USFEyeTracker::GetGazeDirection()
 
 FString USFEyeTracker::GetCurrentGazeTarget()
 {
-	FVector Origin;
-	FVector Direction;
-	float Distance = 1000.0f;
-	USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, Origin, Direction);
+	FVector GazeOrigin;
+	FVector GazeDirection;
+	const float Distance = 1000.0f;
+	USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, GazeOrigin, GazeDirection);
+	//the gaze ray is relative to the HMD
+	const APlayerCameraManager* CamManager = USFGameInstance::Get()->GetWorld()->GetFirstPlayerController()->
+	                                                                 PlayerCameraManager;
+	const FVector CameraLocation = CamManager->GetCameraLocation();
+	const FRotator CameraRotation = CamManager->GetCameraRotation();
+	const FVector RayCastOrigin = CameraLocation;
+	const FVector RayCastEnd = (CameraRotation.RotateVector(GazeDirection) * Distance) + RayCastOrigin;
+
 	FHitResult HitResult;
-	//KismetSystemLibrary::LineTraceSingle(GetWorld(), Origin, Origin + Distance * Direction.GetSafeNormal(), EYE_TRACKING_TRACE_CHANNEL, false, {}, EDrawDebugTrace::Persistent, HitResult, true);
-	GetWorld()->LineTraceSingleByChannel(HitResult, Origin, Origin + Distance * Direction.GetSafeNormal(),
-		EYE_TRACKING_TRACE_CHANNEL);
-	DrawDebugLineTraceSingle(World, Start, End, DrawDebugType, bHit, OutHit, TraceColor, TraceHitColor, DrawTime);
+	GetWorld()->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, EYE_TRACKING_TRACE_CHANNEL);
 	if (HitResult.bBlockingHit)
 	{
 		//we hit something check whether it is one of our SFGazeTarget components
@@ -49,12 +53,6 @@ FString USFEyeTracker::GetCurrentGazeTarget()
 		if (GazeTarget)
 		{
 			return GazeTarget->TargetName;
-		}
-		else
-		{
-			FSFUtils::Log(
-				"[USFEyeTracker::GetCurrentGazeTarget] Gazing Test hit something in channel ECC_GameTraceChannel1, that is not a USFGazeTarget. Maybe double use of channel?",
-				true);
 		}
 	}
 	return "nothing";

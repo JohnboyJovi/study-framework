@@ -5,7 +5,7 @@
 
 #include "SFGazeTarget.generated.h"
 
-#define EYE_TRACKING_TRACE_CHANNEL ECC_GameTraceChannel3
+#define EYE_TRACKING_TRACE_CHANNEL ECC_GameTraceChannel4
 
 /*
  * This is a special Study Factor representing a maps/levels which are faded to

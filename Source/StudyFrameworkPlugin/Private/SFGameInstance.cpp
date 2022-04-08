@@ -44,6 +44,10 @@ void USFGameInstance::Init()
 void USFGameInstance::Shutdown()
 {
 	GoToConditionSyncedEvent.Detach();
+	if(ExperimenterWindow)
+	{
+		ExperimenterWindow->DestroyWindow();
+	}
 	Instance = nullptr;
 }
 
@@ -107,9 +111,7 @@ void USFGameInstance::OnWorldStart()
 
 	// else we started on an unrelated map and just disable the HUD, so people can test their stuff
 	bStartedOnUnrelatedMap = true;
-	FFadeConfig FadeConfig;
-	FadeConfig.bShowHUD = false;
-	InitFadeHandler(FadeConfig);
+	InitFadeHandler(FFadeConfig());
 	FadeHandler->FadeIn();
 	FSFUtils::Log(
 		"[USFGameInstance::OnWorldChanged] world started that neither contains exactly one SFStudySetup actor, nor is a level that is part of one of the conditions from the last study run!",
@@ -162,11 +164,18 @@ void USFGameInstance::InitFadeHandler(FFadeConfig FadeConfig)
 		FadeHandler = NewObject<USFFadeHandler>(GetTransientPackage(), "SFFadeHandler");
 		FadeHandler->AddToRoot();
 	}
+	FadeHandler->SetFadeConfig(FadeConfig);
+
 	if(bStartedOnUnrelatedMap)
 	{
-		FadeConfig.bShowHUD=false;
+		ExperimenterViewConfig.bShowHUD=false;
 	}
-	FadeHandler->SetFadeConfig(FadeConfig);
+	if(ExperimenterViewConfig.bShowExperimenterViewInSecondWindow)
+	{
+		ExperimenterWindow = NewObject<USFExperimenterWindow>(GetTransientPackage(), "ExperimenterWindow");
+		ExperimenterWindow->CreateWindow(ExperimenterViewConfig);
+	}
+	
 }
 
 void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
@@ -230,12 +239,16 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 		Participant->RecoverStudyResultsOfFinishedConditions();
 	}
 
+	ExperimenterViewConfig = StudySetup->ExperimenterViewConfig;
+
 	if (IsInitialized())
 	{
 		InitFadeHandler(Setup->FadeConfig);
 	}
 	UpdateHUD("Wait for Start");
+
 }
+
 
 
 // ****************************************************************** // 
@@ -456,6 +469,16 @@ USFEyeTracker* USFGameInstance::GetEyeTracker() const
 	return EyeTracker;
 }
 
+FExperimenterViewConfig USFGameInstance::GetExperimenterViewConfig() const
+{
+	return ExperimenterViewConfig;
+}
+
+USFExperimenterWindow* USFGameInstance::GetExperimenterWindow() const
+{
+	return ExperimenterWindow;
+}
+
 USFFadeHandler* USFGameInstance::GetFadeHandler()
 {
 	return FadeHandler;
@@ -488,7 +511,7 @@ void USFGameInstance::OnFadedIn()
 	Participant->GetCurrentCondition()->Begin();
 	Participant->LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
 
-	UpdateHUD("Condition Running");
+	UpdateHUD("Condition "+FString::FromInt(Participant->GetCurrentConditionNumber()+1)+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
 }
 
 USFParticipant* USFGameInstance::GetParticipant() const

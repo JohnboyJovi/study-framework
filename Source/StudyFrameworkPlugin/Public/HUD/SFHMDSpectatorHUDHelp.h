@@ -57,6 +57,8 @@ public:
 	UFUNCTION()
 	void OnMouseReleased();
 
+	static FSceneViewport* GetSceneViewport(bool bRequireStereo = false);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UWidgetComponent* WidgetComponent;

@@ -13,6 +13,8 @@
 
 #include "Events/DisplayClusterEventWrapper.h"
 
+#include "Widgets/SWindow.h"
+
 #include "SFGameInstance.generated.h"
 
 class USFFadeHandler;
@@ -114,6 +116,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ASFMasterHUD* GetHUD();
 
+	UFUNCTION(BlueprintCallable)
+	FExperimenterViewConfig GetExperimenterViewConfig() const;
+
+	UFUNCTION(BlueprintCallable)
+	USFExperimenterWindow* GetExperimenterWindow() const;
+
 	//this is used by the SFMasterHUD to store content between levels
 	FHUDSavedData HUDSavedData;
 
@@ -144,6 +152,10 @@ protected:
 	USFFadeHandler* FadeHandler = nullptr;
 	UPROPERTY()
 	ASFStudySetup* StudySetup;
+
+	UPROPERTY()
+	USFExperimenterWindow* ExperimenterWindow = nullptr;
+	FExperimenterViewConfig ExperimenterViewConfig;
 
 	// this is used if the study should not be started from the beginning
 	// e.g., when starting a map directly for debugging in the editor

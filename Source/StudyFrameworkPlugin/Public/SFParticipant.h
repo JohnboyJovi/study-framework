@@ -41,6 +41,7 @@ public:
 	USFCondition* GetCurrentCondition() const;
 	USFCondition* GetNextCondition() const;
 	const TArray<USFCondition*> GetAllConditions() const;
+	int GetCurrentConditionNumber() const;
 	int GetID() const;
 
 	// this method can be used to recover from a crash during the study

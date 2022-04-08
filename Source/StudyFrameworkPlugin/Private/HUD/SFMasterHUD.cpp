@@ -38,42 +38,48 @@ void ASFMasterHUD::BeginPlay()
 	//is called also every time the map is changed (a new condition is loaded)
 	Super::BeginPlay();
 
-	if(USFGameInstance::Get()->GetFadeHandler() && !USFGameInstance::Get()->GetFadeHandler()->GetFadeConfig().bShowHUD)
+	if(!USFGameInstance::Get()->GetExperimenterViewConfig().bShowHUD)
 	{
 		return;
 	}
 
-	if (SFWidgetClass)
+	if (!SFWidgetClass)
 	{
-		HMDHUDHelper = nullptr;
-		if (UVirtualRealityUtilities::IsHeadMountedMode())
-		{
-			HMDHUDHelper = Cast<ASFHMDSpectatorHUDHelp>(
-				GetWorld()->SpawnActor(ASFHMDSpectatorHUDHelp::StaticClass()));
-			HUDWidget = Cast<USFHUDWidget>(HMDHUDHelper->CreateWidget(SFWidgetClass));
-		}
-		else if (UVirtualRealityUtilities::IsMaster())
-		{
-			HUDWidget = CreateWidget<USFHUDWidget>(GetWorld(), SFWidgetClass);
-		}
-
-		if (HUDWidget)
-		{
-			if (HMDHUDHelper)
-			{
-				UHeadMountedDisplayFunctionLibrary::SetSpectatorScreenMode(ESpectatorScreenMode::TexturePlusEye);
-				UHeadMountedDisplayFunctionLibrary::SetSpectatorScreenModeTexturePlusEyeLayout(
-					FVector2D(0, 0), FVector2D(1, 1), FVector2D(0, 0), FVector2D(1, 1), true, false, true);
-			}
-			else
-			{
-				HUDWidget->AddToViewport();
-			}
-		}
+		return;
 	}
 
-	if (!HUDWidget)
-		return;
+	HMDHUDHelper = nullptr;
+	if (UVirtualRealityUtilities::IsHeadMountedMode())
+	{
+		HMDHUDHelper = Cast<ASFHMDSpectatorHUDHelp>(
+			GetWorld()->SpawnActor(ASFHMDSpectatorHUDHelp::StaticClass()));
+		HUDWidget = Cast<USFHUDWidget>(HMDHUDHelper->CreateWidget(SFWidgetClass));
+	}
+	else if (UVirtualRealityUtilities::IsMaster())
+	{
+		HUDWidget = CreateWidget<USFHUDWidget>(GetWorld(), SFWidgetClass);
+	}
+
+	if (HUDWidget)
+	{
+		if (HMDHUDHelper)
+		{
+			UHeadMountedDisplayFunctionLibrary::SetSpectatorScreenMode(ESpectatorScreenMode::TexturePlusEye);
+			UHeadMountedDisplayFunctionLibrary::SetSpectatorScreenModeTexturePlusEyeLayout(
+				FVector2D(0, 0), FVector2D(1, 1), FVector2D(0, 0), FVector2D(1, 1), true, false, true);
+		}
+		else if (USFGameInstance::Get()->GetExperimenterViewConfig().bShowExperimenterViewInSecondWindow)
+		{
+			TSharedRef<SWidget> SlateWidget = HUDWidget->TakeWidget();
+			USFGameInstance::Get()->GetExperimenterWindow()->AddHUDWidget(SlateWidget);
+		}
+		else
+		{
+			HUDWidget->AddToViewport();
+		}
+	}
+	
+
 
 	FHUDSavedData& Data = USFGameInstance::Get()->HUDSavedData;
 
@@ -100,6 +106,11 @@ void ASFMasterHUD::BeginPlay()
 	HUDWidget->GetStartButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnStartButtonPressed);
 	HUDWidget->GetNextButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnNextButtonPressed);
 	HUDWidget->GetShowConditionsButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnShowConditionsButtonPressed);
+
+	if(USFGameInstance::Get()->GetExperimenterViewConfig().bShowConditionsPanelByDefault)
+	{
+		OnShowConditionsButtonPressed();
+	}
 }
 
 void ASFMasterHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)

@@ -43,7 +43,8 @@ public class StudyFrameworkPlugin : ModuleRules
                 "JsonUtilities",
                 "Networking",
                 "UMG",
-                "HeadMountedDisplay"
+                "HeadMountedDisplay",
+                "SlateCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

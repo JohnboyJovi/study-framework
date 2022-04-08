@@ -194,6 +194,11 @@ const TArray<USFCondition*> USFParticipant::GetAllConditions() const
 	return Conditions;
 }
 
+int USFParticipant::GetCurrentConditionNumber() const
+{
+	return CurrentConditionIdx;
+}
+
 int USFParticipant::GetID() const
 {
 	return ParticipantID;

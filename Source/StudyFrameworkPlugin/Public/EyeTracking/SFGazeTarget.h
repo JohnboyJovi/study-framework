@@ -11,7 +11,7 @@
  * This is a special Study Factor representing a maps/levels which are faded to
  */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class STUDYFRAMEWORKPLUGIN_API USFGazeTarget : public USceneComponent
+class STUDYFRAMEWORKPLUGIN_API USFGazeTarget : public USphereComponent
 {
 	GENERATED_BODY()
 
@@ -21,8 +21,4 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	FString TargetName = "UndefinedTarget";
-
-private:
-	UPROPERTY()
-	USphereComponent* Collision;
 };

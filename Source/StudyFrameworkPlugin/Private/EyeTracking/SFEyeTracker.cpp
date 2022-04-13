@@ -36,16 +36,27 @@ FString USFEyeTracker::GetCurrentGazeTarget()
 	FVector GazeDirection;
 	const float Distance = 1000.0f;
 	USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, GazeOrigin, GazeDirection);
+
+	//todo remove before flight
+	//GazeDirection = FVector(1,0,0);
+
+	UWorld* World = USFGameInstance::Get()->GetWorld();
+
 	//the gaze ray is relative to the HMD
-	const APlayerCameraManager* CamManager = USFGameInstance::Get()->GetWorld()->GetFirstPlayerController()->
+	const APlayerCameraManager* CamManager = World->GetFirstPlayerController()->
 	                                                                 PlayerCameraManager;
 	const FVector CameraLocation = CamManager->GetCameraLocation();
 	const FRotator CameraRotation = CamManager->GetCameraRotation();
 	const FVector RayCastOrigin = CameraLocation;
 	const FVector RayCastEnd = (CameraRotation.RotateVector(GazeDirection) * Distance) + RayCastOrigin;
 
+	FSFUtils::Log("Cast Ray from "+RayCastOrigin.ToString()+" to "+RayCastEnd.ToString());
+
 	FHitResult HitResult;
-	GetWorld()->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, EYE_TRACKING_TRACE_CHANNEL);
+	World->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, EYE_TRACKING_TRACE_CHANNEL);
+
+	FHitResult HitResult2; //only used so we also see the trace
+	UKismetSystemLibrary::LineTraceSingle(World, RayCastOrigin, RayCastEnd, ETraceTypeQuery::TraceTypeQuery4,false, {}, EDrawDebugTrace::ForDuration, HitResult2, true);
 	if (HitResult.bBlockingHit)
 	{
 		//we hit something check whether it is one of our SFGazeTarget components

@@ -37,7 +37,7 @@ FString USFEyeTracker::GetCurrentGazeTarget()
 	const float Distance = 1000.0f;
 	USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, GazeOrigin, GazeDirection);
 
-	//todo remove before flight
+	//use if no I tracker is present so that we always "look ahead"
 	//GazeDirection = FVector(1,0,0);
 
 	UWorld* World = USFGameInstance::Get()->GetWorld();
@@ -50,13 +50,12 @@ FString USFEyeTracker::GetCurrentGazeTarget()
 	const FVector RayCastOrigin = CameraLocation;
 	const FVector RayCastEnd = (CameraRotation.RotateVector(GazeDirection) * Distance) + RayCastOrigin;
 
-	FSFUtils::Log("Cast Ray from "+RayCastOrigin.ToString()+" to "+RayCastEnd.ToString());
+	//FSFUtils::Log("Cast Ray from "+RayCastOrigin.ToString()+" to "+RayCastEnd.ToString());
 
 	FHitResult HitResult;
 	World->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, EYE_TRACKING_TRACE_CHANNEL);
 
-	FHitResult HitResult2; //only used so we also see the trace
-	UKismetSystemLibrary::LineTraceSingle(World, RayCastOrigin, RayCastEnd, ETraceTypeQuery::TraceTypeQuery4,false, {}, EDrawDebugTrace::ForDuration, HitResult2, true);
+
 	if (HitResult.bBlockingHit)
 	{
 		//we hit something check whether it is one of our SFGazeTarget components

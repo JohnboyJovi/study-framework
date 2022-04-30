@@ -9,7 +9,7 @@
 #include "SFStudySetup.h"
 #include "SFParticipant.h"
 #include "HUD/SFMasterHUD.h"
-#include "EyeTracking/SFEyeTracker.h"
+#include "GazeTracking/SFGazeTracker.h"
 
 #include "Events/DisplayClusterEventWrapper.h"
 
@@ -86,7 +86,7 @@ public:
 	FOnFadedInDelegate OnFadedInDelegate;
 
 	UFUNCTION(BlueprintCallable)
-	USFEyeTracker* GetEyeTracker() const;
+	USFGazeTracker* GetGazeTracker() const;
 
 
 	// ****************************************************************** // 
@@ -176,6 +176,6 @@ protected:
 	bool bStartedOnUnrelatedMap = false;
 	
 	UPROPERTY()
-	USFEyeTracker* EyeTracker;
+	USFGazeTracker* GazeTracker;
 };
 

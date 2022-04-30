@@ -1,26 +1,41 @@
-#include "EyeTracking/SFEyeTracker.h"
+#include "GazeTracking/SFGazeTracker.h"
 
 #include "SFGameInstance.h"
-#include "EyeTracking/SFGazeTarget.h"
+#include "GazeTracking/SFGazeTarget.h"
 #include "Help/SFUtils.h"
 
 #ifdef WITH_SRANIPAL
 #include "SRanipalEye_FunctionLibrary.h"
+#include "Eye/SRanipal_API_Eye.h"
+#include "SRanipal_API.h"
 #endif
 
 
-void USFEyeTracker::Init()
+void USFGazeTracker::Init()
 {
+	bIsStarted = false;
 #ifdef WITH_SRANIPAL
 	//FSFUtils::OpenMessageBox("SRanipal Plugin found!", false);
-	USRanipalEye_FunctionLibrary::StartEyeFramework(SupportedEyeVersion::version2);
+	if(ViveSR::anipal::Eye::IsViveProEye())
+	{
+		USRanipalEye_FunctionLibrary::StartEyeFramework(SupportedEyeVersion::version2);
+		bIsStarted = true;
+	}
+	FSFUtils::OpenMessageBox("[USFGazeTracker::Init] USFGazeTracker currently only works with Vive Pro Eye", true);
 #else
 	FSFUtils::OpenMessageBox("SRanipal Plugin is not present, cannot use eye tracking! Check out, e.g., StudyFramework Wiki where to get it", true);
 #endif
 }
 
-FGazeRay USFEyeTracker::GetGazeDirection()
+FGazeRay USFGazeTracker::GetGazeDirection()
 {
+	if(!IsTracking())
+	{
+		FGazeRay GazeRay;
+		GazeRay.Origin = FVector::ZeroVector;
+		GazeRay.Direction = FVector::ForwardVector;;
+		return GazeRay;
+	}
 	FVector Origin;
 	FVector Direction;
 	USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, Origin, Direction);
@@ -30,8 +45,13 @@ FGazeRay USFEyeTracker::GetGazeDirection()
 	return GazeRay;
 }
 
-FString USFEyeTracker::GetCurrentGazeTarget()
+FString USFGazeTracker::GetCurrentGazeTarget()
 {
+	if(!IsTracking())
+	{
+		return "";
+	}
+
 	FVector GazeOrigin;
 	FVector GazeDirection;
 	const float Distance = 1000.0f;
@@ -65,5 +85,19 @@ FString USFEyeTracker::GetCurrentGazeTarget()
 			return GazeTarget->TargetName;
 		}
 	}
-	return "nothing";
+	return "";
+}
+
+FString USFGazeTracker::LaunchCalibration()
+{
+	//TODO: not tested yet!
+	ViveSR::anipal::Eye::LaunchEyeCalibration(nullptr);
+}
+
+bool USFGazeTracker::IsTracking()
+{
+	//TODO: maybe use
+	//ViveSR::anipal::AnipalStatus Status;
+	//int Error = ViveSR::anipal::GetStatus(ViveSR::anipal::Eye::ANIPAL_TYPE_EYE_V2, &Status);
+	return bIsStarted;
 }

@@ -11,25 +11,31 @@
 #endif
 
 
-void USFGazeTracker::Init()
+void USFGazeTracker::Init(EGazeTrackerMode Mode)
 {
-	bIsStarted = false;
-#ifdef WITH_SRANIPAL
+	bEyeTrackingStarted = false;
 	//FSFUtils::OpenMessageBox("SRanipal Plugin found!", false);
-	if(ViveSR::anipal::Eye::IsViveProEye())
+	if(Mode == EGazeTrackerMode::EyeTracking)
 	{
-		USRanipalEye_FunctionLibrary::StartEyeFramework(SupportedEyeVersion::version2);
-		bIsStarted = true;
-	}
-	FSFUtils::OpenMessageBox("[USFGazeTracker::Init] USFGazeTracker currently only works with Vive Pro Eye", true);
+#ifdef WITH_SRANIPAL
+		if(ViveSR::anipal::Eye::IsViveProEye())
+		{
+			USRanipalEye_FunctionLibrary::StartEyeFramework(SupportedEyeVersion::version2);
+			bEyeTrackingStarted = true;
+		}
+		else
+		{
+			USFGameInstance::Get()->LogComment("No Vive Pro Eye present, use head rotation only for gaze tracking.");
+		}
 #else
-	FSFUtils::OpenMessageBox("SRanipal Plugin is not present, cannot use eye tracking! Check out, e.g., StudyFramework Wiki where to get it", true);
+		FSFUtils::OpenMessageBox("SRanipal Plugin is not present, cannot use eye tracking! Check out, e.g., StudyFramework Wiki where to get it", true);
 #endif
+	}
 }
 
 FGazeRay USFGazeTracker::GetGazeDirection()
 {
-	if(!IsTracking())
+	if(!IsTrackingEyes())
 	{
 		FGazeRay GazeRay;
 		GazeRay.Origin = FVector::ZeroVector;
@@ -38,7 +44,9 @@ FGazeRay USFGazeTracker::GetGazeDirection()
 	}
 	FVector Origin;
 	FVector Direction;
+#ifdef WITH_SRANIPAL
 	USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, Origin, Direction);
+#endif
 	FGazeRay GazeRay;
 	GazeRay.Origin = Origin;
 	GazeRay.Direction = Direction;
@@ -47,18 +55,12 @@ FGazeRay USFGazeTracker::GetGazeDirection()
 
 FString USFGazeTracker::GetCurrentGazeTarget()
 {
-	if(!IsTracking())
-	{
-		return "";
-	}
-
-	FVector GazeOrigin;
-	FVector GazeDirection;
+	FString GazedAtTarget = "";
 	const float Distance = 1000.0f;
-	USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, GazeOrigin, GazeDirection);
 
-	//use if no I tracker is present so that we always "look ahead"
-	//GazeDirection = FVector(1,0,0);
+	FGazeRay GazeRay = GetGazeDirection();
+	// if no eye tracker is used we always "look ahead"
+	// GazeDirection = FVector(1,0,0);
 
 	UWorld* World = USFGameInstance::Get()->GetWorld();
 
@@ -67,8 +69,8 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 	                                                                 PlayerCameraManager;
 	const FVector CameraLocation = CamManager->GetCameraLocation();
 	const FRotator CameraRotation = CamManager->GetCameraRotation();
-	const FVector RayCastOrigin = CameraLocation;
-	const FVector RayCastEnd = (CameraRotation.RotateVector(GazeDirection) * Distance) + RayCastOrigin;
+	const FVector RayCastOrigin = CameraLocation + CameraRotation.RotateVector(GazeRay.Origin);
+	const FVector RayCastEnd = (CameraRotation.RotateVector(GazeRay.Direction) * Distance) + RayCastOrigin;
 
 	//FSFUtils::Log("Cast Ray from "+RayCastOrigin.ToString()+" to "+RayCastEnd.ToString());
 
@@ -88,16 +90,20 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 	return "";
 }
 
-FString USFGazeTracker::LaunchCalibration()
+void USFGazeTracker::LaunchCalibration()
 {
+#ifdef WITH_SRANIPAL
 	//TODO: not tested yet!
 	ViveSR::anipal::Eye::LaunchEyeCalibration(nullptr);
+#endif
 }
 
-bool USFGazeTracker::IsTracking()
+bool USFGazeTracker::IsTrackingEyes()
 {
 	//TODO: maybe use
+	//#ifdef WITH_SRANIPAL
 	//ViveSR::anipal::AnipalStatus Status;
 	//int Error = ViveSR::anipal::GetStatus(ViveSR::anipal::Eye::ANIPAL_TYPE_EYE_V2, &Status);
-	return bIsStarted;
+	//#endif
+	return bEyeTrackingStarted;
 }

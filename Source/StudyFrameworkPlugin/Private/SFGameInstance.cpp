@@ -290,10 +290,10 @@ bool USFGameInstance::StartStudy()
 	}
 
 	//check whether we want to use the eye tracker
-	if(StudySetup && StudySetup->bUseEyeTracker)
+	if(StudySetup && StudySetup->UseGazeTracker != EGazeTrackerMode::NotTracking)
 	{
-		EyeTracker = NewObject<USFEyeTracker>(this, TEXT("EyeTracker"));
-		EyeTracker->Init();
+		GazeTracker = NewObject<USFGazeTracker>(this, TEXT("GazeTracker"));
+		GazeTracker->Init(StudySetup->UseGazeTracker);
 	}
 
 	return true;
@@ -464,9 +464,9 @@ ASFMasterHUD* USFGameInstance::GetHUD()
 	return nullptr;
 }
 
-USFEyeTracker* USFGameInstance::GetEyeTracker() const
+USFGazeTracker* USFGameInstance::GetGazeTracker() const
 {
-	return EyeTracker;
+	return GazeTracker;
 }
 
 FExperimenterViewConfig USFGameInstance::GetExperimenterViewConfig() const

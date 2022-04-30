@@ -159,7 +159,10 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 
 	Json->SetObjectField("FadeConfig", FadeConfig.GetAsJson());
 	Json->SetObjectField("ExperimenterViewConfig", ExperimenterViewConfig.GetAsJson());
-	Json->SetBoolField("UseEyeTracker", bUseEyeTracker);
+	if(UseGazeTracker == EGazeTrackerMode::NotTracking) Json->SetStringField("UseGazeTracker", "NotTracking");
+	if(UseGazeTracker == EGazeTrackerMode::HeadRotationOnly) Json->SetStringField("UseGazeTracker", "HeadRotationOnly");
+	if(UseGazeTracker == EGazeTrackerMode::EyeTracking) Json->SetStringField("UseGazeTracker", "EyeTracking");
+	
 
 	return Json;
 }
@@ -176,7 +179,10 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 	}
 	FadeConfig.FromJson(Json->GetObjectField("FadeConfig"));
 	ExperimenterViewConfig.FromJson(Json->GetObjectField("ExperimenterViewConfig"));
-	bUseEyeTracker = Json->GetBoolField("UseEyeTracker");
+
+	if(Json->GetStringField("UseGazeTracker") == "NotTracking") UseGazeTracker = EGazeTrackerMode::NotTracking;
+	if(Json->GetStringField("UseGazeTracker") == "HeadRotationOnly") UseGazeTracker = EGazeTrackerMode::HeadRotationOnly;
+	if(Json->GetStringField("UseGazeTracker") == "EyeTracking") UseGazeTracker = EGazeTrackerMode::EyeTracking;
 }
 
 void ASFStudySetup::LoadFromJson()

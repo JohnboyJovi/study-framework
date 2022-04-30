@@ -1,4 +1,4 @@
-#include "EyeTracking/SFGazeTarget.h"
+#include "GazeTracking/SFGazeTarget.h"
 
 void USFGazeTarget::OnComponentCreated()
 {

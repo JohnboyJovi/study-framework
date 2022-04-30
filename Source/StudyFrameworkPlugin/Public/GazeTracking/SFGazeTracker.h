@@ -4,6 +4,14 @@
 
 #include "SFGazeTracker.generated.h"
 
+UENUM()
+enum class EGazeTrackerMode : uint8
+{
+	NotTracking,
+	HeadRotationOnly,
+	EyeTracking
+};
+
 USTRUCT(BlueprintType)
 struct FGazeRay
 {
@@ -20,9 +28,9 @@ class STUDYFRAMEWORKPLUGIN_API USFGazeTracker : public UObject
 	GENERATED_BODY()
 
 public:
-	void Init();
+	void Init(EGazeTrackerMode Mode);
 
-	//returns pair of Origin and Direction
+	//returns pair of Origin and Direction, relative to the head!
 	UFUNCTION(BlueprintCallable)
 	FGazeRay GetGazeDirection();
 
@@ -31,12 +39,12 @@ public:
 	FString GetCurrentGazeTarget();
 
 	UFUNCTION(BlueprintCallable)
-	FString LaunchCalibration();
+	void LaunchCalibration();
 
 	UFUNCTION(BlueprintCallable)
-	bool IsTracking();
+	bool IsTrackingEyes();
 
 private:
 
-	bool bIsStarted = false;
+	bool bEyeTrackingStarted = false;
 };

@@ -1,5 +1,17 @@
 #include "GazeTracking/SFGazeTarget.h"
 
+const FString USFGazeTarget::GetTargetName() const
+{
+	if(bUseActorName)
+	{
+		return GetOwner()->GetName();
+	}
+	else
+	{
+		return TargetName;
+	}
+}
+
 void USFGazeTarget::OnComponentCreated()
 {
 	Super::OnComponentCreated();

@@ -2,6 +2,7 @@
 
 #include "SFGameInstance.h"
 #include "GazeTracking/SFGazeTarget.h"
+#include "GazeTracking/SFGazeTargetActor.h"
 #include "Help/SFUtils.h"
 
 #ifdef WITH_SRANIPAL
@@ -80,11 +81,21 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 
 	if (HitResult.bBlockingHit)
 	{
-		//we hit something check whether it is one of our SFGazeTarget components
-		USFGazeTarget* GazeTarget = Cast<USFGazeTarget>(HitResult.Component);
+		//we hit something check whether the hit component is one of our SFGazeTarget components
+		USFGazeTarget* GazeTarget = Cast<USFGazeTarget>(HitResult.GetComponent());
 		if (GazeTarget)
 		{
-			return GazeTarget->TargetName;
+			return GazeTarget->GetTargetName();
+		}
+
+		//otherwise the whole actor might be a target:
+		if(HitResult.GetActor())
+		{
+			USFGazeTargetActor* GazeTargetActor = Cast<USFGazeTargetActor>(HitResult.GetActor()->GetComponentByClass(USFGazeTargetActor::StaticClass()));
+			if (GazeTargetActor)
+			{
+				return GazeTargetActor->GetTargetName();
+			}
 		}
 	}
 	return "";

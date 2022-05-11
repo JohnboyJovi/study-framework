@@ -77,10 +77,6 @@ public class StudyFrameworkPlugin : ModuleRules
             PrivateDefinitions.Add("WITH_SRANIPAL");
             PrivateDependencyModuleNames.AddRange(new string[] {"SRanipal", "SRanipalEye" });
         }
-        else
-        {
-            PrivateDefinitions.Add("SRANIPAL_PLUGINS_DIR="+PluginsPath);
-        }
         
 	}
 }

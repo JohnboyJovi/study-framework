@@ -52,7 +52,7 @@ void USFHUDWidget::AddLogMessage(const FString& Text)
 	if (!Text.IsEmpty())
 		LogMessages.Add(Text);
 
-	while (LogMessages.Num() > 7)
+	while (LogMessages.Num() > MaxNumberShownLogMessages)
 		LogMessages.RemoveAt(0);
 
 	FString LogString = "";

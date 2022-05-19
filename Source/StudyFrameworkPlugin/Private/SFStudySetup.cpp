@@ -13,6 +13,7 @@ ASFStudySetup::ASFStudySetup()
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
 
+
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
 	if (SpriteComponent)

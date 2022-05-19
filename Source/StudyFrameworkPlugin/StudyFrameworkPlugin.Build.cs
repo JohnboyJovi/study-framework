@@ -56,7 +56,8 @@ public class StudyFrameworkPlugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                "UniversalLogging"
+                "UniversalLogging",
+				"DisplayCluster"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

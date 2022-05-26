@@ -1,4 +1,4 @@
-#include "SFLogObject.h"
+#include "Logging/SFLogObject.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "IDisplayCluster.h"
@@ -25,6 +25,7 @@ void USFLogObject::AddActors(TArray<AActor*> ActorArray, int32 LogTimer) {
 }
 
 void USFLogObject::Initialize() {
+	// so nicht mehr -> "ismaster" o.ä. bzw. in universal logging schon implementiert (?)
 	if (FModuleManager::Get().IsModuleLoaded("nDisplay")
 		&& IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster) { // Cave
 		LogThis = IDisplayCluster::Get().GetClusterMgr()->GetNodeId().Equals(TEXT("node_main"));

@@ -2,19 +2,19 @@
 
 
 #include "Logging/SFLoggingBPLibrary.h"
-// #include "SFPlugin.h"
-// #include "Logging/SFLogObject.h"
-// #include "Misc/FileHelper.h"
-//
-// void USFLoggingBPLibrary::LogToFile() {
-// 	if (!(FModuleManager::Get().IsModuleLoaded("LoggingPlugin"))) {
-// 		return;
-// 	}
-// 	FSFPlugin& SFPluginModule = FModuleManager::GetModuleChecked<FSFPlugin>("SFLogging");
-// 	USFLogObject* Instance = SFPluginModule.GetInstance();
-// 	if (Instance->LogThis == false) {
-// 		return;
-// 	}
+ #include "SFPlugin.h"
+ #include "Logging/SFLogObject.h"
+ #include "Misc/FileHelper.h"
+
+ void USFLoggingBPLibrary::LogToFile() {
+ 	//if (!(FModuleManager::Get().IsModuleLoaded("StudyFrameworkPlugin"))) {
+ 	//	return;
+ 	//}
+ 	//FSFPilugin& SFPluginModule = FModuleManager::GetModuleChecked<FSFPlugin>("StudyFrameworkPlugin");
+  //  USFLogObject* Instance = SFPluginModule.GetInstance();
+ 	//if (Instance->LogThis == false) {
+ 	//	return;
+ 	//}
 // 	for (auto& ActorLoggingInfo : SFPluginModule.GetInstance()->LoggingInfo) {
 // 		if (ActorLoggingInfo.LogNextTick == true) {
 // 			ActorLoggingInfo.LogNextTick = false;
@@ -48,4 +48,4 @@
 // 			ActorLoggingInfo.LogNextTick = true;
 // 		}
 // 	}
-// }
+ }

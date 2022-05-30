@@ -14,6 +14,6 @@ class STUDYFRAMEWORKPLUGIN_API USFLoggingBPLibrary : public UBlueprintFunctionLi
 {
 	GENERATED_BODY()
 
-		// UFUNCTION(BlueprintCallable, meta = (DisplayName = "Log To File", Keywords = "SFLogging"), Category = "SFLoggingCAT")
-		// static void LogToFile();
+		 UFUNCTION(BlueprintCallable, meta = (DisplayName = "Log To File", Keywords = "SFLogging"), Category = "SFLogging")
+		 static void LogToFile();
 };

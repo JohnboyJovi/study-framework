@@ -22,15 +22,15 @@ public:
 		TimeStorage = FDateTime::Now();
 	}
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	int32 LogTimer;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	bool LogNextTick;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	AActor* ActorToLog;
 	// eventually, other UObjects like components should be able to be tracked as well,
 	// so this should be a UObject instead. Or the function needs to be overloaded to allow dif object types.
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	FString LogName;
 	UPROPERTY()
 	FDateTime TimeStorage;
@@ -47,7 +47,8 @@ private:
 	USFLogObject();
 
 public:
-	TArray<FActorLoggingInformation> LoggingInfo;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		TArray<FActorLoggingInformation> LoggingInfo;
 	FDateTime StaticDateTime;
 	FString LogDir = "";
 	bool LogThis = false;

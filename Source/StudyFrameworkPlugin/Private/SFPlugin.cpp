@@ -1,7 +1,8 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
-#include "SFPlugin.h"
+#pragma once
 
+#include "SFPlugin.h"
 #include "Help/SFUtils.h"
 #include "SFGameInstance.h"
 

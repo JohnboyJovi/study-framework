@@ -25,17 +25,18 @@ void USFLogObject::AddActors(TArray<AActor*> ActorArray, int32 LogTimer) {
 
 void USFLogObject::Initialize() {
 	// so nicht mehr -> "ismaster" o.ä. bzw. in universal logging schon implementiert (?)
-	if (FModuleManager::Get().IsModuleLoaded("nDisplay")
-		&& IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster) { // Cave
-		LogThis = IDisplayCluster::Get().GetClusterMgr()->GetNodeId().Equals(TEXT("node_main"));
-	}
-	else { // Desktop oder HMD
-		LogThis = true;
-	}
-	StaticDateTime = FDateTime::Now();
+	//if (FModuleManager::Get().IsModuleLoaded("nDisplay")
+	//	&& IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster) { // Cave
+	//	LogThis = IDisplayCluster::Get().GetClusterMgr()->GetNodeId().Equals(TEXT("node_main"));
+	//}
+	//else { // Desktop oder HMD
+	//	LogThis = true;
+	//}
+	/*StaticDateTime = FDateTime::Now();
 	ProbandID = 0;
 	LoggingInfo.SetNum(0, true);
-	SetUpLogDir();
+	SetUpLogDir();*/
+	UE_LOG(LogTemp, Warning , TEXT("Initialised LogObject"));
 }
 
 void USFLogObject::SetUpLogDir() {

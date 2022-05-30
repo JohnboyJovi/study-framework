@@ -12,7 +12,10 @@ ASFStudySetup::ASFStudySetup()
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
-
+	USFLogObject* myLogObject = CreateDefaultSubobject<USFLogObject>(TEXT("SFLogObject"));
+	LogObject = myLogObject;
+	LogObject->Initialize();
+	ActorsToLog = LogObject->LoggingInfo;
 
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));

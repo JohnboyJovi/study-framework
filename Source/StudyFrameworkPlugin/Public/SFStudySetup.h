@@ -7,6 +7,7 @@
 #include "SFStudyPhase.h"
 #include "HUD/SFFadeHandler.h"
 #include "HUD/SFExperimenterWindow.h"
+#include "Logging/SFLogObject.h"
 
 #include "SFStudySetup.generated.h"
 
@@ -40,7 +41,7 @@ public:
 	bool CheckPhases() const;
 
 	//This methods generates NrOfRunsToGenerate study runs and puts them into StudyFrame/StudyRuns
-	//it can be used to chek randomization etc. manually to see what participant sees which conditions
+	//it can be used to check randomization etc. manually to see what participant sees which conditions
 	UFUNCTION(CallInEditor, Category = "Study Setup Debug")
 	void GenerateTestStudyRuns() const;
 	UPROPERTY(EditAnywhere, Category = "Study Setup Debug")
@@ -96,6 +97,15 @@ protected:
 
 	// Icon sprite
 	UPROPERTY()
-	UTexture2D* SpriteTexture;;
+	UTexture2D* SpriteTexture;
+
+	// Create LogObject that will contain all settings and functions necessary for logging
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Instanced)
+		USFLogObject* LogObject;
+
+	// This is initialized as the array contained within the above LogObject,
+	// linking it directly into the "Details"-tab of the StudySetup-Actor
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (TitleProperty = "LogName", Category = "SFLogging"))
+		TArray<FActorLoggingInformation> ActorsToLog;
 
 };

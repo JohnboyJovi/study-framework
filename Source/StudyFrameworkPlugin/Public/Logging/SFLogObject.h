@@ -21,18 +21,14 @@ public:
 		this->LogName = LogName;
 		TimeStorage = FDateTime::Now();
 	}
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	int32 LogTimer;
-	UPROPERTY(EditAnywhere)
 	bool LogNextTick;
-	UPROPERTY(EditAnywhere)
-	AActor* ActorToLog;
 	// eventually, other UObjects like components should be able to be tracked as well,
-	// so this should be a UObject instead. Or the function needs to be overloaded to allow dif object types.
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	AActor* ActorToLog;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FString LogName;
-	UPROPERTY()
 	FDateTime TimeStorage;
 };
 
@@ -47,7 +43,7 @@ private:
 	USFLogObject();
 
 public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta=(TitleProperty = "LogName"))
 		TArray<FActorLoggingInformation> LoggingInfo;
 	FDateTime StaticDateTime;
 	FString LogDir = "";

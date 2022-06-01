@@ -32,10 +32,10 @@ void USFLogObject::Initialize() {
 	//else { // Desktop oder HMD
 	//	LogThis = true;
 	//}
-	/*StaticDateTime = FDateTime::Now();
+	StaticDateTime = FDateTime::Now();
 	ProbandID = 0;
 	LoggingInfo.SetNum(0, true);
-	SetUpLogDir();*/
+	//SetUpLogDir();
 	UE_LOG(LogTemp, Warning , TEXT("Initialised LogObject"));
 }
 

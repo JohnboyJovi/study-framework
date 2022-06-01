@@ -77,6 +77,20 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
 	void LoadFromJson();
 
+	// Actor, that should be added to the logging
+	UPROPERTY(EditAnywhere, meta = (Category = "SFLogging"))
+		AActor* ActorToAdd;
+	// What even is this?
+	UPROPERTY(EditAnywhere, meta = (Category = "SFLogging"))
+		int32 LogTimer = 0;
+	// Name that will show up in the logs
+	// Leave blank for object ID-name to be used
+	UPROPERTY(EditAnywhere, meta = (Category = "SFLogging"))
+		FString LogName;
+	UFUNCTION(CallInEditor, meta = (Category = "SFLogging"))
+		void AddActor();
+	
+
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
@@ -105,7 +119,7 @@ protected:
 
 	// This is initialized as the array contained within the above LogObject,
 	// linking it directly into the "Details"-tab of the StudySetup-Actor
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (TitleProperty = "LogName", Category = "SFLogging"))
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (TitleProperty = "LogName", Category = "SFLogging"))
 		TArray<FActorLoggingInformation> ActorsToLog;
 
 };

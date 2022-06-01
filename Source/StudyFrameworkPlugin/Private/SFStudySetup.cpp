@@ -3,6 +3,7 @@
 #include "SFGameInstance.h"
 #include "HAL/FileManagerGeneric.h"
 #include "Help/SFUtils.h"
+#include "Logging/SFLogObject.h"
 
 
 ASFStudySetup::ASFStudySetup()
@@ -206,4 +207,21 @@ bool ASFStudySetup::ContainsNullptrInArrays()
 		}
 	}
 	return false;
+}
+
+void ASFStudySetup::AddActor()
+{
+	if (ASFStudySetup::ActorToAdd == nullptr)
+	{
+		return;
+	}
+	if (LogName == "")
+	{
+		LogName = ActorToAdd->GetName();
+	}
+	LogObject->AddActorWithName(ActorToAdd, LogTimer, LogName);
+	ActorToAdd = nullptr;
+	LogTimer = 0;
+	LogName = "";
+	ActorsToLog = LogObject->LoggingInfo;
 }

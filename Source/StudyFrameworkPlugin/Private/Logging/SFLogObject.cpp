@@ -39,11 +39,6 @@ void USFLogObject::AddActors(TArray<AActor*> ActorArray, int32 LogTimer) {
 
 FActorLoggingInformation* USFLogObject::GetEntryByActor(const AActor* Actor)
 {
-	/*if(!Actor)
-	{
-		return nullptr;
-	}
-	return LoggingInfo.FindByKey(Actor);*/
 	for (int i = 0; i<LoggingInfo.Num(); i++)
 	{
 		if(LoggingInfo[i].ActorToLog == Actor)
@@ -78,7 +73,6 @@ void USFLogObject::Initialize() {
 	ProbandID = 0;
 	LoggingInfo.SetNum(0, true);
 	//SetUpLogDir();
-	UE_LOG(LogTemp, Display , TEXT("Initialised LogObject"));
 }
 
 void USFLogObject::SetUpLogDir() {

@@ -220,7 +220,6 @@ void ASFStudySetup::AddActor()
 		LogName = Actor->GetName();
 	}
 	LogObject->AddActorWithName(Actor, LogTimer, LogName);
-	UE_LOG(LogTemp, Display, TEXT("Added Actor %s to ActorsToLog"), *LogName);
 	ActorsToLog = LogObject->LoggingInfo;	
 }
 
@@ -232,6 +231,5 @@ void ASFStudySetup::RemoveActor()
 	}
 	LogObject->GetEntryByActor(Actor);
 	LogObject->RemoveEntryByActor(Actor);
-	UE_LOG(LogTemp, Display, TEXT("Removed Actor %s from ActorsToLog"), *LogName);
 	ActorsToLog = LogObject->LoggingInfo;
 }

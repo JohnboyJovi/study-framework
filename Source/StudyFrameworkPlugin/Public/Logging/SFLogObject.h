@@ -43,8 +43,7 @@ private:
 	USFLogObject();
 
 public:
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta=(TitleProperty = "LogName"))
-		TArray<FActorLoggingInformation> LoggingInfo;
+	TArray<FActorLoggingInformation> LoggingInfo;
 	FDateTime StaticDateTime;
 	FString LogDir = "";
 	bool LogThis = false;

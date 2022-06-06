@@ -77,18 +77,20 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
 	void LoadFromJson();
 
-	// Actor, that should be added to the logging
+	// Actor, that should be added/removed
 	UPROPERTY(EditAnywhere, meta = (Category = "SFLogging"))
-		AActor* ActorToAdd;
+		AActor* Actor;
 	// What even is this?
 	UPROPERTY(EditAnywhere, meta = (Category = "SFLogging"))
 		int32 LogTimer = 0;
 	// Name that will show up in the logs
-	// Leave blank for object ID-name to be used
+	// Leave blank for ID name of actor to be used
 	UPROPERTY(EditAnywhere, meta = (Category = "SFLogging"))
 		FString LogName;
 	UFUNCTION(CallInEditor, meta = (Category = "SFLogging"))
 		void AddActor();
+	UFUNCTION(CallInEditor, meta = (Category = "SFLogging"))
+		void RemoveActor();
 	
 
 protected:

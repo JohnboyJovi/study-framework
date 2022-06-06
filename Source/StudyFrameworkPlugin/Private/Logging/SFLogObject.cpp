@@ -10,16 +10,58 @@ USFLogObject::USFLogObject() {
 }
 
 void USFLogObject::AddActor(AActor* Actor, int32 LogTimer) {
+	// Actor already in list -> overwrite existing Entry
+	if(GetEntryByActor(Actor))
+	{
+		GetEntryByActor(Actor)->LogTimer = LogTimer;
+		return;
+	}
 	LoggingInfo.Add(FActorLoggingInformation(LogTimer, Actor, Actor->GetFName().ToString()));
 }
 
 void USFLogObject::AddActorWithName(AActor* Actor, int32 LogTimer, FString LogName) {
+	// Actor already in list -> overwrite existing Entry
+	if (GetEntryByActor(Actor))
+	{
+		GetEntryByActor(Actor)->LogTimer = LogTimer;
+		GetEntryByActor(Actor)->LogName = LogName;
+		return;
+	}
 	LoggingInfo.Add(FActorLoggingInformation(LogTimer, Actor, LogName));
 }
 
 void USFLogObject::AddActors(TArray<AActor*> ActorArray, int32 LogTimer) {
 	for (int32 Index = 0; Index != ActorArray.Num(); ++Index) {
 		AddActor(ActorArray[Index], LogTimer);
+	}
+}
+
+
+FActorLoggingInformation* USFLogObject::GetEntryByActor(const AActor* Actor)
+{
+	/*if(!Actor)
+	{
+		return nullptr;
+	}
+	return LoggingInfo.FindByKey(Actor);*/
+	for (int i = 0; i<LoggingInfo.Num(); i++)
+	{
+		if(LoggingInfo[i].ActorToLog == Actor)
+		{
+			return &LoggingInfo[i];
+		}
+	}
+	return nullptr;
+}
+
+void USFLogObject::RemoveEntryByActor(const AActor* Actor)
+{
+	for (int i = 0; i < LoggingInfo.Num(); i++)
+	{
+		if (LoggingInfo[i].ActorToLog == Actor)
+		{
+			LoggingInfo.RemoveAt(i);
+		}
 	}
 }
 
@@ -36,7 +78,7 @@ void USFLogObject::Initialize() {
 	ProbandID = 0;
 	LoggingInfo.SetNum(0, true);
 	//SetUpLogDir();
-	UE_LOG(LogTemp, Warning , TEXT("Initialised LogObject"));
+	UE_LOG(LogTemp, Display , TEXT("Initialised LogObject"));
 }
 
 void USFLogObject::SetUpLogDir() {

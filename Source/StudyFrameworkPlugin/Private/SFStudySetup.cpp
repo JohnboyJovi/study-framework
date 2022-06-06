@@ -211,17 +211,27 @@ bool ASFStudySetup::ContainsNullptrInArrays()
 
 void ASFStudySetup::AddActor()
 {
-	if (ASFStudySetup::ActorToAdd == nullptr)
+	if (!Actor)
 	{
 		return;
 	}
 	if (LogName == "")
 	{
-		LogName = ActorToAdd->GetName();
+		LogName = Actor->GetName();
 	}
-	LogObject->AddActorWithName(ActorToAdd, LogTimer, LogName);
-	ActorToAdd = nullptr;
-	LogTimer = 0;
-	LogName = "";
+	LogObject->AddActorWithName(Actor, LogTimer, LogName);
+	UE_LOG(LogTemp, Display, TEXT("Added Actor %s to ActorsToLog"), *LogName);
+	ActorsToLog = LogObject->LoggingInfo;	
+}
+
+void ASFStudySetup::RemoveActor()
+{
+	if (!Actor)
+	{
+		return;
+	}
+	LogObject->GetEntryByActor(Actor);
+	LogObject->RemoveEntryByActor(Actor);
+	UE_LOG(LogTemp, Display, TEXT("Removed Actor %s from ActorsToLog"), *LogName);
 	ActorsToLog = LogObject->LoggingInfo;
 }

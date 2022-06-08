@@ -21,6 +21,7 @@ public:
 		this->LogName = LogName;
 		TimeStorage = FDateTime::Now();
 	}
+	// specifies how many ms from now should logging start (?) But what happens when project is compiled?
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	int32 LogTimer;
 	bool LogNextTick;
@@ -52,6 +53,8 @@ public:
 	void AddActor(AActor* Actor, int32 LogTimer);
 	void AddActorWithName(AActor* Actor, int32 LogTimer, FString LogName);
 	void AddActors(TArray<AActor*>, int32 LogTimer);
+	void RemoveEntryByActor(const AActor* Actor);
+	FActorLoggingInformation* GetEntryByActor(const AActor* Actor);
 	void Initialize();
 	void SetUpLogDir();
 };

@@ -28,6 +28,7 @@ void USFLogObject::AddActorWithName(AActor* Actor, int32 LogTimer, FString LogNa
 		return;
 	}
 	LoggingInfo.Add(FActorLoggingInformation(LogTimer, Actor, LogName));
+	UE_LOG(LogTemp, Display, TEXT("Added Actor %s"), *LogName)
 }
 
 void USFLogObject::AddActors(TArray<AActor*> ActorArray, int32 LogTimer) {
@@ -67,7 +68,7 @@ void USFLogObject::Initialize() {
 	//	LogThis = IDisplayCluster::Get().GetClusterMgr()->GetNodeId().Equals(TEXT("node_main"));
 	//}
 	//else { // Desktop oder HMD
-	//	LogThis = true;
+	LogThis = true;
 	//}
 	StaticDateTime = FDateTime::Now();
 	ProbandID = 0;

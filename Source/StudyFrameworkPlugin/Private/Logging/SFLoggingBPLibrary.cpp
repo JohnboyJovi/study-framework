@@ -2,19 +2,22 @@
 
 
 #include "Logging/SFLoggingBPLibrary.h"
+
+#include "SFGameInstance.h"
  #include "SFPlugin.h"
  #include "Logging/SFLogObject.h"
  #include "Misc/FileHelper.h"
 
  void USFLoggingBPLibrary::LogToFile() {
- 	//if (!(FModuleManager::Get().IsModuleLoaded("StudyFrameworkPlugin"))) {
- 	//	return;
- 	//}
- 	//FSFPilugin& SFPluginModule = FModuleManager::GetModuleChecked<FSFPlugin>("StudyFrameworkPlugin");
-  //  USFLogObject* Instance = SFPluginModule.GetInstance();
- 	//if (Instance->LogThis == false) {
- 	//	return;
- 	//}
+     UE_LOG(LogTemp, Display, TEXT("Called LogToFileFunction!"));
+    if(!USFGameInstance::Get() || !USFGameInstance::Get()->GetStudySetup())
+    {
+        return;
+    }
+    const USFLogObject* Instance = USFGameInstance::Get()->GetStudySetup()->LogObject;
+ 	if (Instance->LogThis == false) {
+ 		return;
+ 	}
 // 	for (auto& ActorLoggingInfo : SFPluginModule.GetInstance()->LoggingInfo) {
 // 		if (ActorLoggingInfo.LogNextTick == true) {
 // 			ActorLoggingInfo.LogNextTick = false;
@@ -48,4 +51,12 @@
 // 			ActorLoggingInfo.LogNextTick = true;
 // 		}
 // 	}
+     UE_LOG(LogTemp, Display, TEXT("Completed LogToFileFunction!"));
+ }
+ void USFLoggingBPLibrary::AddActor(AActor* Actor, int32 LogTimer, FString LogName)
+ {
+     if (USFGameInstance::Get() && USFGameInstance::Get()->GetStudySetup())
+     {
+         USFGameInstance::Get()->GetStudySetup()->LogObject->AddActorWithName(Actor, LogTimer, LogName);
+     }
  }

@@ -13,7 +13,7 @@ UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFLoggingBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
-
+public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Log To File", Keywords = "SFLogging"), Category = "SFLogging")
 		static void LogToFile();
 

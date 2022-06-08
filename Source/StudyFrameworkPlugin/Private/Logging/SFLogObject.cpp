@@ -4,6 +4,8 @@
 #include "IDisplayCluster.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Engine.h"
+#include "SFStudySetup.h"
+#include "Logging/SFLoggingBPLibrary.h"
 
 USFLogObject::USFLogObject() {
 	LoggingInfo.Init(FActorLoggingInformation(0, nullptr, ""), 0);

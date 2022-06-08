@@ -11,6 +11,7 @@
 
 #include "SFStudySetup.generated.h"
 
+
 UCLASS(HideCategories=(Transform, Rendering, Replication, Collision, Input, Actor, LOD, Cooking))
 class STUDYFRAMEWORKPLUGIN_API ASFStudySetup : public AActor
 {
@@ -23,6 +24,7 @@ public:
 
 	virtual void PostLoad() override;
 	virtual void PreSave(const ITargetPlatform* TargetPlatform) override;
+	//void RegisterActorTickFunctions(bool bRegister) override;
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -57,7 +59,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Experimenter View"))
 	FExperimenterViewConfig ExperimenterViewConfig;
 
-
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //
@@ -77,23 +78,25 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
 	void LoadFromJson();
 
-	// Actor, that should be added/removed
-	UPROPERTY(EditAnywhere, meta = (Category = "SFLogging"))
-		AActor* Actor;
-	// What even is this?
-	UPROPERTY(EditAnywhere, meta = (Category = "SFLogging"))
-		int32 LogTimer = 0;
-	// Name that will show up in the logs
-	// Leave blank for ID name of actor to be used
-	UPROPERTY(EditAnywhere, meta = (Category = "SFLogging"))
-		FString LogName;
-	UFUNCTION(CallInEditor, meta = (Category = "SFLogging"))
-		void AddActor();
-	UFUNCTION(CallInEditor, meta = (Category = "SFLogging"))
-		void RemoveActor();
-	
+	// ****************************************************************** // 
+	// ******* Logging ************************************************** //
+	// ****************************************************************** //
 
+	UPROPERTY(BlueprintReadOnly)
+		USFLogObject* LogObject;
+	//Logging starts as soon as the game is started
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Logging"))
+		bool UseLogging;
+	//Time between log entries, 0.0 for once per game instance tick
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Logging"))
+		 float LoggingFrequencyInSeconds;
+	UFUNCTION(BlueprintCallable, Exec)
+		void StartSFLogging();
+	UFUNCTION()
+		void LogOneEntry();
 protected:
+
+	FTimerHandle LoggingTimerHandle;
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
@@ -114,14 +117,4 @@ protected:
 	// Icon sprite
 	UPROPERTY()
 	UTexture2D* SpriteTexture;
-
-	// Create LogObject that will contain all settings and functions necessary for logging
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Instanced)
-		USFLogObject* LogObject;
-
-	// This is initialized as the array contained within the above LogObject,
-	// linking it directly into the "Details"-tab of the StudySetup-Actor
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (TitleProperty = "LogName", Category = "SFLogging"))
-		TArray<FActorLoggingInformation> ActorsToLog;
-
 };

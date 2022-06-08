@@ -21,7 +21,7 @@ public:
 		this->LogName = LogName;
 		TimeStorage = FDateTime::Now();
 	}
-	// specifies how many ms from now should logging start (?) But what happens when project is compiled?
+	// Specifies Logging Frequency in ms
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	int32 LogTimer;
 	bool LogNextTick;

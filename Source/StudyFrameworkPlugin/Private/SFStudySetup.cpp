@@ -4,7 +4,8 @@
 #include "HAL/FileManagerGeneric.h"
 #include "Help/SFUtils.h"
 #include "Logging/SFLogObject.h"
-
+#include "IUniversalLogging.h"
+#include "Logging/SFLoggingBPLibrary.h"
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -13,10 +14,10 @@ ASFStudySetup::ASFStudySetup()
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
-	USFLogObject* myLogObject = CreateDefaultSubobject<USFLogObject>(TEXT("SFLogObject"));
-	LogObject = myLogObject;
+	LogObject = CreateDefaultSubobject<USFLogObject>(TEXT("SFLogObject"));
 	LogObject->Initialize();
-	ActorsToLog = LogObject->LoggingInfo;
+	UseLogging = true;
+	LoggingFrequencyInSeconds = 0.02;
 
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
@@ -32,6 +33,10 @@ ASFStudySetup::ASFStudySetup()
 void ASFStudySetup::BeginPlay()
 {
 	Super::BeginPlay();
+	if(UseLogging)
+	{
+		StartSFLogging();
+	}
 }
 
 void ASFStudySetup::PostLoad()
@@ -209,27 +214,13 @@ bool ASFStudySetup::ContainsNullptrInArrays()
 	return false;
 }
 
-void ASFStudySetup::AddActor()
+void ASFStudySetup::StartSFLogging()
 {
-	if (!Actor)
-	{
-		return;
-	}
-	if (LogName == "")
-	{
-		LogName = Actor->GetName();
-	}
-	LogObject->AddActorWithName(Actor, LogTimer, LogName);
-	ActorsToLog = LogObject->LoggingInfo;	
+	// Arguments: (?, Actor to which the Timer belongs, Function to call, LoggingFreq in Seconds (rate) (rate<=0 <=> ClearTimer), repeat action / Loop)
+	GetWorldTimerManager().SetTimer(LoggingTimerHandle, this, &ASFStudySetup::LogOneEntry, LoggingFrequencyInSeconds, true);
 }
 
-void ASFStudySetup::RemoveActor()
+void ASFStudySetup::LogOneEntry()
 {
-	if (!Actor)
-	{
-		return;
-	}
-	LogObject->GetEntryByActor(Actor);
-	LogObject->RemoveEntryByActor(Actor);
-	ActorsToLog = LogObject->LoggingInfo;
+	USFLoggingBPLibrary::LogToFile();
 }

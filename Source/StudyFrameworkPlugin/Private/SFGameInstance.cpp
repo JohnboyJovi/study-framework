@@ -8,9 +8,9 @@
 #include "HUD/SFGlobalFadeGameViewportClient.h"
 
 #include "Help/SFUtils.h"
+#include "Logging/SFLoggingBPLibrary.h"
 
 USFGameInstance* USFGameInstance::Instance = nullptr;
-
 
 // ****************************************************************** // 
 // ******* Initialization ******************************************* //
@@ -39,6 +39,11 @@ void USFGameInstance::Init()
 	{
 		InitFadeHandler(StudySetup->FadeConfig);
 	}
+
+	// Register delegate for ticker callback
+	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateUObject(this, &USFGameInstance::LogTick));
+
+	LogObject->Initialize();
 }
 
 void USFGameInstance::Shutdown()
@@ -49,6 +54,8 @@ void USFGameInstance::Shutdown()
 		ExperimenterWindow->DestroyWindow();
 	}
 	Instance = nullptr;
+	// Unregister ticker delegate
+	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
 }
 
 void USFGameInstance::OnWorldStart()
@@ -477,6 +484,7 @@ ASFStudySetup* USFGameInstance::GetStudySetup()
 	return StudySetup;
 }
 
+
 // ****************************************************************** // 
 // ******* Executing Study ****************************************** //
 // ****************************************************************** //
@@ -505,4 +513,21 @@ void USFGameInstance::OnFadedIn()
 USFParticipant* USFGameInstance::GetParticipant() const
 {
 	return Participant;
+}
+
+// ****************************************************************** // 
+// ******* Logging ************************************************** //
+// ****************************************************************** //
+bool USFGameInstance::LogTick(float DeltaSeconds)
+{
+	/*if(UseLogging)
+	{*/
+		USFLoggingBPLibrary::LogToFile();
+	//}
+		return true;
+}
+
+USFLogObject* USFGameInstance::GetLogObject()
+{
+	return LogObject;
 }

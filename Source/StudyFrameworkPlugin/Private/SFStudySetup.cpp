@@ -14,10 +14,7 @@ ASFStudySetup::ASFStudySetup()
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
-	LogObject = CreateDefaultSubobject<USFLogObject>(TEXT("SFLogObject"));
-	LogObject->Initialize();
 	UseLogging = true;
-	LoggingFrequencyInSeconds = 0.02;
 
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
@@ -33,10 +30,6 @@ ASFStudySetup::ASFStudySetup()
 void ASFStudySetup::BeginPlay()
 {
 	Super::BeginPlay();
-	if(UseLogging)
-	{
-		StartSFLogging();
-	}
 }
 
 void ASFStudySetup::PostLoad()
@@ -212,15 +205,4 @@ bool ASFStudySetup::ContainsNullptrInArrays()
 		}
 	}
 	return false;
-}
-
-void ASFStudySetup::StartSFLogging()
-{
-	// Arguments: (?, Actor to which the Timer belongs, Function to call, LoggingFreq in Seconds (rate) (rate<=0 <=> ClearTimer), repeat action / Loop)
-	GetWorldTimerManager().SetTimer(LoggingTimerHandle, this, &ASFStudySetup::LogOneEntry, LoggingFrequencyInSeconds, true);
-}
-
-void ASFStudySetup::LogOneEntry()
-{
-	USFLoggingBPLibrary::LogToFile();
 }

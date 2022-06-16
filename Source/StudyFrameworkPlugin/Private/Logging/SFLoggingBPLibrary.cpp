@@ -10,54 +10,53 @@
  #include "Misc/FileHelper.h"
 
  void USFLoggingBPLibrary::LogToFile() {
-     UE_LOG(LogTemp, Display, TEXT("Called LogToFileFunction!"));
-    if(!USFGameInstance::Get() || !USFGameInstance::Get()->GetStudySetup())
+    //UniLog.Log("called LogToFile");
+    if(!USFGameInstance::Get() || !USFGameInstance::Get()->GetLogObject())
     {
         return;
     }
-    USFLogObject* LogObject = USFGameInstance::Get()->GetStudySetup()->LogObject;
+    USFLogObject* LogObject = USFGameInstance::Get()->GetLogObject();
  	if (LogObject->LogThis == false) {
  		return;
  	}
- 	for (auto& ActorLoggingInfo : LogObject->LoggingInfo) {
- 		if (ActorLoggingInfo.LogNextTick == true) {
- 			ActorLoggingInfo.LogNextTick = false;
- 			float TimeSinceStart = ActorLoggingInfo.ActorToLog->GetWorld()->GetTimeSeconds();
- 			FString TimeSinceStartString = FString::SanitizeFloat(TimeSinceStart);
- 			FString out = "" + TimeSinceStartString +
+    for (auto& ActorLoggingInfo : LogObject->LoggingInfo) {
+        if (ActorLoggingInfo.LogNextTick == true) {
+            ActorLoggingInfo.LogNextTick = false;
+            float TimeSinceStart = ActorLoggingInfo.ActorToLog->GetWorld()->GetTimeSeconds();
+            FString TimeSinceStartString = FString::SanitizeFloat(TimeSinceStart);
+            FString out = "" + TimeSinceStartString +
                 "\t" + ActorLoggingInfo.LogName +
- 				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().X) +
- 				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Y) +
- 				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Z) +
- 				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Pitch) +
- 				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Yaw) +
- 				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Roll);
+                "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().X) +
+                "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Y) +
+                "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Z) +
+                "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Pitch) +
+                "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Yaw) +
+                "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Roll);
             /*FString DirActor = LogObject->LogDir + "/Actors";
- 			IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
- 			if (PlatformFile.CreateDirectoryTree(*DirActor)) {
- 				FString AbsPath = DirActor + "/" + ActorLoggingInfo.LogName + ".txt";
- 				if (!PlatformFile.FileExists(*AbsPath)) {
- 					FString FileHeader = "Time\tActorXPos\tActorYPos\tActorZPos\tActorPitchOri\tActorYawOri\tActorRollOri\n";
- 					FFileHelper::SaveStringToFile(FileHeader, *AbsPath);
- 				}
- 				FFileHelper::SaveStringToFile(out, *AbsPath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
- 			}*/
+            IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+            if (PlatformFile.CreateDirectoryTree(*DirActor)) {
+                FString AbsPath = DirActor + "/" + ActorLoggingInfo.LogName + ".txt";
+                if (!PlatformFile.FileExists(*AbsPath)) {
+                    FString FileHeader = "Time\tActorXPos\tActorYPos\tActorZPos\tActorPitchOri\tActorYawOri\tActorRollOri\n";
+                    FFileHelper::SaveStringToFile(FileHeader, *AbsPath);
+                }
+                FFileHelper::SaveStringToFile(out, *AbsPath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
+            }*/
             //Automatically adds newline
             //TODO: implement LogStream for more coordinated logging, use that later
             //TODO: configure options like: "per session" -> probably useful in study-fw scenario
             UniLog.Log(out);
- 		}
- 		if (((FDateTime::Now() - ActorLoggingInfo.TimeStorage).GetTotalMilliseconds() > ActorLoggingInfo.LogTimer) || (ActorLoggingInfo.LogTimer == 0)) {
- 			ActorLoggingInfo.TimeStorage = FDateTime::Now();
- 			ActorLoggingInfo.LogNextTick = true;
- 		}
- 	}
-     UE_LOG(LogTemp, Display, TEXT("Completed LogToFileFunction!"));
+        }
+        if (((FDateTime::Now() - ActorLoggingInfo.TimeStorage).GetTotalMilliseconds() > ActorLoggingInfo.LogTimer) || (ActorLoggingInfo.LogTimer == 0)) {
+            ActorLoggingInfo.TimeStorage = FDateTime::Now();
+            ActorLoggingInfo.LogNextTick = true;
+        }
+    }
  }
  void USFLoggingBPLibrary::AddActor(AActor* Actor, int32 LogTimer, FString LogName)
  {
-     if (USFGameInstance::Get() && USFGameInstance::Get()->GetStudySetup())
+     if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
      {
-         USFGameInstance::Get()->GetStudySetup()->LogObject->AddActorWithName(Actor, LogTimer, LogName);
+         USFGameInstance::Get()->GetLogObject()->AddActorWithName(Actor, LogTimer, LogName);
      }
  }

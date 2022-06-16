@@ -82,6 +82,10 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnFadedInDelegate OnFadedInDelegate;
 
+	//Will be registered as delegate (observer) of core tick function
+	//to be executed once per tick
+	bool LogTick(float DeltaSeconds);
+	FDelegateHandle TickDelegateHandle;
 
 	// ****************************************************************** // 
 	// ******* Executing Study  (called by other parts of the framework)* //
@@ -91,6 +95,9 @@ public:
 	USFFadeHandler* GetFadeHandler();
 	UFUNCTION()
 	ASFStudySetup* GetStudySetup();
+
+	UFUNCTION()
+		USFLogObject* GetLogObject();
 
 	UFUNCTION()
 	void OnLevelLoaded();
@@ -146,6 +153,9 @@ protected:
 	USFFadeHandler* FadeHandler = nullptr;
 	UPROPERTY()
 	ASFStudySetup* StudySetup;
+
+	UPROPERTY()
+	USFLogObject* LogObject = CreateDefaultSubobject<USFLogObject>(TEXT("SFLogObject"));
 
 	UPROPERTY()
 	USFExperimenterWindow* ExperimenterWindow = nullptr;

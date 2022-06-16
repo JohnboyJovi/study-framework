@@ -82,21 +82,13 @@ public:
 	// ******* Logging ************************************************** //
 	// ****************************************************************** //
 
-	UPROPERTY(BlueprintReadOnly)
-		USFLogObject* LogObject;
 	//Logging starts as soon as the game is started
+	//NOT FUNCTIONAL YET
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Logging"))
 		bool UseLogging;
-	//Time between log entries, 0.0 for once per game instance tick
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Logging"))
-		 float LoggingFrequencyInSeconds;
-	UFUNCTION(BlueprintCallable, Exec)
-		void StartSFLogging();
-	UFUNCTION()
-		void LogOneEntry();
 protected:
 
-	FTimerHandle LoggingTimerHandle;
+	//FTimerHandle LoggingTimerHandle;
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);

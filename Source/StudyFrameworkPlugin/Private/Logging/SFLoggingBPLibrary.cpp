@@ -32,16 +32,6 @@
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Pitch) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Yaw) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Roll);
-            /*FString DirActor = LogObject->LogDir + "/Actors";
-            IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-            if (PlatformFile.CreateDirectoryTree(*DirActor)) {
-                FString AbsPath = DirActor + "/" + ActorLoggingInfo.LogName + ".txt";
-                if (!PlatformFile.FileExists(*AbsPath)) {
-                    FString FileHeader = "Time\tActorXPos\tActorYPos\tActorZPos\tActorPitchOri\tActorYawOri\tActorRollOri\n";
-                    FFileHelper::SaveStringToFile(FileHeader, *AbsPath);
-                }
-                FFileHelper::SaveStringToFile(out, *AbsPath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
-            }*/
             //Automatically adds newline
             //TODO: implement LogStream for more coordinated logging, use that later
             //TODO: configure options like: "per session" -> probably useful in study-fw scenario

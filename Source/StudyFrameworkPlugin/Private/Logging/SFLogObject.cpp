@@ -75,14 +75,6 @@ void USFLogObject::Initialize() {
 	StaticDateTime = FDateTime::Now();
 	ProbandID = 0;
 	LoggingInfo.SetNum(0, true);
-	//SetUpLogDir();
+	//SetUpLogDirs
 }
 
-void USFLogObject::SetUpLogDir() {
-	if (ProbandID == 0) {
-		LogDir = FPaths::ProjectDir() + "/StudyLogs/" + FDateTime::Now().ToString();
-	}
-	else {
-		LogDir = FPaths::ProjectDir() + "/StudyLogs/" + FString::Printf(TEXT("%i"), ProbandID) + "_" + FDateTime::Now().ToString();
-	}
-}

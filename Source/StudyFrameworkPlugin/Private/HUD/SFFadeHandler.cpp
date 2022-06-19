@@ -12,6 +12,7 @@
 
 #include "TimerManager.h"						// For Tick Timer
 #include "HUD/SFGlobalFadeGameViewportClient.h"		// For Fade
+#include "Logging/SFLoggingUtils.h"
 
 
 TSharedPtr<FJsonObject> FFadeConfig::GetAsJson() const
@@ -48,7 +49,7 @@ void USFFadeHandler::Tick()
 	case EFadeState::FadingOut:
 		if(!NewLevelName.IsEmpty())
 		{
-			FSFUtils::Log("[USFFadeHandler::Tick()]: Opening Level now", false);
+			FSFLoggingUtils::Log("[USFFadeHandler::Tick()]: Opening Level now", false);
 			UGameplayStatics::OpenLevel(GameInstance->GetWorld(), *NewLevelName, false);
 			SetTimerForNextTick();
 			FadeState = EFadeState::WaitForLevelLoaded;
@@ -58,7 +59,7 @@ void USFFadeHandler::Tick()
 
 		// Its Faded out, New Level is loaded, prepare it
 	case EFadeState::WaitForLevelLoaded:
-		FSFUtils::Log("[USFFadeHandler::Tick()]: Set Scene to black on new Level (pre) loaded", false);
+		FSFLoggingUtils::Log("[USFFadeHandler::Tick()]: Set Scene to black on new Level (pre) loaded", false);
 		Fade(0.0, true);
 		FadeState = EFadeState::WaitForTimerFadedOut;
 		SetTimerForNextTick(FadeConfig.FadedOutDuration);
@@ -67,13 +68,13 @@ void USFFadeHandler::Tick()
 		// Its Faded out, Timer for Fading in is done
 	case EFadeState::WaitForTimerFadedOut:
 		GameInstance->OnLevelLoaded();
-		FSFUtils::Log("[USFFadeHandler::Tick()]: Fading in now", false);
+		FSFLoggingUtils::Log("[USFFadeHandler::Tick()]: Fading in now", false);
 		FadeIn();
 		break;
 
 		// Its Faded in, everything done, cleanup
 	case EFadeState::FadingIn:
-		FSFUtils::Log("[USFFadeHandler::Tick()]: Cleaning up", false);
+		FSFLoggingUtils::Log("[USFFadeHandler::Tick()]: Cleaning up", false);
 		GameInstance->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 		GameInstance->OnFadedIn();
 		FadeState = EFadeState::NotFading;
@@ -81,7 +82,7 @@ void USFFadeHandler::Tick()
 
 	case EFadeState::NotFading:
 	default:
-		FSFUtils::Log("[USFFadeHandler::Tick()]: in Default or Not Fading switch case", true);
+		FSFLoggingUtils::Log("[USFFadeHandler::Tick()]: in Default or Not Fading switch case", true);
 		return;
 	}
 }
@@ -98,7 +99,7 @@ void USFFadeHandler::FadeToLevel(const FString LevelName, const bool bStartFadeF
 		return;
 	}
 
-	FSFUtils::Log(
+	FSFLoggingUtils::Log(
 		"[USFFadeHandler::FadeToLevel()]: Fading From level (" + USFGameInstance::Get()->GetWorld()->GetMapName() + ") to level (" +
 		LevelName + ")", false);
 	if (bStartFadeFadedOut || bIsFadedOut)
@@ -162,11 +163,11 @@ void USFFadeHandler::Fade(const float Duration, const bool bToBlack) const
 	{
 		if (bToBlack)
 		{
-			FSFUtils::Log("[USFFadeHandler::Fade]: Fading out (to Black)", false);
+			FSFLoggingUtils::Log("[USFFadeHandler::Fade]: Fading out (to Black)", false);
 		}
 		else
 		{
-			FSFUtils::Log("[USFFadeHandler::Fade]: Fading in (from Black)", false);
+			FSFLoggingUtils::Log("[USFFadeHandler::Fade]: Fading in (from Black)", false);
 		}
 	}
 
@@ -193,7 +194,7 @@ APlayerCameraManager* USFFadeHandler::GetCameraManager() const
 
 	if (CameraManager == nullptr)
 	{
-		FSFUtils::Log("[USFFadeHandler::GetCameraManager()]: Cannot get CameraManager", false);
+		FSFLoggingUtils::Log("[USFFadeHandler::GetCameraManager()]: Cannot get CameraManager", false);
 	}
 
 	return CameraManager;
@@ -236,7 +237,7 @@ void USFFadeHandler::SetFadeConfig(FFadeConfig InFadeConfig)
 
 void USFFadeHandler::SetTimerForNextTick(const float TimeToWait)
 {
-	//FSFUtils::Log(
+	//FSFLoggingUtils::Log(
 	//	"[USFFadeHandler::SetTimerForNextTick()]: Setting Timer for " + FString::SanitizeFloat(TimeToWait, 4) +
 	//	" seconds", false);
 	USFGameInstance::Get()->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &USFFadeHandler::Tick, 0.1f, true,

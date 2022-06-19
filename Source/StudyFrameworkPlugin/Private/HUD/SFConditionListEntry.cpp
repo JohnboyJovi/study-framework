@@ -3,8 +3,8 @@
 
 #include "HUD/SFConditionListEntry.h"
 
-#include "Help/SFUtils.h"
 #include "SFGameInstance.h"
+#include "Logging/SFLoggingUtils.h"
 
 
 void USFConditionListEntry::FillWithCondition(const USFCondition* InCondition)
@@ -62,7 +62,7 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 	{
 		if (UsedTexts >= Texts.Num())
 		{
-			FSFUtils::Log(
+			FSFLoggingUtils::Log(
 				"[USFConditionListEntry::FillWithCondition] to few text fields to show everything, " + FString::FromInt(
 					Condition->FactorLevels.Num() + Condition->DependentVariablesValues.Num()) +
 				" text fields would be needed.", true);

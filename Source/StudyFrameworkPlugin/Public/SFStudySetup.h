@@ -88,8 +88,6 @@ public:
 		bool UseLogging;
 protected:
 
-	//FTimerHandle LoggingTimerHandle;
-
 	TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
 

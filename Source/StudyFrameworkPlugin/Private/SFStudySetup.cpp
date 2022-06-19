@@ -122,7 +122,7 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 {
 	if (!CheckPhases())
 	{
-		FSFUtils::Log("[ASFStudySetup::GetAllConditionsForRun]: Not all Phases are valid", true);
+		FSFLoggingUtils::Log("[ASFStudySetup::GetAllConditionsForRun]: Not all Phases are valid", true);
 		return TArray<USFCondition*>();
 	}
 

@@ -3,7 +3,7 @@
 #include "Dom/JsonObject.h"
 #include "Dom/JsonValue.h"
 
-#include "Help/SFUtils.h"
+#include "Logging/SFLoggingUtils.h"
 
 
 USFStudyFactor::USFStudyFactor()
@@ -36,7 +36,7 @@ TSharedPtr<FJsonObject> USFStudyFactor::GetAsJson() const
 		Json->SetStringField("MixingOrder", "InOrder");
 		break;
 	default:
-		FSFUtils::Log("[USFStudyFactor::GetAsJson] unknown MixingOrder!", true);
+		FSFLoggingUtils::Log("[USFStudyFactor::GetAsJson] unknown MixingOrder!", true);
 	}
 
 	switch (Type)
@@ -48,7 +48,7 @@ TSharedPtr<FJsonObject> USFStudyFactor::GetAsJson() const
 		Json->SetStringField("Type", "Between");
 		break;
 	default:
-		FSFUtils::Log("[USFStudyFactor::GetAsJson] unknown FactorType!", true);
+		FSFLoggingUtils::Log("[USFStudyFactor::GetAsJson] unknown FactorType!", true);
 	}
 
 	Json->SetBoolField("NonCombined", bNonCombined);
@@ -82,7 +82,7 @@ void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 	}
 	else
 	{
-		FSFUtils::Log("[USFStudyFactor::FromJson] unknown MixingOrder: " + MixingOrderStr, true);
+		FSFLoggingUtils::Log("[USFStudyFactor::FromJson] unknown MixingOrder: " + MixingOrderStr, true);
 	}
 
 	FString TypeStr = Json->GetStringField("Type");
@@ -96,7 +96,7 @@ void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 	}
 	else
 	{
-		FSFUtils::Log("[USFStudyFactor::FromJson] unknown Type: " + TypeStr, true);
+		FSFLoggingUtils::Log("[USFStudyFactor::FromJson] unknown Type: " + TypeStr, true);
 	}
 
 	bNonCombined = Json->GetBoolField("NonCombined");

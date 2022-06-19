@@ -56,5 +56,4 @@ public:
 	void RemoveEntryByActor(const AActor* Actor);
 	FActorLoggingInformation* GetEntryByActor(const AActor* Actor);
 	void Initialize();
-	void SetUpLogDir();
 };

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "SFPlugin.h"
-#include "Help/SFUtils.h"
+#include "Logging/SFLoggingUtils.h"
 #include "SFGameInstance.h"
 
 #define LOCTEXT_NAMESPACE "FStudyFrameworkPluginModule"
@@ -11,7 +11,7 @@
 void FSFPlugin::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	FSFUtils::SetupLoggingStreams();
+	FSFLoggingUtils::SetupLoggingStreams();
 }
 
 void FSFPlugin::ShutdownModule()

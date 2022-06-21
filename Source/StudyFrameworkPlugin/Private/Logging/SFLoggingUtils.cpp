@@ -10,6 +10,7 @@
 #include "Utility/VirtualRealityUtilities.h"
 
 #include "IUniversalLogging.h"
+#include "Help/SFUtils.h"
 
 
 void FSFLoggingUtils::Log(const FString Text, const bool Error /*=false*/)
@@ -20,7 +21,7 @@ void FSFLoggingUtils::Log(const FString Text, const bool Error /*=false*/)
 		if(USFGameInstance::IsInitialized())
 		{
 			//to avoid endless error message loops
-			USFGameInstance::Get()->LogToHUD("ERROR: "+Text);
+			LogToHUD("ERROR: "+Text);
 		}
 	}
 	else
@@ -39,4 +40,42 @@ void FSFLoggingUtils::SetupLoggingStreams()
 	SFErrorLog->SetPrefix(TEXT("Error: "));
 	SFErrorLog->SetLogOnScreenOnMaster(true);
 	SFErrorLog->SetOnScreenColor(FColor::Red);
+}
+
+void FSFLoggingUtils::LogData(const FString& DependentVariableName, const FString& Value)
+{
+	USFCondition* CurrCondition = FSFUtils::GetGameInstance()->GetParticipant()->GetCurrentCondition();
+	if (!CurrCondition->StoreDependentVariableData(DependentVariableName, Value))
+	{
+		FSFLoggingUtils::Log(
+			"Cannot log data '" + Value + "' for dependent variable '" + DependentVariableName +
+			"' since it does not exist for this condition!", true);
+		return;
+	}
+	LogComment("Recorded " + DependentVariableName + ": " + Value);
+
+	//the data is stored in the phase long table on SetCondition() or EndStudy()
+}
+
+void FSFLoggingUtils::LogComment(const FString& Comment, bool AlsoLogToHUD)
+{
+	UniLog.Log("#" + FSFUtils::GetGameInstance()->GetParticipant()->GetCurrentTime() + ": " + Comment, "ParticipantLog");
+	FSFLoggingUtils::Log("Logged Comment: " + Comment);
+	if(AlsoLogToHUD)
+	{
+		LogToHUD(Comment);
+	}
+}
+
+void FSFLoggingUtils::LogToHUD(FString Text)
+{
+	if (FSFUtils::GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(FSFUtils::GetWorld()->GetFirstPlayerController()->GetHUD()) &&
+		Cast<ASFMasterHUD>(FSFUtils::GetWorld()->GetFirstPlayerController()->GetHUD())->IsWidgetPresent())
+	{
+		Cast<ASFMasterHUD>(FSFUtils::GetWorld()->GetFirstPlayerController()->GetHUD())->AddLogMessage(Text);
+	}
+	else
+	{
+		FSFUtils::GetGameInstance()->HUDSavedData.LogMessages.Add(Text);
+	}
 }

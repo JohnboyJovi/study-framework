@@ -65,17 +65,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetFactorLevel(FString FactorName) const;
 
-	//Log Data collected for a DependentVariable in this condition
-	UFUNCTION(BlueprintCallable)
-	void LogData(const FString& DependenVariableName, const FString& Value);
-
 	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
 	UFUNCTION(BlueprintCallable)
 	void LogComment(const FString& Comment);
-
-	//use this to print something to the log panel of the HUD, e.g., to inform the experimenter
-	UFUNCTION()
-	void LogToHUD(FString Text);
 
 	//A delegate to register to when you want to start behavior once the condition is faded in
 	//NOTE: BeginPlay is called while it is still faded out!

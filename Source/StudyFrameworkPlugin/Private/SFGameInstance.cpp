@@ -99,7 +99,7 @@ void USFGameInstance::OnWorldStart()
 			FSFLoggingUtils::Log(
 				"[USFGameInstance::OnWorldChanged] Started on a map that was part of the last study, so start the study run for debug reasons.");
 			RestoreLastParticipantForDebugStart(FirstMapCondition);
-			LogToHUD("Start map "+NewWorld->GetName()+" for debugging!");
+			FSFLoggingUtils::LogToHUD("Start map "+NewWorld->GetName()+" for debugging!");
 		}
 		return;
 	}
@@ -415,30 +415,12 @@ FString USFGameInstance::GetFactorLevel(FString FactorName) const
 	return "FactorNotPresent";
 }
 
-
-void USFGameInstance::LogData(const FString& DependenVariableName, const FString& Value)
-{
-	Participant->LogData(DependenVariableName, Value);
-}
-
 void USFGameInstance::LogComment(const FString& Comment)
 {
-	Participant->LogComment(Comment);
-	LogToHUD(Comment);
+	FSFLoggingUtils::LogComment(Comment);
+	FSFLoggingUtils::LogToHUD(Comment);
 }
 
-void USFGameInstance::LogToHUD(FString Text)
-{
-	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()) &&
-		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->IsWidgetPresent())
-	{
-		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->AddLogMessage(Text);
-	}
-	else
-	{
-		HUDSavedData.LogMessages.Add(Text);
-	}
-}
 
 void USFGameInstance::UpdateHUD(FString Status)
 {
@@ -504,7 +486,7 @@ void USFGameInstance::OnFadedIn()
 	}
 
 	Participant->GetCurrentCondition()->Begin();
-	Participant->LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
+	FSFLoggingUtils::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
 
 	UpdateHUD("Condition "+FString::FromInt(Participant->GetCurrentConditionNumber()+1)+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
 }

@@ -136,39 +136,17 @@ bool USFParticipant::StartStudy()
 	// Set first condition
 	CurrentConditionIdx = -1;
 
-	LogComment("Start Study for ParticipantID: " + FString::FromInt(ParticipantID));
+	FSFLoggingUtils::LogComment("Start Study for ParticipantID: " + FString::FromInt(ParticipantID));
 
 	return true;
 }
 
 void USFParticipant::EndStudy()
 {
-	LogComment("EndStudy");
+	FSFLoggingUtils::LogComment("EndStudy");
 	LogCurrentParticipant();
 	StoreInPhaseLongTable();
 }
-
-void USFParticipant::LogData(const FString& DependentVariableName, const FString& Value)
-{
-	USFCondition* CurrCondition = GetCurrentCondition();
-	if (!CurrCondition->StoreDependentVariableData(DependentVariableName, Value))
-	{
-		FSFLoggingUtils::Log(
-			"Cannot log data '" + Value + "' for dependent variable '" + DependentVariableName +
-			"' since it does not exist for this condition!", true);
-		return;
-	}
-	LogComment("Recorded " + DependentVariableName + ": " + Value);
-
-	//the data is stored in the phase long table on SetCondition() or EndStudy()
-}
-
-void USFParticipant::LogComment(const FString& Comment)
-{
-	UniLog.Log("#" + GetCurrentTime() + ": " + Comment, "ParticipantLog");
-	FSFLoggingUtils::Log("Logged Comment: " + Comment);
-}
-
 
 USFCondition* USFParticipant::GetCurrentCondition() const
 {

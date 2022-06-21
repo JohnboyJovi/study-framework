@@ -34,10 +34,6 @@ public:
 	bool StartStudy();
 	void EndStudy();
 
-	void LogData(const FString& DependentVariableName, const FString& Value);
-	void LogComment(const FString& Comment);
-
-
 	USFCondition* GetCurrentCondition() const;
 	USFCondition* GetNextCondition() const;
 	const TArray<USFCondition*> GetAllConditions() const;
@@ -51,6 +47,8 @@ public:
 	static int GetLastParticipantLastConditionStarted();
 	static bool GetLastParticipantFinished();
 	static ASFStudySetup* GetLastParticipantSetup();
+
+	FString GetCurrentTime() const;
 
 	bool LoadConditionsFromJson();
 	void RecoverStudyResultsOfFinishedConditions();
@@ -73,7 +71,6 @@ protected:
 	static TArray<USFCondition*> ReadExecutionJsonFile(int ParticipantID);
 
 	void StoreInPhaseLongTable() const;
-	FString GetCurrentTime() const;
 
 	UPROPERTY()
 	int ParticipantID;

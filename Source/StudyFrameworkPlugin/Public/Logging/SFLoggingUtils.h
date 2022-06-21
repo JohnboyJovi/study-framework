@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Core.h"
+#include "SFParticipant.h"
 
 class FJsonObject;
 
@@ -15,5 +16,16 @@ public:
 
 	// To setup the debugging logs to be used
 	static void SetupLoggingStreams();
+
+	//Log Data collected for a DependentVariable in this condition
+	UFUNCTION(BlueprintCallable)
+	static void LogData(const FString& DependentVariableName, const FString& Value);
+
+	UFUNCTION(BlueprintCallable)
+	static void LogComment(const FString& Comment, bool AlsoLogToHUD=false);
+
+	//use this to print something to the log panel of the HUD, e.g., to inform the experimenter
+	UFUNCTION()
+	static void LogToHUD(FString Text);
 };
 

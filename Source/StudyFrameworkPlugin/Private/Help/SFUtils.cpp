@@ -62,3 +62,12 @@ TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilenName)
 	return StringToJson(JsonString);
 }
 
+USFGameInstance* FSFUtils::GetGameInstance()
+{
+	return Cast<USFGameInstance>(GEngine->GetWorld()->GetGameInstance());
+}
+
+UWorld* FSFUtils::GetWorld()
+{
+	return GEngine->GetWorld();
+}

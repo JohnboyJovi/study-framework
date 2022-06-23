@@ -65,19 +65,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetFactorLevel(FString FactorName) const;
 
-	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
-	UFUNCTION(BlueprintCallable)
-	void LogComment(const FString& Comment);
-
-	//A delegate to register to when you want to start behavior once the condition is faded in
-	//NOTE: BeginPlay is called while it is still faded out!
-	UPROPERTY(BlueprintAssignable)
-	FOnFadedInDelegate OnFadedInDelegate;
-
-	//Will be registered as delegate (observer) of core tick function
-	//to be executed once per tick
-	bool LogTick(float DeltaSeconds);
-	FDelegateHandle TickDelegateHandle;
+	
 
 	// ****************************************************************** // 
 	// ******* Executing Study  (called by other parts of the framework)* //
@@ -87,9 +75,6 @@ public:
 	USFFadeHandler* GetFadeHandler();
 	UFUNCTION()
 	ASFStudySetup* GetStudySetup();
-
-	UFUNCTION()
-		USFLogObject* GetLogObject();
 
 	UFUNCTION()
 	void OnLevelLoaded();
@@ -117,6 +102,32 @@ public:
 
 	//this is used by the SFMasterHUD to store content between levels
 	FHUDSavedData HUDSavedData;
+
+	// ****************************************************************** // 
+	// *******    Logging    ******************************************** //
+	// ****************************************************************** //
+
+
+	UFUNCTION()
+		USFLogObject* GetLogObject();
+
+	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
+	[[deprecated("Use FSFLoggingUtils::LogComment instead")]]
+	UFUNCTION(BlueprintCallable)
+		void LogComment(const FString& Comment);
+
+	//Log Data collected for a DependentVariable in this condition
+	[[deprecated("Use FSFLoggingUtils::LogData instead")]]
+	UFUNCTION(BlueprintCallable)
+		void LogData(const FString& DependentVariableName, const FString& Value);
+
+	//Is called once per tick, calls appropriate logging functions
+	bool LogTick(float DeltaSeconds);
+
+	//Needed to use core tick function
+	UPROPERTY(BlueprintAssignable)
+		FOnFadedInDelegate OnFadedInDelegate;
+	FDelegateHandle TickDelegateHandle;
 
 protected:
 

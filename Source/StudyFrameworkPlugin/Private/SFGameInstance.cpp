@@ -416,11 +416,6 @@ FString USFGameInstance::GetFactorLevel(FString FactorName) const
 	return "FactorNotPresent";
 }
 
-void USFGameInstance::LogComment(const FString& Comment)
-{
-	FSFLoggingUtils::LogComment(Comment);
-	FSFLoggingUtils::LogToHUD(Comment);
-}
 
 
 void USFGameInstance::UpdateHUD(FString Status)
@@ -498,8 +493,9 @@ USFParticipant* USFGameInstance::GetParticipant() const
 }
 
 // ****************************************************************** // 
-// ******* Logging ************************************************** //
+// *******    Logging    ******************************************** //
 // ****************************************************************** //
+
 bool USFGameInstance::LogTick(float DeltaSeconds)
 {
 	/*if(UseLogging)
@@ -512,4 +508,14 @@ bool USFGameInstance::LogTick(float DeltaSeconds)
 USFLogObject* USFGameInstance::GetLogObject()
 {
 	return LogObject;
+}
+
+
+void USFGameInstance::LogComment(const FString& Comment)
+{
+	FSFLoggingUtils::LogComment(Comment, true);
+}
+void USFGameInstance::LogData(const FString& DependentVariableName, const FString& Value)
+{
+	FSFLoggingUtils::LogData(DependentVariableName, Value);
 }

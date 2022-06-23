@@ -20,6 +20,5 @@ public:
 	static void WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName);
 	static TSharedPtr<FJsonObject> ReadJsonFromFile(FString FilenName);
 
-	static USFGameInstance* GetGameInstance();
 	static UWorld* GetWorld();
 };

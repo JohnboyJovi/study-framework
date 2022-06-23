@@ -44,7 +44,7 @@ void FSFLoggingUtils::SetupLoggingStreams()
 
 void FSFLoggingUtils::LogData(const FString& DependentVariableName, const FString& Value)
 {
-	USFCondition* CurrCondition = FSFUtils::GetGameInstance()->GetParticipant()->GetCurrentCondition();
+	USFCondition* CurrCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition();
 	if (!CurrCondition->StoreDependentVariableData(DependentVariableName, Value))
 	{
 		FSFLoggingUtils::Log(
@@ -59,7 +59,7 @@ void FSFLoggingUtils::LogData(const FString& DependentVariableName, const FStrin
 
 void FSFLoggingUtils::LogComment(const FString& Comment, bool AlsoLogToHUD)
 {
-	UniLog.Log("#" + FSFUtils::GetGameInstance()->GetParticipant()->GetCurrentTime() + ": " + Comment, "ParticipantLog");
+	UniLog.Log("#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() + ": " + Comment, "ParticipantLog");
 	FSFLoggingUtils::Log("Logged Comment: " + Comment);
 	if(AlsoLogToHUD)
 	{
@@ -76,6 +76,6 @@ void FSFLoggingUtils::LogToHUD(FString Text)
 	}
 	else
 	{
-		FSFUtils::GetGameInstance()->HUDSavedData.LogMessages.Add(Text);
+		USFGameInstance::Get()->HUDSavedData.LogMessages.Add(Text);
 	}
 }

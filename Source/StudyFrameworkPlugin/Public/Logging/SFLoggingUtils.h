@@ -21,6 +21,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void LogData(const FString& DependentVariableName, const FString& Value);
 
+	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
+	//and optionally log to HUD (default=false)
 	UFUNCTION(BlueprintCallable)
 	static void LogComment(const FString& Comment, bool AlsoLogToHUD=false);
 

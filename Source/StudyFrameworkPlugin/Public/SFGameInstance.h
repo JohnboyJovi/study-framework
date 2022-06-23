@@ -147,9 +147,6 @@ protected:
 	ASFStudySetup* StudySetup;
 
 	UPROPERTY()
-	USFLogObject* LogObject = CreateDefaultSubobject<USFLogObject>(TEXT("SFLogObject"));
-
-	UPROPERTY()
 	USFExperimenterWindow* ExperimenterWindow = nullptr;
 	FExperimenterViewConfig ExperimenterViewConfig;
 
@@ -170,5 +167,14 @@ protected:
 	USFCondition* ConditionToStartAtInit=nullptr;
 
 	bool bStartedOnUnrelatedMap = false;
+
+	// ****************************************************************** // 
+	// *******    Logging    ******************************************** //
+	// ****************************************************************** //
+
+	//Controls central logging functionality, stores logging parameters
+	UPROPERTY()
+		USFLogObject* LogObject;
+
 };
 

@@ -28,6 +28,7 @@ void USFGameInstance::Init()
 	GoToConditionSyncedEvent.Attach(this);
 
 	Instance = this;
+	LogObject = NewObject<USFLogObject>();
 
 	if (ConditionToStartAtInit)
 	{

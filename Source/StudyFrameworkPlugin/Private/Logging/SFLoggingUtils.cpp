@@ -4,7 +4,6 @@
 
 #include "Json.h"
 
-#include "SFPlugin.h"
 #include "SFGameInstance.h"
 
 #include "Utility/VirtualRealityUtilities.h"
@@ -35,6 +34,12 @@ void FSFLoggingUtils::SetupLoggingStreams()
 	ILogStream* SFLog = UniLog.NewLogStream("SFLog", "StudyFramework/Logs", "SFLog.txt", false);
 	SFLog->SetLogToDefaultLog(true);
 
+	//ParticipantLog is set up in Participant init function
+
+	//Used in the debugging process, overwritten for new session
+	ILogStream* SFDebugLog = UniLog.NewLogStream("SFDebugLog", "StudyFramework/Logs", "SFDebugLog.txt", false);
+	SFDebugLog->SetLogToDefaultLog(true);
+
 	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "StudyFramework/Logs", "SFLog.txt", false);
 	SFErrorLog->SetLogToDefaultLog(true);
 	SFErrorLog->SetPrefix(TEXT("Error: "));
@@ -57,7 +62,7 @@ void FSFLoggingUtils::LogData(const FString& DependentVariableName, const FStrin
 	//the data is stored in the phase long table on SetCondition() or EndStudy()
 }
 
-void FSFLoggingUtils::LogComment(const FString& Comment, bool AlsoLogToHUD)
+void FSFLoggingUtils::LogComment(const FString& Comment, bool AlsoLogToHUD /*=false*/)
 {
 	UniLog.Log("#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() + ": " + Comment, "ParticipantLog");
 	FSFLoggingUtils::Log("Logged Comment: " + Comment);

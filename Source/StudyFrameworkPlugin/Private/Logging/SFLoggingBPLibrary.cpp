@@ -32,10 +32,17 @@
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Pitch) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Yaw) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Roll);
-            //Automatically adds newline
-            //TODO: implement LogStream for more coordinated logging, use that later
-            //TODO: configure options like: "per session" -> probably useful in study-fw scenario
-            UniLog.Log(out);
+
+            //Log to SFDebugLog if participant is not initialized (during debugging) 
+            if(UniLog.GetLogStream("ParticipantLog"))
+            {
+                UniLog.Log(out, "ParticipantLog");
+            }
+            else
+            {
+                UniLog.Log("ParticipantLog: " + out, "SFDebugLog");
+            }
+        	
         }
         if (((FDateTime::Now() - ActorLoggingInfo.TimeStorage).GetTotalMilliseconds() > ActorLoggingInfo.LogTimer) || (ActorLoggingInfo.LogTimer == 0)) {
             ActorLoggingInfo.TimeStorage = FDateTime::Now();

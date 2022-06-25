@@ -112,14 +112,12 @@ public:
 		USFLogObject* GetLogObject();
 
 	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
-	[[deprecated("Use FSFLoggingUtils::LogComment instead")]]
-	UFUNCTION(BlueprintCallable)
-		void LogComment(const FString& Comment);
+	UFUNCTION(BlueprintCallable, meta=(DeprecatedFunction, DeprecationMessage="Please use FSFLoggingUtils::LogComment instead"))
+	void LogComment(const FString& Comment);
 
 	//Log Data collected for a DependentVariable in this condition
-	[[deprecated("Use FSFLoggingUtils::LogData instead")]]
-	UFUNCTION(BlueprintCallable)
-		void LogData(const FString& DependentVariableName, const FString& Value);
+	UFUNCTION(BlueprintCallable, meta = (DeprecatedFunction, DeprecationMessage = "Please use FSFLoggingUtils::LogData instead"))
+	void LogData(const FString& DependenVariableName, const FString& Value);
 
 	//Is called once per tick, calls appropriate logging functions
 	bool LogTick(float DeltaSeconds);

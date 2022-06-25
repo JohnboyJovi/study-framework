@@ -515,7 +515,7 @@ void USFGameInstance::LogComment(const FString& Comment)
 {
 	FSFLoggingUtils::LogComment(Comment, true);
 }
-void USFGameInstance::LogData(const FString& DependentVariableName, const FString& Value)
+void USFGameInstance::LogData(const FString& DependenVariableName, const FString& Value)
 {
-	FSFLoggingUtils::LogData(DependentVariableName, Value);
+	FSFLoggingUtils::LogData(DependenVariableName, Value);
 }

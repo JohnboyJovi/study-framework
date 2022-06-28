@@ -482,7 +482,7 @@ void USFGameInstance::OnFadedIn()
 	}
 
 	Participant->GetCurrentCondition()->Begin();
-	FSFLoggingUtils::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
+	USFLoggingBPLibrary::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
 
 	UpdateHUD("Condition "+FString::FromInt(Participant->GetCurrentConditionNumber()+1)+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
 }
@@ -513,9 +513,9 @@ USFLogObject* USFGameInstance::GetLogObject()
 
 void USFGameInstance::LogComment(const FString& Comment)
 {
-	FSFLoggingUtils::LogComment(Comment, true);
+	USFLoggingBPLibrary::LogComment(Comment, true);
 }
 void USFGameInstance::LogData(const FString& DependenVariableName, const FString& Value)
 {
-	FSFLoggingUtils::LogData(DependenVariableName, Value);
+	USFLoggingBPLibrary::LogData(DependenVariableName, Value);
 }

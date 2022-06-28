@@ -6,7 +6,8 @@
 #include "IUniversalLogging.h"
 #include "SFGameInstance.h"
  #include "SFPlugin.h"
- #include "Logging/SFLogObject.h"
+#include "Logging/SFLoggingUtils.h"
+#include "Logging/SFLogObject.h"
  #include "Misc/FileHelper.h"
 
  void USFLoggingBPLibrary::LogToFile() {
@@ -50,6 +51,31 @@
         }
     }
  }
+ void USFLoggingBPLibrary::LogData(const FString& DependentVariableName, const FString& Value)
+ {
+     USFCondition* CurrCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition();
+     if (!CurrCondition->StoreDependentVariableData(DependentVariableName, Value))
+     {
+         FSFLoggingUtils::Log(
+             "Cannot log data '" + Value + "' for dependent variable '" + DependentVariableName +
+             "' since it does not exist for this condition!", true);
+         return;
+     }
+     LogComment("Recorded " + DependentVariableName + ": " + Value);
+
+     //the data is stored in the phase long table on SetCondition() or EndStudy()
+ }
+
+ void USFLoggingBPLibrary::LogComment(const FString& Comment, bool AlsoLogToHUD /*=false*/)
+ {
+     UniLog.Log("#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() + ": " + Comment, "ParticipantLog");
+     FSFLoggingUtils::Log("Logged Comment: " + Comment);
+     if (AlsoLogToHUD)
+     {
+         FSFLoggingUtils::LogToHUD(Comment);
+     }
+ }
+
  void USFLoggingBPLibrary::AddActor(AActor* Actor, int32 LogTimer, FString LogName)
  {
      if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())

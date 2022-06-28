@@ -47,31 +47,6 @@ void FSFLoggingUtils::SetupLoggingStreams()
 	SFErrorLog->SetOnScreenColor(FColor::Red);
 }
 
-void FSFLoggingUtils::LogData(const FString& DependentVariableName, const FString& Value)
-{
-	USFCondition* CurrCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition();
-	if (!CurrCondition->StoreDependentVariableData(DependentVariableName, Value))
-	{
-		FSFLoggingUtils::Log(
-			"Cannot log data '" + Value + "' for dependent variable '" + DependentVariableName +
-			"' since it does not exist for this condition!", true);
-		return;
-	}
-	LogComment("Recorded " + DependentVariableName + ": " + Value);
-
-	//the data is stored in the phase long table on SetCondition() or EndStudy()
-}
-
-void FSFLoggingUtils::LogComment(const FString& Comment, bool AlsoLogToHUD /*=false*/)
-{
-	UniLog.Log("#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() + ": " + Comment, "ParticipantLog");
-	FSFLoggingUtils::Log("Logged Comment: " + Comment);
-	if(AlsoLogToHUD)
-	{
-		LogToHUD(Comment);
-	}
-}
-
 void FSFLoggingUtils::LogToHUD(FString Text)
 {
 	if (FSFUtils::GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(FSFUtils::GetWorld()->GetFirstPlayerController()->GetHUD()) &&

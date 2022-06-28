@@ -7,6 +7,7 @@
 #include "IUniversalLogging.h"
 #include "SFGameInstance.h"
 #include "Help/SFUtils.h"
+#include "Logging/SFLoggingBPLibrary.h"
 #include "Logging/SFLoggingUtils.h"
 
 USFParticipant::USFParticipant()
@@ -136,14 +137,14 @@ bool USFParticipant::StartStudy()
 	// Set first condition
 	CurrentConditionIdx = -1;
 
-	FSFLoggingUtils::LogComment("Start Study for ParticipantID: " + FString::FromInt(ParticipantID));
+	USFLoggingBPLibrary::LogComment("Start Study for ParticipantID: " + FString::FromInt(ParticipantID));
 
 	return true;
 }
 
 void USFParticipant::EndStudy()
 {
-	FSFLoggingUtils::LogComment("EndStudy");
+	USFLoggingBPLibrary::LogComment("EndStudy");
 	LogCurrentParticipant();
 	StoreInPhaseLongTable();
 }

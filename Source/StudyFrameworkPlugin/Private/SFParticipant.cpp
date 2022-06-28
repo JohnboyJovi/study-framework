@@ -191,35 +191,35 @@ TArray<USFCondition*> USFParticipant::GetLastParticipantsConditions()
 
 int USFParticipant::GetLastParticipantId()
 {
-	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
-	if (ParticpantJson == nullptr)
+	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticipantJson == nullptr)
 	{
 		//file does not exist or something else went wrong
 		return -1;
 	}
-	return ParticpantJson->GetNumberField("ParticipantID");
+	return ParticipantJson->GetNumberField("ParticipantID");
 }
 
 int USFParticipant::GetLastParticipantLastConditionStarted()
 {
-	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
-	if (ParticpantJson == nullptr)
+	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticipantJson == nullptr)
 	{
 		//file does not exist or something else went wrong
 		return -1;
 	}
-	return ParticpantJson->GetNumberField("CurrentConditionIdx");
+	return ParticipantJson->GetNumberField("CurrentConditionIdx");
 }
 
 bool USFParticipant::GetLastParticipantFinished()
 {
-	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
-	if (ParticpantJson == nullptr)
+	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticipantJson == nullptr)
 	{
 		//file does not exist or something else went wrong
 		return true;
 	}
-	return ParticpantJson->GetBoolField("Finished");
+	return ParticipantJson->GetBoolField("Finished");
 }
 
 ASFStudySetup* USFParticipant::GetLastParticipantSetup()

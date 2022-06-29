@@ -1,8 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/BillboardComponent.h"
-#include "Engine/Texture2D.h"
 
 #include "SFStudyPhase.h"
 #include "HUD/SFFadeHandler.h"
@@ -77,15 +75,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
 	void LoadFromJson();
-
-	// ****************************************************************** // 
-	// ******* Logging ************************************************** //
-	// ****************************************************************** //
-
-	//Logging starts as soon as the game is started
-	//NOT FUNCTIONAL YET
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Logging"))
-		bool UseLogging;
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;

@@ -5,13 +5,10 @@
 
 #include "IUniversalLogging.h"
 #include "SFGameInstance.h"
- #include "SFPlugin.h"
 #include "Logging/SFLoggingUtils.h"
 #include "Logging/SFLogObject.h"
- #include "Misc/FileHelper.h"
 
  void USFLoggingBPLibrary::LogToFile() {
-    //UniLog.Log("called LogToFile");
     if(!USFGameInstance::Get() || !USFGameInstance::Get()->GetLogObject())
     {
         return;

@@ -498,11 +498,8 @@ USFParticipant* USFGameInstance::GetParticipant() const
 
 bool USFGameInstance::LogTick(float DeltaSeconds)
 {
-	/*if(UseLogging)
-	{*/
-		USFLoggingBPLibrary::LogToFile();
-	//}
-		return true;
+	USFLoggingBPLibrary::LogToFile();
+	return true;
 }
 
 USFLogObject* USFGameInstance::GetLogObject()

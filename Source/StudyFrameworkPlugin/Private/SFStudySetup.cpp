@@ -4,8 +4,7 @@
 #include "HAL/FileManagerGeneric.h"
 #include "Help/SFUtils.h"
 #include "Logging/SFLogObject.h"
-#include "IUniversalLogging.h"
-#include "Logging/SFLoggingBPLibrary.h"
+#include "Logging/SFLoggingUtils.h"
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -14,7 +13,6 @@ ASFStudySetup::ASFStudySetup()
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
-	UseLogging = true;
 
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));

@@ -6,6 +6,7 @@
 #include "HUD/SFFadeHandler.h"
 #include "HUD/SFExperimenterWindow.h"
 #include "Logging/SFLogObject.h"
+#include "GazeTracking/SFGazeTracker.h"
 
 #include "SFStudySetup.generated.h"
 
@@ -56,6 +57,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Experimenter View"))
 	FExperimenterViewConfig ExperimenterViewConfig;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	EGazeTrackerMode UseGazeTracker = EGazeTrackerMode::NotTracking;
 
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //

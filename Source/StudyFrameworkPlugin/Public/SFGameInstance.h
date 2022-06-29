@@ -2,11 +2,14 @@
 
 #pragma once
 
-#include "SFParticipant.h"
+
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+
 #include "SFStudySetup.h"
+#include "SFParticipant.h"
 #include "HUD/SFMasterHUD.h"
+#include "GazeTracking/SFGazeTracker.h"
 
 #include "Events/DisplayClusterEventWrapper.h"
 
@@ -65,7 +68,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetFactorLevel(FString FactorName) const;
 
-	
+	//A delegate to register to when you want to start behavior once the condition is faded in
+	//NOTE: BeginPlay is called while it is still faded out!
+	UPROPERTY(BlueprintAssignable)
+	FOnFadedInDelegate OnFadedInDelegate;
+
+	UFUNCTION(BlueprintCallable)
+	USFGazeTracker* GetGazeTracker() const;
 
 	// ****************************************************************** // 
 	// ******* Executing Study  (called by other parts of the framework)* //
@@ -106,7 +115,6 @@ public:
 	// ****************************************************************** // 
 	// *******    Logging    ******************************************** //
 	// ****************************************************************** //
-
 
 	UFUNCTION()
 		USFLogObject* GetLogObject();
@@ -177,6 +185,9 @@ protected:
 
 	bool bStartedOnUnrelatedMap = false;
 
+	UPROPERTY()
+		USFGazeTracker* GazeTracker;
+
 	// ****************************************************************** // 
 	// *******    Logging    ******************************************** //
 	// ****************************************************************** //
@@ -184,6 +195,5 @@ protected:
 	//Controls central logging functionality, stores logging parameters
 	UPROPERTY()
 		USFLogObject* LogObject;
-
 };
 

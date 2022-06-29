@@ -82,4 +82,6 @@ private:
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UImage* CursorImage; //only used for HMD fake HUD
+
+	UPROPERTY(EditAnywhere) int MaxNumberShownLogMessages = 7;
 };

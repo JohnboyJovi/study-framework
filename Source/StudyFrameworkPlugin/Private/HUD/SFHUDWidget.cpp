@@ -52,12 +52,13 @@ void USFHUDWidget::AddLogMessage(const FString& Text)
 	if (!Text.IsEmpty())
 		LogMessages.Add(Text);
 
-	while (LogMessages.Num() > 5)
+	while (LogMessages.Num() > MaxNumberShownLogMessages)
 		LogMessages.RemoveAt(0);
 
 	FString LogString = "";
-	for (FString Message : LogMessages)
+	for (int i= LogMessages.Num()-1; i>=0; --i)
 	{
+		FString Message = LogMessages[i];
 		LogString += Message + "\n";
 	}
 	LogsTextBox->SetText(FText::FromString(LogString));

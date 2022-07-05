@@ -68,11 +68,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetFactorLevel(FString FactorName) const;
 
-	//A delegate to register to when you want to start behavior once the condition is faded in
-	//NOTE: BeginPlay is called while it is still faded out!
-	UPROPERTY(BlueprintAssignable)
-	FOnFadedInDelegate OnFadedInDelegate;
-
 	UFUNCTION(BlueprintCallable)
 	USFGazeTracker* GetGazeTracker() const;
 

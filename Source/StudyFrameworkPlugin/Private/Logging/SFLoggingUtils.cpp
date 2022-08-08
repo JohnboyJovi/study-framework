@@ -38,8 +38,7 @@ void FSFLoggingUtils::SetupLoggingStreams()
 
 	//Used in the debugging process, overwritten for new session
 	ILogStream* SFDebugLog = UniLog.NewLogStream("SFDebugLog", "StudyFramework/Logs", "SFDebugLog.txt", false);
-	SFDebugLog->SetLogToDefaultLog(true);
-
+	
 	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "StudyFramework/Logs", "SFLog.txt", false);
 	SFErrorLog->SetLogToDefaultLog(true);
 	SFErrorLog->SetPrefix(TEXT("Error: "));

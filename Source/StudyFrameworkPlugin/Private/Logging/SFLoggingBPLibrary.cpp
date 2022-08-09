@@ -31,16 +31,10 @@
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Yaw) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Roll);
 
-            //Log to SFDebugLog if participant is not initialized (during debugging) 
-            if(UniLog.GetLogStream("ParticipantLog"))
+            if (UniLog.GetLogStream("PositionLog"))
             {
-                UniLog.Log(out, "ParticipantLog");
-            }
-            else
-            {
-                UniLog.Log("ParticipantLog: " + out, "SFDebugLog");
-            }
-        	
+                UniLog.Log(out, "PositionLog");
+            }        	
         }
         if (((FDateTime::Now() - ActorLoggingInfo.TimeStorage).GetTotalMilliseconds() > ActorLoggingInfo.LogTimer) || (ActorLoggingInfo.LogTimer == 0)) {
             ActorLoggingInfo.TimeStorage = FDateTime::Now();

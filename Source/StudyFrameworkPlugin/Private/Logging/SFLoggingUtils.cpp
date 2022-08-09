@@ -34,10 +34,7 @@ void FSFLoggingUtils::SetupLoggingStreams()
 	ILogStream* SFLog = UniLog.NewLogStream("SFLog", "StudyFramework/Logs", "SFLog.txt", false);
 	SFLog->SetLogToDefaultLog(true);
 
-	//ParticipantLog is set up in Participant init function
-
-	//Used in the debugging process, overwritten for new session
-	ILogStream* SFDebugLog = UniLog.NewLogStream("SFDebugLog", "StudyFramework/Logs", "SFDebugLog.txt", false);
+	//ParticipantLog, PositionLog are set up in Participant init function
 	
 	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "StudyFramework/Logs", "SFLog.txt", false);
 	SFErrorLog->SetLogToDefaultLog(true);

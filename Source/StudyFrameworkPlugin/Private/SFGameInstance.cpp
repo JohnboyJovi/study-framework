@@ -326,6 +326,8 @@ void USFGameInstance::EndStudy()
 
 bool USFGameInstance::NextCondition(bool bForced /*=false*/)
 {
+	// reset logging info array for new condition, because actors in list will be destroyed and garbage collected when new level is loaded
+	LogObject->LoggingInfo.Empty();
 	USFCondition* NextCondition = Participant->GetNextCondition();
 	if (!NextCondition)
 	{

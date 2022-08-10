@@ -92,6 +92,11 @@ public:
 	// *******      HUD      ******************************************** //
 	// ****************************************************************** //
 
+	//use this to print something to the log panel of the HUD, e.g., to inform the experimenter
+	UFUNCTION()
+		void LogToHUD(FString Text);
+
+
 	UFUNCTION()
 	void UpdateHUD(FString Status);
 

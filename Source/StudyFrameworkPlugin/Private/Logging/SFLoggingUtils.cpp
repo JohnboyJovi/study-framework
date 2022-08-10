@@ -20,7 +20,7 @@ void FSFLoggingUtils::Log(const FString Text, const bool Error /*=false*/)
 		if(USFGameInstance::IsInitialized())
 		{
 			//to avoid endless error message loops
-			LogToHUD("ERROR: "+Text);
+			USFGameInstance::Get()->LogToHUD("ERROR: "+Text);
 		}
 	}
 	else
@@ -35,23 +35,10 @@ void FSFLoggingUtils::SetupLoggingStreams()
 	SFLog->SetLogToDefaultLog(true);
 
 	//ParticipantLog, PositionLog are set up in Participant init function
-	
+
 	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "StudyFramework/Logs", "SFLog.txt", false);
 	SFErrorLog->SetLogToDefaultLog(true);
 	SFErrorLog->SetPrefix(TEXT("Error: "));
 	SFErrorLog->SetLogOnScreenOnMaster(true);
 	SFErrorLog->SetOnScreenColor(FColor::Red);
-}
-
-void FSFLoggingUtils::LogToHUD(FString Text)
-{
-	if (FSFUtils::GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(FSFUtils::GetWorld()->GetFirstPlayerController()->GetHUD()) &&
-		Cast<ASFMasterHUD>(FSFUtils::GetWorld()->GetFirstPlayerController()->GetHUD())->IsWidgetPresent())
-	{
-		Cast<ASFMasterHUD>(FSFUtils::GetWorld()->GetFirstPlayerController()->GetHUD())->AddLogMessage(Text);
-	}
-	else
-	{
-		USFGameInstance::Get()->HUDSavedData.LogMessages.Add(Text);
-	}
 }

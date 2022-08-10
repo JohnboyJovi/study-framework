@@ -63,7 +63,7 @@
      FSFLoggingUtils::Log("Logged Comment: " + Comment);
      if (AlsoLogToHUD)
      {
-         FSFLoggingUtils::LogToHUD(Comment);
+         USFGameInstance::Get()->LogToHUD(Comment);
      }
  }
 

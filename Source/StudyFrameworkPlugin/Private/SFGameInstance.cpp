@@ -100,7 +100,7 @@ void USFGameInstance::OnWorldStart()
 			FSFLoggingUtils::Log(
 				"[USFGameInstance::OnWorldChanged] Started on a map that was part of the last study, so start the study run for debug reasons.");
 			RestoreLastParticipantForDebugStart(FirstMapCondition);
-			FSFLoggingUtils::LogToHUD("Start map "+NewWorld->GetName()+" for debugging!");
+			LogToHUD("Start map "+NewWorld->GetName()+" for debugging!");
 		}
 		return;
 	}
@@ -436,6 +436,19 @@ void USFGameInstance::UpdateHUD(FString Status)
 		HUDSavedData.Status = Status;
 		if (Participant)
 			HUDSavedData.Participant = FString::FromInt(Participant->GetID());
+	}
+}
+
+void USFGameInstance::LogToHUD(FString Text)
+{
+	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()) &&
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->IsWidgetPresent())
+	{
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->AddLogMessage(Text);
+	}
+	else
+	{
+		HUDSavedData.LogMessages.Add(Text);
 	}
 }
 

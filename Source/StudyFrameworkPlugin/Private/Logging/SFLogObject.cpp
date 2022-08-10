@@ -63,5 +63,4 @@ void USFLogObject::Initialize() {
 	StaticDateTime = FDateTime::Now();
 	ProbandID = 0;
 	LoggingInfo.SetNum(0, true);
-	//SetUpLogDirs
 }

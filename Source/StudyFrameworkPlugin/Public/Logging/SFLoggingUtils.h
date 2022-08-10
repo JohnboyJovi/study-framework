@@ -16,9 +16,5 @@ public:
 
 	// To setup the debugging logs to be used
 	static void SetupLoggingStreams();
-
-	//use this to print something to the log panel of the HUD, e.g., to inform the experimenter
-	UFUNCTION()
-	static void LogToHUD(FString Text);
 };
 

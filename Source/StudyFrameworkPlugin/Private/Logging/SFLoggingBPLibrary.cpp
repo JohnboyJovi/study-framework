@@ -12,6 +12,7 @@
 void USFLoggingBPLibrary::LogHeaderRows() {
 	FString PositionLogHeader = "#" + FString("ElapsedTime") +
 		"\t" + FString("Actor") +
+		"\t" + FString("Condition") +
 		"\t" + FString("Location-X") +
 		"\t" + FString("Location-Y") +
 		"\t" + FString("Location-Z") +
@@ -32,7 +33,8 @@ void USFLoggingBPLibrary::LogHeaderRows() {
             ActorLoggingInfo.LogNextTick = false;
 			// NOTE: When changing output, update header row (see above)
 			FString out = "#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
-                "\t" + ActorLoggingInfo.LogName +
+				"\t" + ActorLoggingInfo.LogName +
+				"\t" + USFGameInstance::Get()->GetParticipant()->GetCurrentCondition()->UniqueName +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().X) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Y) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Z) +

@@ -303,6 +303,7 @@ bool USFGameInstance::StartStudy()
 		GazeTracker->Init(StudySetup->UseGazeTracker);
 	}
 
+
 	return true;
 }
 
@@ -326,8 +327,6 @@ void USFGameInstance::EndStudy()
 
 bool USFGameInstance::NextCondition(bool bForced /*=false*/)
 {
-	// reset logging info array for new condition, because actors in list will be destroyed and garbage collected when new level is loaded
-	LogObject->LoggingInfo.Empty();
 	USFCondition* NextCondition = Participant->GetNextCondition();
 	if (!NextCondition)
 	{
@@ -351,7 +350,8 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition, bool bForced 
 		FSFLoggingUtils::Log("[USFGameInstance::GoToCondition()]: Could not load next condition.", true);
 		return false;
 	}
-
+	// reset logging info array for new condition, because actors in list will be destroyed and garbage collected when new level is loaded
+	LogObject->LoggingInfo.Empty();
 	GoToConditionSyncedEvent.Send(Condition->UniqueName, bForced);
 	return true;
 }
@@ -534,11 +534,12 @@ USFLogObject* USFGameInstance::GetLogObject()
 	return LogObject;
 }
 
-
+//deprecated
 void USFGameInstance::LogComment(const FString& Comment)
 {
 	USFLoggingBPLibrary::LogComment(Comment, true);
 }
+//deprecated
 void USFGameInstance::LogData(const FString& DependenVariableName, const FString& Value)
 {
 	USFLoggingBPLibrary::LogData(DependenVariableName, Value);

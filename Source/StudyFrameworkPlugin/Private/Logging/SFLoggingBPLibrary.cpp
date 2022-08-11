@@ -8,6 +8,19 @@
 #include "Logging/SFLoggingUtils.h"
 #include "Logging/SFLogObject.h"
 
+// NOTE: When changing header row, update output (see below)
+void USFLoggingBPLibrary::LogHeaderRows() {
+	FString PositionLogHeader = "#" + FString("ElapsedTime") +
+		"\t" + FString("Actor") +
+		"\t" + FString("Location-X") +
+		"\t" + FString("Location-Y") +
+		"\t" + FString("Location-Z") +
+		"\t" + FString("Rotation-Pitch") +
+		"\t" + FString("Rotation-Yaw") +
+		"\t" + FString("Rotation-Yaw");
+	UniLog.Log(PositionLogHeader, "PositionLog");
+}
+
  void USFLoggingBPLibrary::LogToFile() {
     if(!USFGameInstance::Get() || !USFGameInstance::Get()->GetLogObject())
     {
@@ -20,9 +33,8 @@
     for (auto& ActorLoggingInfo : LogObject->LoggingInfo) {
         if (ActorLoggingInfo.LogNextTick == true) {
             ActorLoggingInfo.LogNextTick = false;
-            float TimeSinceStart = ActorLoggingInfo.ActorToLog->GetWorld()->GetTimeSeconds();
-            FString TimeSinceStartString = FString::SanitizeFloat(TimeSinceStart);
-            FString out = "" + TimeSinceStartString +
+			// NOTE: When changing output, update header row (see above)
+			FString out = "#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
                 "\t" + ActorLoggingInfo.LogName +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().X) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Y) +

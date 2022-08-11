@@ -30,7 +30,7 @@ bool USFParticipant::Initialize(int Participant)
 	ILogStream* PositionLog = UniLog.NewLogStream("PositionLog", "StudyFramework/Results/PositionLogs",
 		"Position"+Filename, false);
 	StartTime = FPlatformTime::Seconds();
-
+	USFLoggingBPLibrary::LogHeaderRows();
 	return true;
 }
 

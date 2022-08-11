@@ -27,9 +27,6 @@ void USFLoggingBPLibrary::LogHeaderRows() {
         return;
     }
     USFLogObject* LogObject = USFGameInstance::Get()->GetLogObject();
- 	if (LogObject->LogThis == false) {
- 		return;
- 	}
     for (auto& ActorLoggingInfo : LogObject->LoggingInfo) {
         if (ActorLoggingInfo.LogNextTick == true) {
             ActorLoggingInfo.LogNextTick = false;

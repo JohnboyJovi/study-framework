@@ -78,6 +78,7 @@ void USFFadeHandler::Tick()
 		GameInstance->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 		GameInstance->OnFadedIn();
 		FadeState = EFadeState::NotFading;
+		GameInstance->GetLogObject()->SetLoggingLoopsActive(true);
 		break;
 
 	case EFadeState::NotFading:
@@ -99,6 +100,7 @@ void USFFadeHandler::FadeToLevel(const FString LevelName, const bool bStartFadeF
 		return;
 	}
 
+	USFGameInstance::Get()->GetLogObject()->SetLoggingLoopsActive(false);
 	FSFLoggingUtils::Log(
 		"[USFFadeHandler::FadeToLevel()]: Fading From level (" + USFGameInstance::Get()->GetWorld()->GetMapName() + ") to level (" +
 		LevelName + ")", false);

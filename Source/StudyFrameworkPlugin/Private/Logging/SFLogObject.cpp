@@ -59,8 +59,15 @@ void USFLogObject::RemoveEntryByActor(const AActor* Actor)
 }
 
 void USFLogObject::Initialize() {
-	LogThis = true;
 	StaticDateTime = FDateTime::Now();
 	ProbandID = 0;
 	LoggingInfo.SetNum(0, true);
+}
+
+void USFLogObject::SetLoggingLoopsActive(bool LoggingLoopsActive) {
+	bLoggingLoopsActive = LoggingLoopsActive;
+}
+
+bool USFLogObject::GetLoggingLoopsActive() {
+	return bLoggingLoopsActive;
 }

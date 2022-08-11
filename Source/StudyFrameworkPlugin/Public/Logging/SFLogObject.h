@@ -47,7 +47,7 @@ public:
 	TArray<FActorLoggingInformation> LoggingInfo;
 	FDateTime StaticDateTime;
 	FString LogDir = "";
-	bool LogThis = false;
+	bool bLoggingLoopsActive = false;
 	int32 ProbandID;
 
 	void AddActor(AActor* Actor, int32 LogTimer);
@@ -56,4 +56,12 @@ public:
 	void RemoveEntryByActor(const AActor* Actor);
 	FActorLoggingInformation* GetEntryByActor(const AActor* Actor);
 	void Initialize();
+
+	//NOTE: This is for internal use, it is called within FadeHandler
+	// when starting FadeOut / finished FadeIn.
+	// it will not disable logging permanently if set to false
+	UFUNCTION()
+	void SetLoggingLoopsActive(bool LoggingLoopsActive);
+	UFUNCTION()
+	bool GetLoggingLoopsActive();
 };

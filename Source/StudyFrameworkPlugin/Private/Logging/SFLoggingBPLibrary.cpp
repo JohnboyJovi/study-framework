@@ -31,10 +31,14 @@ void USFLoggingBPLibrary::LogHeaderRows() {
     for (auto& ActorLoggingInfo : LogObject->LoggingInfo) {
         if (ActorLoggingInfo.LogNextTick == true) {
             ActorLoggingInfo.LogNextTick = false;
+			//When starting in Debug-Mode (i.e. not through the HUD) no condition is defined. 
+			FString currentCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() ? 
+											USFGameInstance::Get()->GetParticipant()->GetCurrentCondition()->UniqueName :
+        									FString("Debug");
 			// NOTE: When changing output, update header row (see above)
 			FString out = "#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
 				"\t" + ActorLoggingInfo.LogName +
-				"\t" + USFGameInstance::Get()->GetParticipant()->GetCurrentCondition()->UniqueName +
+				"\t" + currentCondition +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().X) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Y) +
                 "\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Z) +

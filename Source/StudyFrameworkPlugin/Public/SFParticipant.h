@@ -12,7 +12,7 @@
 
 #include "SFParticipant.generated.h"
 
-class USFLogger;
+
 class USFGameInstance;
 
 

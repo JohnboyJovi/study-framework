@@ -96,7 +96,6 @@ public:
 	UFUNCTION()
 		void LogToHUD(FString Text);
 
-
 	UFUNCTION()
 	void UpdateHUD(FString Status);
 
@@ -187,10 +186,6 @@ protected:
 
 	UPROPERTY()
 		USFGazeTracker* GazeTracker;
-
-	// ****************************************************************** // 
-	// *******    Logging    ******************************************** //
-	// ****************************************************************** //
 
 	//Controls central logging functionality, stores logging parameters
 	UPROPERTY()

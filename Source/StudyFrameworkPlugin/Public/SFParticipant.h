@@ -56,7 +56,7 @@ public:
 
 	// the results of all participants are stored in a file per phase (called longtable)
 	// for the data to be ready to use in statistics software, this methods clears all
-	// of that data (e.g. if study is entirely restarted=
+	// of that data (e.g. if study is entirely restarted)
 	// So: USE WITH CARE!
 	static void ClearPhaseLongtables(ASFStudySetup* StudySetup);
 

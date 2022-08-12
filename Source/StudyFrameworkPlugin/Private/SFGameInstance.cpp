@@ -350,8 +350,6 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition, bool bForced 
 		FSFLoggingUtils::Log("[USFGameInstance::GoToCondition()]: Could not load next condition.", true);
 		return false;
 	}
-	// reset logging info array for new condition, because actors in list will be destroyed and garbage collected when new level is loaded
-	LogObject->LoggingInfo.Empty();
 	GoToConditionSyncedEvent.Send(Condition->UniqueName, bForced);
 	return true;
 }

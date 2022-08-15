@@ -524,7 +524,7 @@ USFParticipant* USFGameInstance::GetParticipant() const
 bool USFGameInstance::LogTick(float DeltaSeconds)
 {
 	if (LogObject->bLoggingLoopsActive){
-		USFLoggingBPLibrary::LogToFile();
+		LogObject->LoggingLoopsLogToFile();
 	}	
 	return true;
 }

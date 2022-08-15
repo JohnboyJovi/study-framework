@@ -64,4 +64,8 @@ public:
 	void SetLoggingLoopsActive(bool LoggingLoopsActive);
 	UFUNCTION()
 	bool GetLoggingLoopsActive();
+	UFUNCTION()
+		static void LogHeaderRows();
+	UFUNCTION()
+		static void LoggingLoopsLogToFile();
 };

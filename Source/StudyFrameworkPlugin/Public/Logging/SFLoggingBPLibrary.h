@@ -14,9 +14,14 @@ class STUDYFRAMEWORKPLUGIN_API USFLoggingBPLibrary : public UBlueprintFunctionLi
 {
 	GENERATED_BODY()
 public:
-	
+	// For usability it is possible to "add actors" to position logging,
+	// under the hood the root component of that actor is added to logging
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Add Actor to Logging", Keywords = "SFLogging"), Category = "SFLogging")
 		static void AddActor(AActor* Actor, int32 LogTimer, FString LogName);
+
+	//Add component to position logging
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Add Component to Logging", Keywords = "SFLogging"), Category = "SFLogging")
+		static void AddComponent(USceneComponent* Component, int32 LogTimer, FString LogName);
 
 	//Log Data collected for a DependentVariable in this condition
 	UFUNCTION(BlueprintCallable)

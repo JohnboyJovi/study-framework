@@ -2,59 +2,43 @@
 #include "Engine.h"
 #include "IUniversalLogging.h"
 #include "SFGameInstance.h"
+#include "Logging/SFLoggingUtils.h"
 
 USFLogObject::USFLogObject() {
-	ActorLoggingInfoArray.Init(FActorLoggingInformation(0, nullptr, ""), 0);
+	ComponentLoggingInfoArray.Init(FComponentLoggingInformation(0, nullptr, ""), 0);
 }
 
-void USFLogObject::AddActor(AActor* Actor, int32 LogTimer) {
-	// Actor already in list -> overwrite existing Entry
-	if(GetEntryByActor(Actor))
+void USFLogObject::AddComponentWithName(USceneComponent* Component, int32 LogTimer, FString LogName) {
+	// Component already in list -> overwrite existing Entry
+	if (GetEntryByComponent(Component))
 	{
-		GetEntryByActor(Actor)->LogTimer = LogTimer;
+		GetEntryByComponent(Component)->LogTimer = LogTimer;
+		GetEntryByComponent(Component)->LogName = LogName;
 		return;
 	}
-	ActorLoggingInfoArray.Add(FActorLoggingInformation(LogTimer, Actor, Actor->GetFName().ToString()));
+	ComponentLoggingInfoArray.Add(FComponentLoggingInformation(LogTimer, Component, LogName));
+	FSFLoggingUtils::Log("Added Component "+ LogName, false);
 }
 
-void USFLogObject::AddActorWithName(AActor* Actor, int32 LogTimer, FString LogName) {
-	// Actor already in list -> overwrite existing Entry
-	if (GetEntryByActor(Actor))
-	{
-		GetEntryByActor(Actor)->LogTimer = LogTimer;
-		GetEntryByActor(Actor)->LogName = LogName;
-		return;
-	}
-	ActorLoggingInfoArray.Add(FActorLoggingInformation(LogTimer, Actor, LogName));
-	UE_LOG(LogTemp, Display, TEXT("Added Actor %s"), *LogName)
-}
-
-void USFLogObject::AddActors(TArray<AActor*> ActorArray, int32 LogTimer) {
-	for (int32 Index = 0; Index != ActorArray.Num(); ++Index) {
-		AddActor(ActorArray[Index], LogTimer);
-	}
-}
-
-
-FActorLoggingInformation* USFLogObject::GetEntryByActor(const AActor* Actor)
+FComponentLoggingInformation* USFLogObject::GetEntryByComponent(const USceneComponent* Component)
 {
-	for (int i = 0; i< ActorLoggingInfoArray.Num(); i++)
+	for (int i = 0; i< ComponentLoggingInfoArray.Num(); i++)
 	{
-		if(ActorLoggingInfoArray[i].ActorToLog == Actor)
+		if(ComponentLoggingInfoArray[i].ComponentToLog == Component)
 		{
-			return &ActorLoggingInfoArray[i];
+			return &ComponentLoggingInfoArray[i];
 		}
 	}
 	return nullptr;
 }
 
-void USFLogObject::RemoveEntryByActor(const AActor* Actor)
+void USFLogObject::RemoveEntryByComponent(const USceneComponent* Component)
 {
-	for (int i = 0; i < ActorLoggingInfoArray.Num(); i++)
+	for (int i = 0; i < ComponentLoggingInfoArray.Num(); i++)
 	{
-		if (ActorLoggingInfoArray[i].ActorToLog == Actor)
+		if (ComponentLoggingInfoArray[i].ComponentToLog == Component)
 		{
-			ActorLoggingInfoArray.RemoveAt(i);
+			ComponentLoggingInfoArray.RemoveAt(i);
 		}
 	}
 }
@@ -62,13 +46,13 @@ void USFLogObject::RemoveEntryByActor(const AActor* Actor)
 void USFLogObject::Initialize() {
 	StaticDateTime = FDateTime::Now();
 	ProbandID = 0;
-	ActorLoggingInfoArray.SetNum(0, true);
+	ComponentLoggingInfoArray.SetNum(0, true);
 }
 
 // NOTE: When changing header row, update output (see below)
 void USFLogObject::LogHeaderRows() {
 	FString PositionLogHeader = "#" + FString("ElapsedTime") +
-		"\t" + FString("Actor") +
+		"\t" + FString("LogName") +
 		"\t" + FString("Condition") +
 		"\t" + FString("Location-X") +
 		"\t" + FString("Location-Y") +
@@ -85,32 +69,32 @@ void USFLogObject::LoggingLoopsLogToFile() {
 		return;
 	}
 	USFLogObject* LogObject = USFGameInstance::Get()->GetLogObject();
-	for (auto& ActorLoggingInfo : LogObject->ActorLoggingInfoArray) {
-		if (ActorLoggingInfo.LogNextTick == true) {
-			ActorLoggingInfo.LogNextTick = false;
+	for (auto& ComponentLoggingInfo : LogObject->ComponentLoggingInfoArray) {
+		if (ComponentLoggingInfo.LogNextTick == true) {
+			ComponentLoggingInfo.LogNextTick = false;
 			//When starting in Debug-Mode (i.e. not through the HUD) no condition is defined. 
 			FString currentCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() ?
 				USFGameInstance::Get()->GetParticipant()->GetCurrentCondition()->UniqueName :
 				FString("Debug");
 			// NOTE: When changing output, update header row (see above)
-			FString out = "#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
-				"\t" + ActorLoggingInfo.LogName +
-				"\t" + currentCondition +
-				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().X) +
-				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Y) +
-				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorLocation().Z) +
-				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Pitch) +
-				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Yaw) +
-				"\t" + FString::Printf(TEXT("%.3f"), ActorLoggingInfo.ActorToLog->GetActorRotation().Roll);
 
+			FString out = "#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
+				"\t" + ComponentLoggingInfo.LogName +
+				"\t" + currentCondition +
+				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentLocation().X) +
+				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentLocation().Y) +
+				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentLocation().Z) +
+				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentRotation().Pitch) +
+				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentRotation().Yaw) +
+				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentRotation().Roll);
 			if (UniLog.GetLogStream("PositionLog"))
 			{
 				UniLog.Log(out, "PositionLog");
 			}
 		}
-		if (((FDateTime::Now() - ActorLoggingInfo.TimeStorage).GetTotalMilliseconds() > ActorLoggingInfo.LogTimer) || (ActorLoggingInfo.LogTimer == 0)) {
-			ActorLoggingInfo.TimeStorage = FDateTime::Now();
-			ActorLoggingInfo.LogNextTick = true;
+		if (((FDateTime::Now() - ComponentLoggingInfo.TimeStorage).GetTotalMilliseconds() > ComponentLoggingInfo.LogTimer) || (ComponentLoggingInfo.LogTimer == 0)) {
+			ComponentLoggingInfo.TimeStorage = FDateTime::Now();
+			ComponentLoggingInfo.LogNextTick = true;
 		}
 	}
 }

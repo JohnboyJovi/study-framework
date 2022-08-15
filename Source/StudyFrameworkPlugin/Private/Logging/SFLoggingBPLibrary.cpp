@@ -37,6 +37,14 @@
  {
      if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
      {
-         USFGameInstance::Get()->GetLogObject()->AddActorWithName(Actor, LogTimer, LogName);
+         USFGameInstance::Get()->GetLogObject()->AddComponentWithName(Actor->GetRootComponent(), LogTimer, LogName);
+     }
+ }
+
+ void USFLoggingBPLibrary::AddComponent(USceneComponent* Component, int32 LogTimer, FString LogName)
+ {
+     if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
+     {
+         USFGameInstance::Get()->GetLogObject()->AddComponentWithName(Component, LogTimer, LogName);
      }
  }

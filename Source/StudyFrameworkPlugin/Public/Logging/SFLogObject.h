@@ -5,34 +5,6 @@
 #include "SFLogObject.generated.h"
 
 USTRUCT(BlueprintType)
-struct FActorLoggingInformation
-{
-	GENERATED_BODY()
-public:
-	FActorLoggingInformation()
-	{
-	}
-
-	FActorLoggingInformation(int32 LogTimer, AActor* Actor, FString LogName)
-	{
-		this->LogTimer = LogTimer;
-		this->LogNextTick = false;
-		this->ActorToLog = Actor;
-		this->LogName = LogName;
-		TimeStorage = FDateTime::Now();
-	}
-	// Specifies Logging Frequency in ms
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	int32 LogTimer;
-	bool LogNextTick;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	AActor* ActorToLog;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	FString LogName;
-	FDateTime TimeStorage;
-};
-
-USTRUCT(BlueprintType)
 struct FComponentLoggingInformation
 {
 	GENERATED_BODY()
@@ -41,7 +13,7 @@ public:
 	{
 	}
 
-	FComponentLoggingInformation(int32 LogTimer, UActorComponent* Component, FString LogName)
+	FComponentLoggingInformation(int32 LogTimer, USceneComponent* Component, FString LogName)
 	{
 		this->LogTimer = LogTimer;
 		this->LogNextTick = false;
@@ -55,7 +27,7 @@ public:
 	bool LogNextTick;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-		UActorComponent* ComponentToLog;
+		USceneComponent* ComponentToLog;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 		FString LogName;
 	FDateTime TimeStorage;
@@ -72,18 +44,16 @@ private:
 	USFLogObject();
 
 public:
-	TArray<FActorLoggingInformation> ActorLoggingInfoArray;
 	TArray<FComponentLoggingInformation> ComponentLoggingInfoArray;
 	FDateTime StaticDateTime;
 	FString LogDir = "";
 	bool bLoggingLoopsActive = false;
 	int32 ProbandID;
+	
+	void AddComponentWithName(USceneComponent* Component, int32 LogTimer, FString LogName);
 
-	void AddActor(AActor* Actor, int32 LogTimer);
-	void AddActorWithName(AActor* Actor, int32 LogTimer, FString LogName);
-	void AddActors(TArray<AActor*>, int32 LogTimer);
-	void RemoveEntryByActor(const AActor* Actor);
-	FActorLoggingInformation* GetEntryByActor(const AActor* Actor);
+	void RemoveEntryByComponent(const USceneComponent* Component);
+	FComponentLoggingInformation* GetEntryByComponent(const USceneComponent* Component);
 	void Initialize();
 
 	//NOTE: This is for internal use, it is called within FadeHandler
@@ -91,6 +61,7 @@ public:
 	// it will not disable logging permanently if set to false
 	UFUNCTION()
 	void SetLoggingLoopsActive(bool LoggingLoopsActive);
+
 	UFUNCTION()
 	bool GetLoggingLoopsActive();
 	UFUNCTION()

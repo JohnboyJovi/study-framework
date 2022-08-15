@@ -102,7 +102,7 @@ void USFFadeHandler::FadeToLevel(const FString LevelName, const bool bStartFadeF
 	// Pause Logging Loops (e.g. position logging) between conditions
 	USFGameInstance::Get()->GetLogObject()->SetLoggingLoopsActive(false);
 	// reset logging info array for new condition, because actors in list will be destroyed and garbage collected when new level is loaded
-	USFGameInstance::Get()->GetLogObject()->ActorLoggingInfoArray.Empty();
+	USFGameInstance::Get()->GetLogObject()->ComponentLoggingInfoArray.Empty();
 	FSFLoggingUtils::Log(
 		"[USFFadeHandler::FadeToLevel()]: Fading From level (" + USFGameInstance::Get()->GetWorld()->GetMapName() + ") to level (" +
 		LevelName + ")", false);

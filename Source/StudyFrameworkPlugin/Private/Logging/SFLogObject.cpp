@@ -17,7 +17,7 @@ void USFLogObject::AddComponentWithName(USceneComponent* Component, int32 LogTim
 		return;
 	}
 	ComponentLoggingInfoArray.Add(FComponentLoggingInformation(LogTimer, Component, LogName));
-	FSFLoggingUtils::Log("Added Component "+ LogName, false);
+	FSFLoggingUtils::Log("Added Component "+ LogName + " (" + Component->GetReadableName() +") " + " to PositionLogging Array", false);
 }
 
 FComponentLoggingInformation* USFLogObject::GetEntryByComponent(const USceneComponent* Component)

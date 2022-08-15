@@ -25,11 +25,39 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	int32 LogTimer;
 	bool LogNextTick;
-	// eventually, other UObjects like components should be able to be tracked as well,
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	AActor* ActorToLog;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FString LogName;
+	FDateTime TimeStorage;
+};
+
+USTRUCT(BlueprintType)
+struct FComponentLoggingInformation
+{
+	GENERATED_BODY()
+public:
+	FComponentLoggingInformation()
+	{
+	}
+
+	FComponentLoggingInformation(int32 LogTimer, UActorComponent* Component, FString LogName)
+	{
+		this->LogTimer = LogTimer;
+		this->LogNextTick = false;
+		this->ComponentToLog = Component;
+		this->LogName = LogName;
+		TimeStorage = FDateTime::Now();
+	}
+	// Specifies Logging Frequency in ms
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		int32 LogTimer;
+	bool LogNextTick;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		UActorComponent* ComponentToLog;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		FString LogName;
 	FDateTime TimeStorage;
 };
 
@@ -44,7 +72,8 @@ private:
 	USFLogObject();
 
 public:
-	TArray<FActorLoggingInformation> LoggingInfo;
+	TArray<FActorLoggingInformation> ActorLoggingInfoArray;
+	TArray<FComponentLoggingInformation> ComponentLoggingInfoArray;
 	FDateTime StaticDateTime;
 	FString LogDir = "";
 	bool bLoggingLoopsActive = false;

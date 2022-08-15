@@ -4,7 +4,7 @@
 #include "SFGameInstance.h"
 
 USFLogObject::USFLogObject() {
-	LoggingInfo.Init(FActorLoggingInformation(0, nullptr, ""), 0);
+	ActorLoggingInfoArray.Init(FActorLoggingInformation(0, nullptr, ""), 0);
 }
 
 void USFLogObject::AddActor(AActor* Actor, int32 LogTimer) {
@@ -14,7 +14,7 @@ void USFLogObject::AddActor(AActor* Actor, int32 LogTimer) {
 		GetEntryByActor(Actor)->LogTimer = LogTimer;
 		return;
 	}
-	LoggingInfo.Add(FActorLoggingInformation(LogTimer, Actor, Actor->GetFName().ToString()));
+	ActorLoggingInfoArray.Add(FActorLoggingInformation(LogTimer, Actor, Actor->GetFName().ToString()));
 }
 
 void USFLogObject::AddActorWithName(AActor* Actor, int32 LogTimer, FString LogName) {
@@ -25,7 +25,7 @@ void USFLogObject::AddActorWithName(AActor* Actor, int32 LogTimer, FString LogNa
 		GetEntryByActor(Actor)->LogName = LogName;
 		return;
 	}
-	LoggingInfo.Add(FActorLoggingInformation(LogTimer, Actor, LogName));
+	ActorLoggingInfoArray.Add(FActorLoggingInformation(LogTimer, Actor, LogName));
 	UE_LOG(LogTemp, Display, TEXT("Added Actor %s"), *LogName)
 }
 
@@ -38,11 +38,11 @@ void USFLogObject::AddActors(TArray<AActor*> ActorArray, int32 LogTimer) {
 
 FActorLoggingInformation* USFLogObject::GetEntryByActor(const AActor* Actor)
 {
-	for (int i = 0; i<LoggingInfo.Num(); i++)
+	for (int i = 0; i< ActorLoggingInfoArray.Num(); i++)
 	{
-		if(LoggingInfo[i].ActorToLog == Actor)
+		if(ActorLoggingInfoArray[i].ActorToLog == Actor)
 		{
-			return &LoggingInfo[i];
+			return &ActorLoggingInfoArray[i];
 		}
 	}
 	return nullptr;
@@ -50,11 +50,11 @@ FActorLoggingInformation* USFLogObject::GetEntryByActor(const AActor* Actor)
 
 void USFLogObject::RemoveEntryByActor(const AActor* Actor)
 {
-	for (int i = 0; i < LoggingInfo.Num(); i++)
+	for (int i = 0; i < ActorLoggingInfoArray.Num(); i++)
 	{
-		if (LoggingInfo[i].ActorToLog == Actor)
+		if (ActorLoggingInfoArray[i].ActorToLog == Actor)
 		{
-			LoggingInfo.RemoveAt(i);
+			ActorLoggingInfoArray.RemoveAt(i);
 		}
 	}
 }
@@ -62,7 +62,7 @@ void USFLogObject::RemoveEntryByActor(const AActor* Actor)
 void USFLogObject::Initialize() {
 	StaticDateTime = FDateTime::Now();
 	ProbandID = 0;
-	LoggingInfo.SetNum(0, true);
+	ActorLoggingInfoArray.SetNum(0, true);
 }
 
 // NOTE: When changing header row, update output (see below)
@@ -85,7 +85,7 @@ void USFLogObject::LoggingLoopsLogToFile() {
 		return;
 	}
 	USFLogObject* LogObject = USFGameInstance::Get()->GetLogObject();
-	for (auto& ActorLoggingInfo : LogObject->LoggingInfo) {
+	for (auto& ActorLoggingInfo : LogObject->ActorLoggingInfoArray) {
 		if (ActorLoggingInfo.LogNextTick == true) {
 			ActorLoggingInfo.LogNextTick = false;
 			//When starting in Debug-Mode (i.e. not through the HUD) no condition is defined. 

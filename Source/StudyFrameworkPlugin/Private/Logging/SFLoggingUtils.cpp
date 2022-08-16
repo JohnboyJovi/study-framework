@@ -31,7 +31,7 @@ void FSFLoggingUtils::Log(const FString Text, const bool Error /*=false*/)
 
 void FSFLoggingUtils::SetupLoggingStreams()
 {
-	ILogStream* SFLog = UniLog.NewLogStream("SFLog", "StudyFramework/Logs", "SFLog.txt", false);
+	ILogStream* SFLog = UniLog.NewLogStream("SFLog", "StudyFramework/DebuggingLogs", "SFLog.txt", false);
 	SFLog->SetLogToDefaultLog(true);
 
 	//ParticipantLog, PositionLog are set up in Participant init function

@@ -25,9 +25,9 @@ bool USFParticipant::Initialize(int Participant)
 
 	const FString Timestamp = FDateTime::Now().ToString();
 	const FString Filename = "LogParticipant-" + FString::FromInt(ParticipantID) + "_" + Timestamp + ".txt";
-	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "StudyFramework/Results/ParticipantLogs",
+	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "StudyFramework/StudyLogs/ParticipantLogs",
 	                                                 Filename, false);
-	ILogStream* PositionLog = UniLog.NewLogStream("PositionLog", "StudyFramework/Results/PositionLogs",
+	ILogStream* PositionLog = UniLog.NewLogStream("PositionLog", "StudyFramework/StudyLogs/PositionLogs",
 		"Position"+Filename, false);
 	StartTime = FPlatformTime::Seconds();
 	USFGameInstance::Get()->GetLogObject()->LogHeaderRows();
@@ -99,7 +99,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 {
 	USFCondition* CurrCondition = GetCurrentCondition();
 
-	FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + CurrCondition->PhaseName + ".csv";
+	FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + CurrCondition->PhaseName + ".csv";
 
 	if (!FPaths::FileExists(Filename))
 	{
@@ -265,7 +265,7 @@ void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 	//this is not the most effective way of recovering but the most trivial (long tables will be read multiple times)
 	for (USFCondition* Condition : Conditions)
 	{
-		const FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + Condition->PhaseName + ".csv";
+		const FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + Condition->PhaseName + ".csv";
 		TArray<FString> Lines;
 		if (!FFileHelper::LoadANSITextFileToStrings(*Filename, nullptr, Lines))
 		{
@@ -296,7 +296,7 @@ void USFParticipant::ClearPhaseLongtables(ASFStudySetup* StudySetup)
 	for (int i = 0; i < StudySetup->GetNumberOfPhases(); ++i)
 	{
 		const FString PhaseName = StudySetup->GetPhase(i)->PhaseName;
-		const FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + PhaseName + ".csv";
+		const FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + PhaseName + ".csv";
 		if (FPaths::FileExists(Filename))
 		{
 			IFileManager& FileManager = IFileManager::Get();

@@ -17,7 +17,7 @@ void USFLogObject::AddComponentWithName(USceneComponent* Component, int32 LogTim
 		return;
 	}
 	ComponentLoggingInfoArray.Add(FComponentLoggingInformation(LogTimer, Component, LogName));
-	FSFLoggingUtils::Log("Added Component "+ LogName + " (" + Component->GetReadableName() +") " + " to PositionLogging Array", false);
+	FSFLoggingUtils::Log("PositionLogging: Added Component "+ LogName + " (" + Component->GetReadableName() +") " + " to PositionLogging Array", false);
 }
 
 FComponentLoggingInformation* USFLogObject::GetEntryByComponent(const USceneComponent* Component)
@@ -102,6 +102,8 @@ void USFLogObject::LoggingLoopsLogToFile() {
 
 void USFLogObject::SetLoggingLoopsActive(bool LoggingLoopsActive) {
 	bLoggingLoopsActive = LoggingLoopsActive;
+	FString StateToLog = LoggingLoopsActive ? "Enabled" : "Disabled";
+	FSFLoggingUtils::Log("PositionLogging: " + StateToLog + " position logging loops.");
 }
 
 bool USFLogObject::GetLoggingLoopsActive() {

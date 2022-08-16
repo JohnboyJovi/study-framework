@@ -51,7 +51,7 @@ void USFLogObject::Initialize() {
 
 // NOTE: When changing header row, update output (see below)
 void USFLogObject::LogHeaderRows() {
-	FString PositionLogHeader = "#" + FString("ElapsedTime") +
+	FString PositionLogHeader = FString("ElapsedTime") +
 		"\t" + FString("LogName") +
 		"\t" + FString("Condition") +
 		"\t" + FString("Location-X") +
@@ -78,7 +78,7 @@ void USFLogObject::LoggingLoopsLogToFile() {
 				FString("Debug");
 			// NOTE: When changing output, update header row (see above)
 
-			FString out = "#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
+			FString out = USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
 				"\t" + ComponentLoggingInfo.LogName +
 				"\t" + currentCondition +
 				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentLocation().X) +

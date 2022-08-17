@@ -35,7 +35,7 @@ bool USFParticipant::Initialize(int Participant)
 			"GazeTracking" + Filename, false);
 	}
 	StartTime = FPlatformTime::Seconds();
-	USFGameInstance::Get()->GetLogObject()->LogHeaderRows();
+	USFGameInstance::Get()->GetLogObject()->WritePositionLogHeaderRows();
 	return true;
 }
 

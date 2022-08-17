@@ -50,7 +50,7 @@ void USFLogObject::Initialize() {
 }
 
 // NOTE: When changing header row, update output (see below)
-void USFLogObject::LogHeaderRows() {
+void USFLogObject::WritePositionLogHeaderRows() {
 	FString PositionLogHeader = FString("ElapsedTime") +
 		"\t" + FString("LogName") +
 		"\t" + FString("Condition") +
@@ -63,7 +63,7 @@ void USFLogObject::LogHeaderRows() {
 	UniLog.Log(PositionLogHeader, "PositionLog");
 }
 
-void USFLogObject::LoggingLoopsLogToFile() {
+void USFLogObject::WritePositionLogToFile() {
 	if (!USFGameInstance::Get() || !USFGameInstance::Get()->GetLogObject())
 	{
 		return;

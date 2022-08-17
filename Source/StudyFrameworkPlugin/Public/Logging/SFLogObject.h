@@ -65,7 +65,7 @@ public:
 	UFUNCTION()
 	bool GetLoggingLoopsActive();
 	UFUNCTION()
-		static void LogHeaderRows();
+		static void WritePositionLogHeaderRows();
 	UFUNCTION()
-		static void LoggingLoopsLogToFile();
+		static void WritePositionLogToFile();
 };

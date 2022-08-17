@@ -1,5 +1,5 @@
 #include "GazeTracking/SFGazeTracker.h"
-
+#include "Logging/SFLoggingBPLibrary.h"
 #include "SFGameInstance.h"
 #include "GazeTracking/SFGazeTarget.h"
 #include "GazeTracking/SFGazeTargetActor.h"
@@ -26,7 +26,7 @@ void USFGazeTracker::Init(EGazeTrackerMode Mode)
 		}
 		else
 		{
-			USFGameInstance::Get()->LogComment("No Vive Pro Eye present, use head rotation only for gaze tracking.");
+			USFLoggingBPLibrary::LogComment("No Vive Pro Eye present, use head rotation only for gaze tracking.", true);
 		}
 #else
 		FSFUtils::OpenMessageBox("SRanipal Plugin is not present, cannot use eye tracking! Check out, e.g., StudyFramework Wiki where to get it", true);

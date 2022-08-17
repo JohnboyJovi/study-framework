@@ -29,6 +29,11 @@ bool USFParticipant::Initialize(int Participant)
 	                                                 Filename, false);
 	ILogStream* PositionLog = UniLog.NewLogStream("PositionLog", "StudyFramework/StudyLogs/PositionLogs",
 		"Position"+Filename, false);
+	if(USFGameInstance::Get()->GetStudySetup()->UseGazeTracker != EGazeTrackerMode::NotTracking)
+	{
+		ILogStream* GazeTrackingLog = UniLog.NewLogStream("GazeTrackingLog", "StudyFramework/StudyLogs/GazeTrackingLogs",
+			"GazeTracking" + Filename, false);
+	}
 	StartTime = FPlatformTime::Seconds();
 	USFGameInstance::Get()->GetLogObject()->LogHeaderRows();
 	return true;

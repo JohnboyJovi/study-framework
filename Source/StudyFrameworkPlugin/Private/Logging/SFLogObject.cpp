@@ -50,7 +50,7 @@ void USFLogObject::Initialize() {
 }
 
 // NOTE: When changing header row, update output (see below)
-void USFLogObject::WritePositionLogHeaderRows() {
+void USFLogObject::WritePositionLogHeaderRow() {
 	FString PositionLogHeader = FString("ElapsedTime") +
 		"\t" + FString("LogName") +
 		"\t" + FString("Condition") +
@@ -73,14 +73,14 @@ void USFLogObject::WritePositionLogToFile() {
 		if (ComponentLoggingInfo.LogNextTick == true) {
 			ComponentLoggingInfo.LogNextTick = false;
 			//When starting in Debug-Mode (i.e. not through the HUD) no condition is defined. 
-			FString currentCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() ?
+			FString CurrentCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() ?
 				USFGameInstance::Get()->GetParticipant()->GetCurrentCondition()->UniqueName :
 				FString("Debug");
 			// NOTE: When changing output, update header row (see above)
 
 			FString out = USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
 				"\t" + ComponentLoggingInfo.LogName +
-				"\t" + currentCondition +
+				"\t" + CurrentCondition +
 				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentLocation().X) +
 				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentLocation().Y) +
 				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentLocation().Z) +
@@ -99,6 +99,38 @@ void USFLogObject::WritePositionLogToFile() {
 	}
 }
 
+// NOTE: When changing header row, update output (see below)
+void USFLogObject::WriteGazeTrackingLogHeaderRow() {
+	FString GazeTrackingLogHeader = FString("ElapsedTime") +
+		"\t" + FString("Condition") +
+		"\t" + FString("GazeTarget") +
+		"\t" + FString("HeadRotation-Origin") +
+		"\t" + FString("HeadRotation-Direction");
+	UniLog.Log(GazeTrackingLogHeader, "GazeTrackingLog");
+}
+
+void USFLogObject::WriteGazeTrackingLogToFile() {
+	if (!USFGameInstance::Get() || !USFGameInstance::Get()->GetGazeTracker())
+	{
+		return;
+	}
+	USFGazeTracker* GazeTracker = USFGameInstance::Get()->GetGazeTracker();
+	FString GazeTarget = GazeTracker->GetCurrentGazeTarget() == "" ? "-" : GazeTracker->GetCurrentGazeTarget();
+	//When starting in Debug-Mode (i.e. not through the HUD) no condition is defined. 
+	FString CurrentCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() ?
+								USFGameInstance::Get()->GetParticipant()->GetCurrentCondition()->UniqueName :
+								FString("Debug");
+	// NOTE: When changing output, update header row (see above)
+	FString out = USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
+		"\t" + CurrentCondition +
+		"\t" + GazeTarget +
+		"\t" + GazeTracker->GetGazeDirection().Origin.ToCompactString() +
+		"\t" + GazeTracker->GetGazeDirection().Direction.ToCompactString();
+	if (UniLog.GetLogStream("GazeTrackingLog"))
+	{
+		UniLog.Log(out, "GazeTrackingLog");
+	}
+}
 
 void USFLogObject::SetLoggingLoopsActive(bool LoggingLoopsActive) {
 	bLoggingLoopsActive = LoggingLoopsActive;

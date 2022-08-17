@@ -525,6 +525,7 @@ bool USFGameInstance::LogTick(float DeltaSeconds)
 {
 	if (LogObject->bLoggingLoopsActive){
 		LogObject->WritePositionLogToFile();
+		LogObject->WriteGazeTrackingLogToFile();
 	}	
 	return true;
 }

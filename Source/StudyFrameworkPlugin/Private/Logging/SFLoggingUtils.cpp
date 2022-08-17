@@ -36,7 +36,7 @@ void FSFLoggingUtils::SetupLoggingStreams()
 
 	//ParticipantLog, PositionLog are set up in Participant init function
 
-	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "StudyFramework/Logs", "SFLog.txt", false);
+	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "StudyFramework/DebuggingLogs", "SFLog.txt", false);
 	SFErrorLog->SetLogToDefaultLog(true);
 	SFErrorLog->SetPrefix(TEXT("Error: "));
 	SFErrorLog->SetLogOnScreenOnMaster(true);

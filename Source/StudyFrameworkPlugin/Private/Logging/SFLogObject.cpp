@@ -103,6 +103,7 @@ void USFLogObject::WritePositionLogToFile() {
 void USFLogObject::WriteGazeTrackingLogHeaderRow() {
 	FString GazeTrackingLogHeader = FString("ElapsedTime") +
 		"\t" + FString("Condition") +
+		"\t" + FString("UsingEyetracking") +
 		"\t" + FString("GazeTarget") +
 		"\t" + FString("HeadRotation-Origin") +
 		"\t" + FString("HeadRotation-Direction");
@@ -120,9 +121,11 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 	FString CurrentCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() ?
 								USFGameInstance::Get()->GetParticipant()->GetCurrentCondition()->UniqueName :
 								FString("Debug");
+	FString isTrackingEyes = USFGameInstance::Get()->GetGazeTracker()->IsTrackingEyes() ? "1" : "0";
 	// NOTE: When changing output, update header row (see above)
 	FString out = USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
 		"\t" + CurrentCondition +
+		"\t" + isTrackingEyes +
 		"\t" + GazeTarget +
 		"\t" + GazeTracker->GetGazeDirection().Origin.ToCompactString() +
 		"\t" + GazeTracker->GetGazeDirection().Direction.ToCompactString();

@@ -113,7 +113,7 @@ void ASFStudySetup::ClearStudyResults() const
 	};
 
 	DeleteFolder("StudyRuns");
-	DeleteFolder("Results");
+	DeleteFolder("StudyLogs");
 }
 
 TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber) const

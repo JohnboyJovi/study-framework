@@ -29,8 +29,11 @@ bool USFParticipant::Initialize(int Participant)
 	                                                 Filename, false);
 	ILogStream* PositionLog = UniLog.NewLogStream("PositionLog", "StudyFramework/StudyLogs/PositionLogs",
 		"Position"+Filename, false);
-	StartTime = FPlatformTime::Seconds();
-	USFGameInstance::Get()->GetLogObject()->LogHeaderRows();
+	if (USFGameInstance::Get())
+	{
+		USFGameInstance::Get()->GetLogObject()->LogHeaderRows();
+		FSFLoggingUtils::Log("GameInstance not set up yet, no header rows are written to participant logs.");
+	}
 	return true;
 }
 

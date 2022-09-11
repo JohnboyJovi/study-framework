@@ -35,8 +35,15 @@ bool USFParticipant::Initialize(int Participant)
 			"GazeTracking" + Filename, false);
 	}
 	StartTime = FPlatformTime::Seconds();
-	USFGameInstance::Get()->GetLogObject()->WritePositionLogHeaderRow();
-	USFGameInstance::Get()->GetLogObject()->WriteGazeTrackingLogHeaderRow();
+	if (USFGameInstance::Get())
+	{
+		USFGameInstance::Get()->GetLogObject()->WritePositionLogHeaderRow();
+		USFGameInstance::Get()->GetLogObject()->WriteGazeTrackingLogHeaderRow();
+	}
+	else
+	{
+		FSFLoggingUtils::Log("GameInstance not set up yet, no header rows are written to participant logs.");
+	}
 	return true;
 }
 

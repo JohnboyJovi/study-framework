@@ -22,7 +22,7 @@ void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 		return;
 	}
 
-	FSFLoggingUtils::Log(FString("[FVAUtils::OpenMessageBox(ERROR = ") + (bError ? "TRUE" : "FALSE") +
+	FSFLoggingUtils::Log(FString("[FSFUtils::OpenMessageBox(ERROR = ") + (bError ? "TRUE" : "FALSE") +
 	    ")]: Opening Message Box with message: " + Text, bError);
 
 	FText Title = FText::FromString(FString(bError ? "ERROR" : "Message"));

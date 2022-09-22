@@ -59,7 +59,7 @@ void USFLogObject::LogHeaderRows() {
 		"\t" + FString("Location-Z") +
 		"\t" + FString("Rotation-Pitch") +
 		"\t" + FString("Rotation-Yaw") +
-		"\t" + FString("Rotation-Yaw");
+		"\t" + FString("Rotation-Roll");
 	UniLog.Log(PositionLogHeader, "PositionLog");
 }
 

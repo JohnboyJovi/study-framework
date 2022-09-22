@@ -423,7 +423,18 @@ FString USFGameInstance::GetFactorLevel(FString FactorName) const
 	return "FactorNotPresent";
 }
 
-
+void USFGameInstance::LogToHUD(FString Text)
+{
+	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()) &&
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->IsWidgetPresent())
+	{
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->AddLogMessage(Text);
+	}
+	else
+	{
+		HUDSavedData.LogMessages.Add(Text);
+	}
+}
 
 void USFGameInstance::UpdateHUD(FString Status)
 {
@@ -436,19 +447,6 @@ void USFGameInstance::UpdateHUD(FString Status)
 		HUDSavedData.Status = Status;
 		if (Participant)
 			HUDSavedData.Participant = FString::FromInt(Participant->GetID());
-	}
-}
-
-void USFGameInstance::LogToHUD(FString Text)
-{
-	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()) &&
-		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->IsWidgetPresent())
-	{
-		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->AddLogMessage(Text);
-	}
-	else
-	{
-		HUDSavedData.LogMessages.Add(Text);
 	}
 }
 

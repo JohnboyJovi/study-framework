@@ -4,6 +4,7 @@
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 #include "Help/SFUtils.h"
+#include "Logging/SFLoggingUtils.h"
 
 
 USFStudyPhase::USFStudyPhase()
@@ -23,7 +24,7 @@ USFMapFactor* USFStudyPhase::AddMapFactor(const TArray<FString>& FactorLevels)
 {
 	if (ContainsAMapFactor())
 	{
-		FSFUtils::Log("Already contains Map Factor, {" + FString::Join(FactorLevels, TEXT(", ")) + "} will be ignored",
+		FSFLoggingUtils::Log("Already contains Map Factor, {" + FString::Join(FactorLevels, TEXT(", ")) + "} will be ignored",
 		              true);
 		return nullptr;
 	}
@@ -47,7 +48,7 @@ void USFStudyPhase::SetRepetitions(int Num, EPhaseRepetitionType Type)
 	TypeOfRepetition = Type;
 	if (TypeOfRepetition != EPhaseRepetitionType::SameOrder)
 	{
-		FSFUtils::Log(
+		FSFLoggingUtils::Log(
 			"Currently only SameOrder repetitions supported! Please implement in USFStudyPhase::GenerateOrder().", true);
 	}
 }
@@ -252,7 +253,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 		TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(ParticipantNr, Factor->Levels.Num());
 		if (LatinSquare.Num() < ConditionsIndices.Num())
 		{
-			FSFUtils::Log(
+			FSFLoggingUtils::Log(
 				"[USFStudyPhase::GenerateConditions] nonCombined factor levels will be repeated, since factor " + Factor->
 				FactorName + " only has " + FString::FromInt(Factor->Levels.Num()) + " levels but there are " +
 				FString::FromInt(ConditionsIndices.Num()) + " conditions.");
@@ -334,7 +335,7 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 		Json->SetStringField("TypeOfRepetition", "FullyRandom");
 		break;
 	default:
-		FSFUtils::Log("[USFStudyPhase::GetAsJson] unknown TypeOfRepetition!", true);
+		FSFLoggingUtils::Log("[USFStudyPhase::GetAsJson] unknown TypeOfRepetition!", true);
 	}
 
 	return Json;
@@ -390,7 +391,7 @@ void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
 	}
 	else
 	{
-		FSFUtils::Log("[USFStudyPhase::FromJson] unknown TypeOfRepetition: " + RepetitionTypeStr, true);
+		FSFLoggingUtils::Log("[USFStudyPhase::FromJson] unknown TypeOfRepetition: " + RepetitionTypeStr, true);
 	}
 
 }
@@ -470,7 +471,7 @@ TArray<USFStudyFactor*> USFStudyPhase::SortFactors() const
 		}
 		else
 		{
-			FSFUtils::Log("[USFStudyPhase::SortFactors] Unknown MixingOrder!", true);
+			FSFLoggingUtils::Log("[USFStudyPhase::SortFactors] Unknown MixingOrder!", true);
 		}
 	}
 	return SortedFactors;

@@ -30,7 +30,7 @@ public:
 	bool operator==(USFCondition &Other);
 
 	//returns false if a variable with that name does not exist
-	bool StoreDependetVariableData(const FString& VarName, const FString& Value);
+	bool StoreDependentVariableData(const FString& VarName, const FString& Value);
 
 	float GetTimeTaken() const;
 	bool IsFinished() const;

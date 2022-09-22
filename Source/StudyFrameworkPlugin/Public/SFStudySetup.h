@@ -1,15 +1,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/BillboardComponent.h"
-#include "Engine/Texture2D.h"
 
 #include "SFStudyPhase.h"
 #include "HUD/SFFadeHandler.h"
 #include "HUD/SFExperimenterWindow.h"
+#include "Logging/SFLogObject.h"
 #include "GazeTracking/SFGazeTracker.h"
 
 #include "SFStudySetup.generated.h"
+
 
 UCLASS(HideCategories=(Transform, Rendering, Replication, Collision, Input, Actor, LOD, Cooking))
 class STUDYFRAMEWORKPLUGIN_API ASFStudySetup : public AActor
@@ -23,6 +23,7 @@ public:
 
 	virtual void PostLoad() override;
 	virtual void PreSave(const ITargetPlatform* TargetPlatform) override;
+	//void RegisterActorTickFunctions(bool bRegister) override;
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -41,7 +42,7 @@ public:
 	bool CheckPhases() const;
 
 	//This methods generates NrOfRunsToGenerate study runs and puts them into StudyFrame/StudyRuns
-	//it can be used to chek randomization etc. manually to see what participant sees which conditions
+	//it can be used to check randomization etc. manually to see what participant sees which conditions
 	UFUNCTION(CallInEditor, Category = "Study Setup Debug")
 	void GenerateTestStudyRuns() const;
 	UPROPERTY(EditAnywhere, Category = "Study Setup Debug")
@@ -59,7 +60,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	EGazeTrackerMode UseGazeTracker = EGazeTrackerMode::NotTracking;
-
 
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
@@ -79,7 +79,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
 	void LoadFromJson();
-
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
@@ -101,5 +100,4 @@ protected:
 	// Icon sprite
 	UPROPERTY()
 	UTexture2D* SpriteTexture;
-
 };

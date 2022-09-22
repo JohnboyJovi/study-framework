@@ -1,6 +1,7 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "Help/SFUtils.h"
+#include "Logging/SFLoggingUtils.h"
 
 #include "Misc/MessageDialog.h"
 #include "Misc/FileHelper.h"
@@ -21,41 +22,11 @@ void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 		return;
 	}
 
-	Log(FString("[FVAUtils::OpenMessageBox(ERROR = ") + (bError ? "TRUE" : "FALSE") +
+	FSFLoggingUtils::Log(FString("[FSFUtils::OpenMessageBox(ERROR = ") + (bError ? "TRUE" : "FALSE") +
 	    ")]: Opening Message Box with message: " + Text, bError);
 
 	FText Title = FText::FromString(FString(bError ? "ERROR" : "Message"));
 	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Text), &Title);
-}
-
-
-void FSFUtils::Log(const FString Text, const bool Error /*=false*/)
-{
-	if (Error)
-	{
-		UniLog.Log(Text, "SFErrorLog");
-		if(USFGameInstance::IsInitialized())
-		{
-			//to avoid endless error message loops
-			USFGameInstance::Get()->LogToHUD("ERROR: "+Text);
-		}
-	}
-	else
-	{
-		UniLog.Log(Text, "SFLog");
-	}
-}
-
-void FSFUtils::SetupLoggingStreams()
-{
-	ILogStream* SFLog = UniLog.NewLogStream("SFLog", "StudyFramework/Logs", "SFLog.txt", false);
-	SFLog->SetLogToDefaultLog(true);
-
-	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "StudyFramework/Logs", "SFLog.txt", false);
-	SFErrorLog->SetLogToDefaultLog(true);
-	SFErrorLog->SetPrefix(TEXT("Error: "));
-	SFErrorLog->SetLogOnScreenOnMaster(true);
-	SFErrorLog->SetOnScreenColor(FColor::Red);
 }
 
 FString FSFUtils::JsonToString(TSharedPtr<FJsonObject> Json)
@@ -91,3 +62,7 @@ TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilenName)
 	return StringToJson(JsonString);
 }
 
+UWorld* FSFUtils::GetWorld()
+{
+	return GEngine->GetWorld();
+}

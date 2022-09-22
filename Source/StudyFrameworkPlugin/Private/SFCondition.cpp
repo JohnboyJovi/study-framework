@@ -100,7 +100,7 @@ bool USFCondition::operator==(USFCondition& Other)
 	return UniqueName == Other.UniqueName;
 }
 
-bool USFCondition::StoreDependetVariableData(const FString& VarName, const FString& Value)
+bool USFCondition::StoreDependentVariableData(const FString& VarName, const FString& Value)
 {
 	for (auto& Var : DependentVariablesValues)
 	{

@@ -3,7 +3,8 @@
 #include "SFGameInstance.h"
 #include "HAL/FileManagerGeneric.h"
 #include "Help/SFUtils.h"
-
+#include "Logging/SFLogObject.h"
+#include "Logging/SFLoggingUtils.h"
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -112,14 +113,14 @@ void ASFStudySetup::ClearStudyResults() const
 	};
 
 	DeleteFolder("StudyRuns");
-	DeleteFolder("Results");
+	DeleteFolder("StudyLogs");
 }
 
 TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber) const
 {
 	if (!CheckPhases())
 	{
-		FSFUtils::Log("[ASFStudySetup::GetAllConditionsForRun]: Not all Phases are valid", true);
+		FSFLoggingUtils::Log("[ASFStudySetup::GetAllConditionsForRun]: Not all Phases are valid", true);
 		return TArray<USFCondition*>();
 	}
 

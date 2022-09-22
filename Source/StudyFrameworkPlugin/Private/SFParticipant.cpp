@@ -7,6 +7,8 @@
 #include "IUniversalLogging.h"
 #include "SFGameInstance.h"
 #include "Help/SFUtils.h"
+#include "Logging/SFLoggingBPLibrary.h"
+#include "Logging/SFLoggingUtils.h"
 
 USFParticipant::USFParticipant()
 {
@@ -23,10 +25,18 @@ bool USFParticipant::Initialize(int Participant)
 
 	const FString Timestamp = FDateTime::Now().ToString();
 	const FString Filename = "LogParticipant-" + FString::FromInt(ParticipantID) + "_" + Timestamp + ".txt";
-	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "StudyFramework/Results",
+	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "StudyFramework/StudyLogs/ParticipantLogs",
 	                                                 Filename, false);
-	StartTime = FPlatformTime::Seconds();
-
+	ILogStream* PositionLog = UniLog.NewLogStream("PositionLog", "StudyFramework/StudyLogs/PositionLogs",
+		"Position"+Filename, false);
+	if (USFGameInstance::Get())
+	{
+		USFGameInstance::Get()->GetLogObject()->LogHeaderRows();
+	}
+	else
+	{
+		FSFLoggingUtils::Log("GameInstance not set up yet, no header rows are written to participant logs.");
+	}
 	return true;
 }
 
@@ -59,9 +69,9 @@ TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 {
 	if(ParticipantID==-1)
 	{
-		FSFUtils::Log(
+		FSFLoggingUtils::Log(
 			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
-			FString::FromInt(ParticipantID) + " is not to be read, propablyc called on init so everything is fine!", false);
+			FString::FromInt(ParticipantID) + " is not to be read, probably called on init so everything is fine!", false);
 		return {};
 	}
 	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(
@@ -69,7 +79,7 @@ TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 	TArray<USFCondition*> LoadedConditions;
 	if (Json == nullptr)
 	{
-		FSFUtils::Log(
+		FSFLoggingUtils::Log(
 			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
 			FString::FromInt(ParticipantID) + " cannot be read!", true);
 		return {};
@@ -95,7 +105,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 {
 	USFCondition* CurrCondition = GetCurrentCondition();
 
-	FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + CurrCondition->PhaseName + ".csv";
+	FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + CurrCondition->PhaseName + ".csv";
 
 	if (!FPaths::FileExists(Filename))
 	{
@@ -135,39 +145,17 @@ bool USFParticipant::StartStudy()
 	// Set first condition
 	CurrentConditionIdx = -1;
 
-	LogComment("Start Study for ParticipantID: " + FString::FromInt(ParticipantID));
+	USFLoggingBPLibrary::LogComment("Start Study for ParticipantID: " + FString::FromInt(ParticipantID));
 
 	return true;
 }
 
 void USFParticipant::EndStudy()
 {
-	LogComment("EndStudy");
+	USFLoggingBPLibrary::LogComment("EndStudy");
 	LogCurrentParticipant();
 	StoreInPhaseLongTable();
 }
-
-void USFParticipant::LogData(const FString& DependentVariableName, const FString& Value)
-{
-	USFCondition* CurrCondition = GetCurrentCondition();
-	if (!CurrCondition->StoreDependetVariableData(DependentVariableName, Value))
-	{
-		FSFUtils::Log(
-			"Cannot log data '" + Value + "' for dependent variable '" + DependentVariableName +
-			"' since it does not exist for this condition!", true);
-		return;
-	}
-	LogComment("Recorded " + DependentVariableName + ": " + Value);
-
-	//the data is stored in the phase long table on SetCondition() or EndStudy()
-}
-
-void USFParticipant::LogComment(const FString& Comment)
-{
-	UniLog.Log("#" + GetCurrentTime() + ": " + Comment, "ParticipantLog");
-	FSFUtils::Log("Logged Comment: " + Comment);
-}
-
 
 USFCondition* USFParticipant::GetCurrentCondition() const
 {
@@ -182,7 +170,7 @@ USFCondition* USFParticipant::GetNextCondition() const
 	// Get next Condition
 	if (CurrentConditionIdx + 1 >= Conditions.Num())
 	{
-		FSFUtils::Log("[USFParticipant::NextCondition()]: All conditions already ran, no NextCondition", false);
+		FSFLoggingUtils::Log("[USFParticipant::NextCondition()]: All conditions already ran, no NextCondition", false);
 		return nullptr;
 	}
 	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx + 1];
@@ -211,35 +199,35 @@ TArray<USFCondition*> USFParticipant::GetLastParticipantsConditions()
 
 int USFParticipant::GetLastParticipantId()
 {
-	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
-	if (ParticpantJson == nullptr)
+	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticipantJson == nullptr)
 	{
 		//file does not exist or something else went wrong
 		return -1;
 	}
-	return ParticpantJson->GetNumberField("ParticipantID");
+	return ParticipantJson->GetNumberField("ParticipantID");
 }
 
 int USFParticipant::GetLastParticipantLastConditionStarted()
 {
-	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
-	if (ParticpantJson == nullptr)
+	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticipantJson == nullptr)
 	{
 		//file does not exist or something else went wrong
 		return -1;
 	}
-	return ParticpantJson->GetNumberField("CurrentConditionIdx");
+	return ParticipantJson->GetNumberField("CurrentConditionIdx");
 }
 
 bool USFParticipant::GetLastParticipantFinished()
 {
-	TSharedPtr<FJsonObject> ParticpantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
-	if (ParticpantJson == nullptr)
+	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticipantJson == nullptr)
 	{
 		//file does not exist or something else went wrong
 		return true;
 	}
-	return ParticpantJson->GetBoolField("Finished");
+	return ParticipantJson->GetBoolField("Finished");
 }
 
 ASFStudySetup* USFParticipant::GetLastParticipantSetup()
@@ -262,7 +250,7 @@ bool USFParticipant::LoadConditionsFromJson()
 {
 	if (ParticipantID == -1)
 	{
-		FSFUtils::Log("[USFParticipant::LoadConditionsFromJson] ParticipantID == -1, maybe nothing stored?", true);
+		FSFLoggingUtils::Log("[USFParticipant::LoadConditionsFromJson] ParticipantID == -1, maybe nothing stored?", true);
 		return false;
 	}
 
@@ -270,7 +258,7 @@ bool USFParticipant::LoadConditionsFromJson()
 
 	if (Conditions.Num() == 0)
 	{
-		FSFUtils::Log(
+		FSFLoggingUtils::Log(
 			"[USFParticipant::LoadContitionsFromJson] No Conditions could be loaded for Participant " +
 			FString::FromInt(ParticipantID), true);
 		return false;
@@ -283,11 +271,11 @@ void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 	//this is not the most effective way of recovering but the most trivial (long tables will be read multiple times)
 	for (USFCondition* Condition : Conditions)
 	{
-		const FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + Condition->PhaseName + ".csv";
+		const FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + Condition->PhaseName + ".csv";
 		TArray<FString> Lines;
 		if (!FFileHelper::LoadANSITextFileToStrings(*Filename, nullptr, Lines))
 		{
-			FSFUtils::Log("[USFParticipant::RecoverStudyResultsOfFinishedConditions] Cannot read file: " + Filename, true);
+			FSFLoggingUtils::Log("[USFParticipant::RecoverStudyResultsOfFinishedConditions] Cannot read file: " + Filename, true);
 		}
 
 		TArray<FString> HeaderEntries;
@@ -314,7 +302,7 @@ void USFParticipant::ClearPhaseLongtables(ASFStudySetup* StudySetup)
 	for (int i = 0; i < StudySetup->GetNumberOfPhases(); ++i)
 	{
 		const FString PhaseName = StudySetup->GetPhase(i)->PhaseName;
-		const FString Filename = FPaths::ProjectDir() + "StudyFramework/Results/Phase_" + PhaseName + ".csv";
+		const FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + PhaseName + ".csv";
 		if (FPaths::FileExists(Filename))
 		{
 			IFileManager& FileManager = IFileManager::Get();
@@ -337,7 +325,7 @@ bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 		}
 		else
 		{
-			FSFUtils::Log(
+			FSFLoggingUtils::Log(
 				"[USFParticipant::SetCondition] Not storing unfinished last condition, when going to next. Make sure all required dependent variables received data!",
 				true);
 		}
@@ -352,7 +340,7 @@ bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 			return true;
 		}
 	}
-	FSFUtils::Log("[USFParticipant::SetCondition()]: Requested condition is not one of my conditions!", true);
+	FSFLoggingUtils::Log("[USFParticipant::SetCondition()]: Requested condition is not one of my conditions!", true);
 	return false;
 }
 
@@ -374,7 +362,7 @@ void USFParticipant::LogCurrentParticipant() const
 	}
 	else
 	{
-		FSFUtils::Log("[USFParticipant::LogCurrentParticipant] StudySetup not accessible!", true);
+		FSFLoggingUtils::Log("[USFParticipant::LogCurrentParticipant] StudySetup not accessible!", true);
 	}
 
 

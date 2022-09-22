@@ -8,9 +8,10 @@
 #include "HUD/SFGlobalFadeGameViewportClient.h"
 
 #include "Help/SFUtils.h"
+#include "Logging/SFLoggingBPLibrary.h"
+#include "Logging/SFLoggingUtils.h"
 
 USFGameInstance* USFGameInstance::Instance = nullptr;
-
 
 // ****************************************************************** // 
 // ******* Initialization ******************************************* //
@@ -20,17 +21,18 @@ void USFGameInstance::Init()
 {
 	Super::Init();
 
-	FSFUtils::Log("USFGameInstance::Init");
+	FSFLoggingUtils::Log("USFGameInstance::Init");
 
 	GEngine->GameViewportClientClass = USFGlobalFadeGameViewportClient::StaticClass();
 
 	GoToConditionSyncedEvent.Attach(this);
 
 	Instance = this;
+	LogObject = NewObject<USFLogObject>();
 
 	if (ConditionToStartAtInit)
 	{
-		FSFUtils::Log(
+		FSFLoggingUtils::Log(
 			"Started on a map that was part of the last study, so start the study run for debug reasons from Init()");
 		RestoreLastParticipantForDebugStart(ConditionToStartAtInit);
 	}
@@ -39,6 +41,10 @@ void USFGameInstance::Init()
 	{
 		InitFadeHandler(StudySetup->FadeConfig);
 	}
+
+	// Register delegate for ticker callback
+	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateUObject(this, &USFGameInstance::LogTick));
+	LogObject->Initialize();
 }
 
 void USFGameInstance::Shutdown()
@@ -49,6 +55,8 @@ void USFGameInstance::Shutdown()
 		ExperimenterWindow->DestroyWindow();
 	}
 	Instance = nullptr;
+	// Unregister ticker delegate
+	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
 }
 
 void USFGameInstance::OnWorldStart()
@@ -66,7 +74,7 @@ void USFGameInstance::OnWorldStart()
 		return;
 	}
 
-	FSFUtils::Log("USFGameInstance::OnWorldStart for " + NewWorld->GetName());
+	FSFLoggingUtils::Log("USFGameInstance::OnWorldStart for " + NewWorld->GetName());
 
 	// so we have loaded a new world and the study is not running, so check whether this is a map in one of the conditions
 	TArray<USFCondition*> LastConditions = USFParticipant::GetLastParticipantsConditions();
@@ -89,7 +97,7 @@ void USFGameInstance::OnWorldStart()
 		}
 		else
 		{
-			FSFUtils::Log(
+			FSFLoggingUtils::Log(
 				"[USFGameInstance::OnWorldChanged] Started on a map that was part of the last study, so start the study run for debug reasons.");
 			RestoreLastParticipantForDebugStart(FirstMapCondition);
 			LogToHUD("Start map "+NewWorld->GetName()+" for debugging!");
@@ -101,7 +109,7 @@ void USFGameInstance::OnWorldStart()
 	TArray<AActor*> StudySetups;
 	UGameplayStatics::GetAllActorsOfClass(NewWorld, ASFStudySetup::StaticClass(), StudySetups);
 
-	FSFUtils::Log("Found " + FString::FromInt(StudySetups.Num()) + " ASFStudySetup actors on this map.");
+	FSFLoggingUtils::Log("Found " + FString::FromInt(StudySetups.Num()) + " ASFStudySetup actors on this map.");
 
 	if (StudySetups.Num() == 1)
 	{
@@ -113,7 +121,7 @@ void USFGameInstance::OnWorldStart()
 	bStartedOnUnrelatedMap = true;
 	InitFadeHandler(FFadeConfig());
 	FadeHandler->FadeIn();
-	FSFUtils::Log(
+	FSFLoggingUtils::Log(
 		"[USFGameInstance::OnWorldChanged] world started that neither contains exactly one SFStudySetup actor, nor is a level that is part of one of the conditions from the last study run!",
 		false);
 }
@@ -206,20 +214,20 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 		switch (Answer)
 		{
 		case EAppReturnType::Cancel:
-			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Restart entire study");
+			FSFLoggingUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Restart entire study");
 			ParticipantID = 0;
 			Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
 			//clear data
 			USFParticipant::ClearPhaseLongtables(Setup);
 			break;
 		case EAppReturnType::Retry:
-			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Retry last participant");
+			FSFLoggingUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Retry last participant");
 			Conditions = USFParticipant::GetLastParticipantsConditions();
 			StartCondition = Conditions[USFParticipant::GetLastParticipantLastConditionStarted()];
 			bRecoverParticipantData = true;
 			break;
 		case EAppReturnType::Continue:
-			FSFUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Continue with the next participant");
+			FSFLoggingUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Continue with the next participant");
 			ParticipantID++;
 			Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
 			break;
@@ -246,7 +254,6 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 		InitFadeHandler(Setup->FadeConfig);
 	}
 	UpdateHUD("Wait for Start");
-
 }
 
 
@@ -259,7 +266,7 @@ bool USFGameInstance::StartStudy()
 {
 	if (bStudyStarted)
 	{
-		FSFUtils::Log("[USFGameInstance::StartStudy()]: Study already started.", true);
+		FSFLoggingUtils::Log("[USFGameInstance::StartStudy()]: Study already started.", true);
 		return false;
 	}
 
@@ -268,7 +275,7 @@ bool USFGameInstance::StartStudy()
 		//we are actually doing a real start and not just a "debug-start"
 		if (!Participant->StartStudy())
 		{
-			FSFUtils::Log("[USFGameInstance::StartStudy()]: unable to start study.", true);
+			FSFLoggingUtils::Log("[USFGameInstance::StartStudy()]: unable to start study.", true);
 			return false;
 		}
 	}
@@ -295,6 +302,7 @@ bool USFGameInstance::StartStudy()
 		GazeTracker = NewObject<USFGazeTracker>(this, TEXT("GazeTracker"));
 		GazeTracker->Init(StudySetup->UseGazeTracker);
 	}
+
 
 	return true;
 }
@@ -333,16 +341,15 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition, bool bForced 
 	// Check if is already fading
 	if (FadeHandler->GetIsFading())
 	{
-		FSFUtils::Log("[USFGameInstance::GoToCondition()]: Already Fading between levels", true);
+		FSFLoggingUtils::Log("[USFGameInstance::GoToCondition()]: Already Fading between levels", true);
 		return false;
 	}
 
 	if (!Condition || Condition->Map.Equals(""))
 	{
-		FSFUtils::Log("[USFGameInstance::GoToCondition()]: Could not load next condition.", true);
+		FSFLoggingUtils::Log("[USFGameInstance::GoToCondition()]: Could not load next condition.", true);
 		return false;
 	}
-
 	GoToConditionSyncedEvent.Send(Condition->UniqueName, bForced);
 	return true;
 }
@@ -365,13 +372,13 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced)
 		{
 			if (bForced)
 			{
-				FSFUtils::Log(
+				FSFLoggingUtils::Log(
 					"[USFGameInstance::GoToCondition()]: Forced to go to next condition, but current one is not finished!",
 					true);
 			}
 			else
 			{
-				FSFUtils::Log(
+				FSFLoggingUtils::Log(
 					"[USFGameInstance::GoToCondition()]: Cannot go to next condition, since current one is not finished!",
 					true);
 				return;
@@ -382,7 +389,7 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced)
 	bool bConditionPresent = Participant->SetCondition(NextCondition);
 	if (!bConditionPresent)
 	{
-		FSFUtils::Log("[USFGameInstance::GoToCondition()]: Requested GoTo Condition seems not to exist.", true);
+		FSFLoggingUtils::Log("[USFGameInstance::GoToCondition()]: Requested GoTo Condition seems not to exist.", true);
 		return;
 	}
 
@@ -412,20 +419,8 @@ FString USFGameInstance::GetFactorLevel(FString FactorName) const
 		return Participant->GetCurrentCondition()->FactorLevels[FactorName];
 	}
 
-	FSFUtils::Log("[USFGameInstance::GetFactorLevel()]: Factor " + FactorName + " seems not to exist!", true);
+	FSFLoggingUtils::Log("[USFGameInstance::GetFactorLevel()]: Factor " + FactorName + " seems not to exist!", true);
 	return "FactorNotPresent";
-}
-
-
-void USFGameInstance::LogData(const FString& DependenVariableName, const FString& Value)
-{
-	Participant->LogData(DependenVariableName, Value);
-}
-
-void USFGameInstance::LogComment(const FString& Comment)
-{
-	Participant->LogComment(Comment);
-	LogToHUD(Comment);
 }
 
 void USFGameInstance::LogToHUD(FString Text)
@@ -489,6 +484,7 @@ ASFStudySetup* USFGameInstance::GetStudySetup()
 	return StudySetup;
 }
 
+
 // ****************************************************************** // 
 // ******* Executing Study ****************************************** //
 // ****************************************************************** //
@@ -509,7 +505,7 @@ void USFGameInstance::OnFadedIn()
 	}
 
 	Participant->GetCurrentCondition()->Begin();
-	Participant->LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
+	USFLoggingBPLibrary::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
 
 	UpdateHUD("Condition "+FString::FromInt(Participant->GetCurrentConditionNumber()+1)+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
 }
@@ -517,4 +513,32 @@ void USFGameInstance::OnFadedIn()
 USFParticipant* USFGameInstance::GetParticipant() const
 {
 	return Participant;
+}
+
+// ****************************************************************** // 
+// *******    Logging    ******************************************** //
+// ****************************************************************** //
+
+bool USFGameInstance::LogTick(float DeltaSeconds)
+{
+	if (LogObject->bLoggingLoopsActive){
+		LogObject->LoggingLoopsLogToFile();
+	}	
+	return true;
+}
+
+USFLogObject* USFGameInstance::GetLogObject()
+{
+	return LogObject;
+}
+
+//deprecated
+void USFGameInstance::LogComment(const FString& Comment)
+{
+	USFLoggingBPLibrary::LogComment(Comment, true);
+}
+//deprecated
+void USFGameInstance::LogData(const FString& DependenVariableName, const FString& Value)
+{
+	USFLoggingBPLibrary::LogData(DependenVariableName, Value);
 }

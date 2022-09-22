@@ -68,26 +68,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetFactorLevel(FString FactorName) const;
 
-	//Log Data collected for a DependentVariable in this condition
-	UFUNCTION(BlueprintCallable)
-	void LogData(const FString& DependenVariableName, const FString& Value);
-
-	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
-	UFUNCTION(BlueprintCallable)
-	void LogComment(const FString& Comment);
-
-	//use this to print something to the log panel of the HUD, e.g., to inform the experimenter
-	UFUNCTION()
-	void LogToHUD(FString Text);
-
-	//A delegate to register to when you want to start behavior once the condition is faded in
-	//NOTE: BeginPlay is called while it is still faded out!
-	UPROPERTY(BlueprintAssignable)
-	FOnFadedInDelegate OnFadedInDelegate;
-
 	UFUNCTION(BlueprintCallable)
 	USFGazeTracker* GetGazeTracker() const;
-
 
 	// ****************************************************************** // 
 	// ******* Executing Study  (called by other parts of the framework)* //
@@ -110,6 +92,10 @@ public:
 	// *******      HUD      ******************************************** //
 	// ****************************************************************** //
 
+	//use this to print something to the log panel of the HUD, e.g., to inform the experimenter
+	UFUNCTION()
+		void LogToHUD(FString Text);
+
 	UFUNCTION()
 	void UpdateHUD(FString Status);
 
@@ -124,6 +110,29 @@ public:
 
 	//this is used by the SFMasterHUD to store content between levels
 	FHUDSavedData HUDSavedData;
+
+	// ****************************************************************** // 
+	// *******    Logging    ******************************************** //
+	// ****************************************************************** //
+
+	UFUNCTION()
+		USFLogObject* GetLogObject();
+
+	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
+	UFUNCTION(BlueprintCallable, meta=(DeprecatedFunction, DeprecationMessage="Please use SFLoggingBPLibrary::LogComment instead"))
+	void LogComment(const FString& Comment);
+
+	//Log Data collected for a DependentVariable in this condition
+	UFUNCTION(BlueprintCallable, meta = (DeprecatedFunction, DeprecationMessage = "Please use SFLoggingBPLibrary::LogData instead"))
+	void LogData(const FString& DependenVariableName, const FString& Value);
+
+	//Is called once per tick, calls appropriate logging functions
+	bool LogTick(float DeltaSeconds);
+
+	//Needed to use core tick function
+	UPROPERTY(BlueprintAssignable)
+		FOnFadedInDelegate OnFadedInDelegate;
+	FDelegateHandle TickDelegateHandle;
 
 protected:
 
@@ -174,8 +183,12 @@ protected:
 	USFCondition* ConditionToStartAtInit=nullptr;
 
 	bool bStartedOnUnrelatedMap = false;
-	
+
 	UPROPERTY()
-	USFGazeTracker* GazeTracker;
+		USFGazeTracker* GazeTracker;
+
+	//Controls central logging functionality, stores logging parameters
+	UPROPERTY()
+		USFLogObject* LogObject;
 };
 

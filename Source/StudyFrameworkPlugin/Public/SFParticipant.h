@@ -12,7 +12,7 @@
 
 #include "SFParticipant.generated.h"
 
-class USFLogger;
+
 class USFGameInstance;
 
 
@@ -34,10 +34,6 @@ public:
 	bool StartStudy();
 	void EndStudy();
 
-	void LogData(const FString& DependentVariableName, const FString& Value);
-	void LogComment(const FString& Comment);
-
-
 	USFCondition* GetCurrentCondition() const;
 	USFCondition* GetNextCondition() const;
 	const TArray<USFCondition*> GetAllConditions() const;
@@ -52,13 +48,15 @@ public:
 	static bool GetLastParticipantFinished();
 	static ASFStudySetup* GetLastParticipantSetup();
 
+	FString GetCurrentTime() const;
+
 	bool LoadConditionsFromJson();
 	void RecoverStudyResultsOfFinishedConditions();
 
 
 	// the results of all participants are stored in a file per phase (called longtable)
 	// for the data to be ready to use in statistics software, this methods clears all
-	// of that data (e.g. if study is entirely restarted=
+	// of that data (e.g. if study is entirely restarted)
 	// So: USE WITH CARE!
 	static void ClearPhaseLongtables(ASFStudySetup* StudySetup);
 
@@ -73,7 +71,6 @@ protected:
 	static TArray<USFCondition*> ReadExecutionJsonFile(int ParticipantID);
 
 	void StoreInPhaseLongTable() const;
-	FString GetCurrentTime() const;
 
 	UPROPERTY()
 	int ParticipantID;

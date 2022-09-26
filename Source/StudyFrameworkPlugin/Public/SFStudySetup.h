@@ -92,12 +92,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "PhaseName", Category = "Study Setup"))
 	TArray<USFStudyPhase*> Phases;
 
-	
 	// A UBillboardComponent to hold Icon sprite
-	UPROPERTY()
+
+	UPROPERTY(BlueprintReadOnly)
 	UBillboardComponent* SpriteComponent;
 
 	// Icon sprite
-	UPROPERTY()
+
+	UPROPERTY(BlueprintReadOnly)
 	UTexture2D* SpriteTexture;
 };

@@ -310,9 +310,10 @@ bool USFGameInstance::StartStudy()
 void USFGameInstance::EndStudy()
 {
 	USFCondition* LastCondition = Participant->GetCurrentCondition();
-	if (LastCondition && LastCondition->WasStarted())
-		LastCondition->End();
-
+	if (!LastCondition || !LastCondition->WasStarted() || LastCondition->IsFinished())
+		return;
+		
+	LastCondition->End();
 	Participant->EndStudy();
 
 	UpdateHUD("Study ended");

@@ -12,7 +12,6 @@ void USFConditionListEntry::FillWithCondition(const USFCondition* InCondition)
 	Condition = InCondition;
 	TArray<FString> Data;
 	Data.Add(Condition->PhaseName);
-	Data.Add(FPaths::GetBaseFilename(Condition->Map));
 	Data.Add(Condition->GetTimeTaken() <= 0.0 ? "-" : FString::Printf(TEXT("%.2f"), Condition->GetTimeTaken()));
 	for (auto Factor : Condition->FactorLevels)
 	{
@@ -21,8 +20,8 @@ void USFConditionListEntry::FillWithCondition(const USFCondition* InCondition)
 	TextBlockIdToDependentVar.Empty();
 	for (auto DependentVar : Condition->DependentVariablesValues)
 	{
-		TextBlockIdToDependentVar.Add(Data.Num() - 3, DependentVar.Key);
-		//-3 since the first three elements of Data or not mapped to the text fields
+		TextBlockIdToDependentVar.Add(Data.Num() - 2, DependentVar.Key);
+		//-2 since the first two elements of Data or not mapped to the text fields
 		Data.Add(DependentVar.Value == "" ? "-" : DependentVar.Value);
 	}
 	FillTextsHelper(Data);
@@ -34,7 +33,6 @@ void USFConditionListEntry::FillAsPhaseHeader(const USFCondition* InCondition)
 	Condition = InCondition;
 	TArray<FString> Data;
 	Data.Add("Phase");
-	Data.Add("Map");
 	Data.Add("Duration");
 	for (auto Factor : Condition->FactorLevels)
 	{
@@ -52,13 +50,12 @@ void USFConditionListEntry::FillAsPhaseHeader(const USFCondition* InCondition)
 void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 {
 	Phase->SetText(FText::FromString(Data[0]));
-	Map->SetText(FText::FromString(Data[1]));
-	Time->SetText(FText::FromString(Data[2]));
+	Time->SetText(FText::FromString(Data[1]));
 
 	int UsedTexts = 0;
 	TArray<UTextBlock*> Texts = {Text0, Text1, Text2, Text3, Text4, Text5, Text6, Text7};
 
-	for (int i = 3; i < Data.Num(); ++i)
+	for (int i = 2; i < Data.Num(); ++i)
 	{
 		if (UsedTexts >= Texts.Num())
 		{

@@ -7,6 +7,9 @@
 #include "HUD/SFExperimenterWindow.h"
 #include "Logging/SFLogObject.h"
 #include "GazeTracking/SFGazeTracker.h"
+// includes below marked as "possibly unused", but they are vital for build to succeed
+#include "Components/BillboardComponent.h"
+#include "Engine/Texture2D.h"
 
 #include "SFStudySetup.generated.h"
 

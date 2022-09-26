@@ -18,12 +18,14 @@ void USFCondition::Generate(const FString& InPhaseName, const TArray<int>& Condi
 	for (int i = 0; i < Factors.Num(); ++i)
 	{
 		USFStudyFactor* Factor = Factors[i];
+		FString FactorLevel = Factor->Levels[ConditionIndices[i]];
 		if (Factor->IsA(USFMapFactor::StaticClass()))
 		{
-			Map = Factor->Levels[ConditionIndices[i]];
-			continue;
+			Map = FactorLevel;
+			//for better readybility strip path!
+			FactorLevel = FPaths::GetBaseFilename(FactorLevel);
 		}
-		FactorLevels.Add(Factor->FactorName, Factor->Levels[ConditionIndices[i]]);
+		FactorLevels.Add(Factor->FactorName, FactorLevel);
 	}
 
 	for (USFDependentVariable* Var : DependentVars)
@@ -86,7 +88,7 @@ FString USFCondition::CreateIdentifiableName()
 
 FString USFCondition::ToString() const
 {
-	FString Out = PhaseName + "_" + FPaths::GetBaseFilename(Map);
+	FString Out = PhaseName;
 	for (auto Level : FactorLevels)
 	{
 		Out = Out + "_" + Level.Value;
@@ -151,10 +153,6 @@ bool USFCondition::RecoverStudyResults(TArray<FString>& Header, TArray<FString>&
 			return false;
 		}
 	}
-	if (!Header.Contains("Map") || Entries[Header.Find("Map")] != Map)
-	{
-		return false;
-	}
 
 	//so this is the right condition
 	for (auto& DepVar : DependentVariablesValues)
@@ -171,7 +169,6 @@ FString USFCondition::GetPrettyName()
 {
 	FString ConditionString = "(";
 	ConditionString += "Phase: " + PhaseName;
-	ConditionString += "; Map: " + FPaths::GetBaseFilename(Map);
 	for (auto FactorLevel : FactorLevels)
 	{
 		ConditionString += "; " + FactorLevel.Key + ": " + FactorLevel.Value;

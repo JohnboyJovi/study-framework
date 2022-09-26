@@ -124,7 +124,6 @@ void USFParticipant::StoreInPhaseLongTable() const
 	}
 
 	FString ConditionResults = FString::FromInt(ParticipantID);
-	ConditionResults += "," + CurrCondition->Map;
 	for (auto Factor : CurrCondition->FactorLevels)
 	{
 		ConditionResults += "," + Factor.Value;

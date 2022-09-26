@@ -328,9 +328,17 @@ void USFGameInstance::EndStudy()
 
 bool USFGameInstance::NextCondition(bool bForced /*=false*/)
 {
+	// Check if is already fading
+	if (FadeHandler->GetIsFading())
+	{
+		FSFLoggingUtils::Log("[USFGameInstance::NextCondition()]: Already Fading between levels", true);
+		return false;
+	}
+
 	USFCondition* NextCondition = Participant->GetNextCondition();
 	if (!NextCondition)
 	{
+		FSFLoggingUtils::Log("[SFGameInstance::NextCondition]: All conditions already ran, no NextCondition", false);
 		EndStudy();
 		return false;
 	}

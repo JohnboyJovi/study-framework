@@ -3,6 +3,7 @@
 #include "UObject/UObjectGlobals.h"
 
 #include "SFMapFactor.h"
+#include "Logging/SFLoggingUtils.h"
 
 USFCondition::USFCondition()
 {
@@ -104,6 +105,22 @@ bool USFCondition::operator==(USFCondition& Other)
 
 bool USFCondition::StoreDependentVariableData(const FString& VarName, const FString& Value)
 {
+	if(!WasStarted())
+	{
+		FSFLoggingUtils::Log(
+			"Cannot log data '" + Value + "' for dependent variable '" + VarName +
+			"' since condition was not started yet, probably still fading!", true);
+		return false;
+	}
+
+	if (IsFinished())
+	{
+		FSFLoggingUtils::Log(
+			"Cannot log data '" + Value + "' for dependent variable '" + VarName +
+			"' since condition was has finished, probably already fading!", true);
+		return false;
+	}
+
 	for (auto& Var : DependentVariablesValues)
 	{
 		if (Var.Key->Name == VarName)
@@ -112,6 +129,10 @@ bool USFCondition::StoreDependentVariableData(const FString& VarName, const FStr
 			return true;
 		}
 	}
+
+	FSFLoggingUtils::Log(
+		"Cannot log data '" + Value + "' for dependent variable '" + VarName +
+		"' since it does not exist for this condition!", true);
 	return false;
 }
 

@@ -7,6 +7,8 @@
 #include "HUD/SFExperimenterWindow.h"
 #include "Logging/SFLogObject.h"
 #include "GazeTracking/SFGazeTracker.h"
+#include "Components/BillboardComponent.h"
+#include "Engine/Texture2D.h"
 
 #include "SFStudySetup.generated.h"
 
@@ -89,14 +91,14 @@ protected:
 
 	bool ContainsNullptrInArrays();
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "PhaseName", Category = "Study Setup"))
+	TArray<USFStudyPhase*> Phases;
+
 	// A UBillboardComponent to hold Icon sprite
 	UPROPERTY()
-		UBillboardComponent* SpriteComponent;
+	UBillboardComponent* SpriteComponent;
 
 	// Icon sprite
-	UPROPERTY(BlueprintReadOnly)
-		UTexture2D* SpriteTexture;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "PhaseName", Category = "Study Setup"))
-		TArray<USFStudyPhase*> Phases;
+	UPROPERTY()
+	UTexture2D* SpriteTexture;
 };

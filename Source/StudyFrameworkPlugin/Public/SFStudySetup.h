@@ -89,16 +89,14 @@ protected:
 
 	bool ContainsNullptrInArrays();
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "PhaseName", Category = "Study Setup"))
-	TArray<USFStudyPhase*> Phases;
-
 	// A UBillboardComponent to hold Icon sprite
-
-	UPROPERTY(BlueprintReadOnly)
-	UBillboardComponent* SpriteComponent;
+	UPROPERTY()
+		UBillboardComponent* SpriteComponent;
 
 	// Icon sprite
-
 	UPROPERTY(BlueprintReadOnly)
-	UTexture2D* SpriteTexture;
+		UTexture2D* SpriteTexture;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "PhaseName", Category = "Study Setup"))
+		TArray<USFStudyPhase*> Phases;
 };

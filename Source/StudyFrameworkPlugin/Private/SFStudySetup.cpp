@@ -53,7 +53,7 @@ void ASFStudySetup::PreSave(const ITargetPlatform* TargetPlatform)
 void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlends)
 {
 	//not needed anymore (done on saving map and on clicking the respective button for full control)
-	//SaveToJson();
+	SaveToJson();
 	Super::PostEditChangeProperty(MovieSceneBlends);
 }
 #endif

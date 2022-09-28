@@ -110,7 +110,6 @@ void USFParticipant::StoreInPhaseLongTable() const
 	if (!FPaths::FileExists(Filename))
 	{
 		FString Header = "ParticipantID";
-		Header += ",Map";
 		for (auto Factor : CurrCondition->FactorLevels)
 		{
 			Header += "," + Factor.Key;

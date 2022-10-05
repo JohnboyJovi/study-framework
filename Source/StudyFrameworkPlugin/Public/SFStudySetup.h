@@ -80,8 +80,11 @@ public:
 	UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (Category = "Study Setup Json Storage"))
 	FString JsonFile = "StudySetup.json";
 
-	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
+	UFUNCTION(BlueprintCallable)
 	void LoadFromJson();
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
+		void SelectSetupFile();
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;

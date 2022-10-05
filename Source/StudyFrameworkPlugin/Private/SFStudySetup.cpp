@@ -5,6 +5,8 @@
 #include "Help/SFUtils.h"
 #include "Logging/SFLogObject.h"
 #include "Logging/SFLoggingUtils.h"
+#include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
+#include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -184,6 +186,13 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 	if(Json->GetStringField("UseGazeTracker") == "NotTracking") UseGazeTracker = EGazeTrackerMode::NotTracking;
 	if(Json->GetStringField("UseGazeTracker") == "HeadRotationOnly") UseGazeTracker = EGazeTrackerMode::HeadRotationOnly;
 	if(Json->GetStringField("UseGazeTracker") == "EyeTracking") UseGazeTracker = EGazeTrackerMode::EyeTracking;
+}
+
+void ASFStudySetup::SelectSetupFile()
+{
+	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+	TArray<FString> OutFilenames;
+	DesktopPlatform->OpenFileDialog(nullptr, FString("Choose setup JSON file to load"), FString("../"),FString(""), FString("JSON Files|*.json"), 0, OutFilenames);
 }
 
 void ASFStudySetup::LoadFromJson()

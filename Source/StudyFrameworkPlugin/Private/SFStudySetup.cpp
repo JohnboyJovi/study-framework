@@ -192,7 +192,11 @@ void ASFStudySetup::SelectSetupFile()
 {
 	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
 	TArray<FString> OutFilenames;
-	DesktopPlatform->OpenFileDialog(nullptr, FString("Choose setup JSON file to load"), FString("../"),FString(""), FString("JSON Files|*.json"), 0, OutFilenames);
+	DesktopPlatform->OpenFileDialog(nullptr, FString("Choose setup JSON file to load"), FString(FPaths::ProjectDir() + "StudyFramework/"),FString(""), FString("JSON Files|*.json"), 0, OutFilenames);
+	//ToDo:
+	//- What happens when multiple files are selected?
+	//- Display only file name (and path somewhere else separately)? Or "righ-align" so that file name is visible?
+	JsonFile = OutFilenames[0];
 }
 
 void ASFStudySetup::LoadFromJson()

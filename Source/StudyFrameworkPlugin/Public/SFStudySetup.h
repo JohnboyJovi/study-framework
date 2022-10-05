@@ -77,7 +77,7 @@ public:
 	UFUNCTION()
 	USFStudyPhase* GetPhase(int Index);
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup Json Storage"))
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (Category = "Study Setup Json Storage"))
 	FString JsonFile = "StudySetup.json";
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
@@ -87,7 +87,7 @@ protected:
 	TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
 
-	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
+	UFUNCTION(BlueprintCallable)
 	void SaveToJson() const;
 
 	bool ContainsNullptrInArrays();

@@ -195,10 +195,12 @@ void ASFStudySetup::SelectSetupFile()
 {
 	TArray<FString> OutFilenames;
 	FDesktopPlatformModule::Get()->OpenFileDialog(GetActiveWindow(), FString("Select Setup File"), FString(FPaths::ProjectDir() + "StudyFramework/"),FString(""), FString("JSON Files|*.json"), 0, OutFilenames);
-	if(OutFilenames.Num()==0)
+
+	if(OutFilenames.Num()==0 || !OutFilenames[0].EndsWith(".json"))
 	{
 		return;
 	}
+	// It seems like the file picker only allows a single file to be chosen anyway
 	JsonFile = OutFilenames[0];
 	LoadFromJson();
 }

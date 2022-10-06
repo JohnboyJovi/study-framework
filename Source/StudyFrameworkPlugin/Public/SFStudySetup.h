@@ -78,13 +78,13 @@ public:
 	USFStudyPhase* GetPhase(int Index);
 
 	UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (Category = "Study Setup Json Storage"))
-	FString JsonFile = "StudySetup.json";
+	FString JsonFile;
 
 	UFUNCTION(BlueprintCallable)
 	void LoadFromJson();
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
-		void SelectSetupFile();
+	void SelectSetupFile();
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;

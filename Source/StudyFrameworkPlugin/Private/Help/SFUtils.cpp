@@ -47,15 +47,25 @@ TSharedPtr<FJsonObject> FSFUtils::StringToJson(FString String)
 	return Json;
 }
 
-void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName)
+void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilePath)
 {
-	FFileHelper::SaveStringToFile(JsonToString(Json), *(FPaths::ProjectDir() + "StudyFramework/" + FilenName));
+	//Not absolute path, default to StudyFramework directory
+	if(!FilePath.Contains(":"))
+	{
+		FilePath = GetStudyFrameworkPath() + FilePath;
+	}
+	FFileHelper::SaveStringToFile(JsonToString(Json), *(FilePath));
 }
 
-TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilenName)
+TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilePath)
 {
 	FString JsonString;
-	if(!FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectDir() + "StudyFramework/" + FilenName)))
+	//Not absolute path, default to StudyFramework directory
+	if (!FilePath.Contains(":"))
+	{
+		FilePath = GetStudyFrameworkPath() + FilePath;
+	}
+	if(!FFileHelper::LoadFileToString(JsonString, *(FilePath)))
 	{
 		return nullptr;
 	}
@@ -65,4 +75,9 @@ TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilenName)
 UWorld* FSFUtils::GetWorld()
 {
 	return GEngine->GetWorld();
+}
+
+FString FSFUtils::GetStudyFrameworkPath()
+{
+	return FPaths::ProjectDir() + "StudyFramework/";
 }

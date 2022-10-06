@@ -15,6 +15,7 @@ ASFStudySetup::ASFStudySetup()
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
+	JsonFile = FSFUtils::GetStudyFrameworkPath() + "StudySetup.json";
 
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
@@ -191,12 +192,13 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 void ASFStudySetup::SelectSetupFile()
 {
 	TArray<FString> OutFilenames;
-	FDesktopPlatformModule::Get()->OpenFileDialog(nullptr, FString("Choose setup JSON file to load"), FString(FPaths::ProjectDir() + "StudyFramework/"),FString(""), FString("JSON Files|*.json"), 0, OutFilenames);
+	FDesktopPlatformModule::Get()->OpenFileDialog(nullptr, FString("Select Setup File"), FString(FPaths::ProjectDir() + "StudyFramework/"),FString(""), FString("JSON Files|*.json"), 0, OutFilenames);
 	if(OutFilenames.Num()==0)
 	{
 		return;
 	}
 	JsonFile = OutFilenames[0];
+	LoadFromJson();
 }
 
 void ASFStudySetup::LoadFromJson()

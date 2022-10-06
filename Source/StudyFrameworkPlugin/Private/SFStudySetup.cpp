@@ -7,6 +7,8 @@
 #include "Logging/SFLoggingUtils.h"
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
+#include <Windows.h>
+#include <winuser.h>
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -192,7 +194,7 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 void ASFStudySetup::SelectSetupFile()
 {
 	TArray<FString> OutFilenames;
-	FDesktopPlatformModule::Get()->OpenFileDialog(nullptr, FString("Select Setup File"), FString(FPaths::ProjectDir() + "StudyFramework/"),FString(""), FString("JSON Files|*.json"), 0, OutFilenames);
+	FDesktopPlatformModule::Get()->OpenFileDialog(GetActiveWindow(), FString("Select Setup File"), FString(FPaths::ProjectDir() + "StudyFramework/"),FString(""), FString("JSON Files|*.json"), 0, OutFilenames);
 	if(OutFilenames.Num()==0)
 	{
 		return;

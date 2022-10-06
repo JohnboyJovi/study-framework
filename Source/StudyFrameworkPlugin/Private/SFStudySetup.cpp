@@ -17,7 +17,11 @@ ASFStudySetup::ASFStudySetup()
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
-	JsonFile = FSFUtils::GetStudyFrameworkPath() + "StudySetup.json";
+	//Initialize with default only if no valid path has been set previously
+	if(!JsonFile.Contains(".json"))
+	{
+		JsonFile = FSFUtils::GetStudyFrameworkPath() + "StudySetup.json";
+	}	
 
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));

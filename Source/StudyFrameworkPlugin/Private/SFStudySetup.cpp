@@ -7,10 +7,6 @@
 #include "Logging/SFLoggingUtils.h"
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
-#include <Windows.h>
-#include <winuser.h>
-#include <shlwapi.h>
-#pragma comment(lib, "Shlwapi.lib")
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -199,28 +195,23 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 
 void ASFStudySetup::SelectSetupFile()
 {
-	// OpenFileDialog() requires array for return value,
+	// OpenFileDialog() requires an array for the return value,
 	// but the file picker window only allows one file to be selected,
-	// so using SelectedFileAbsolutePath[0] works fine
-	TArray<FString> SelectedFileAbsolutePath;
+	// so using SelectedFilePath[0] works fine consistently
+	TArray<FString> SelectedFilePath;
 	FDesktopPlatformModule::Get()->OpenFileDialog(FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr), FString("Select Setup File"), FSFUtils::GetStudyFrameworkPath(),
-											FString(""), FString("JSON Files|*.json"), 0, SelectedFileAbsolutePath);
+											FString(""), FString("JSON Files|*.json"), 0, SelectedFilePath);
 
-	if (SelectedFileAbsolutePath.Num() == 0 || !SelectedFileAbsolutePath[0].EndsWith(".json"))
+	if (SelectedFilePath.Num() == 0 || !SelectedFilePath[0].EndsWith(".json"))
 	{
 		return;
 	}
-	// Convert to path relative to ProjectDir/StudyFramework:
-	TCHAR SelectedFileRelativePath[MAX_PATH];
-	FString HomeDir = FSFUtils::GetStudyFrameworkPath();
-	// PathRelativePathToW needs paths with backslashes 
-	HomeDir = HomeDir.Replace(*FString("/"), *FString("\\"));
-	SelectedFileAbsolutePath[0] = SelectedFileAbsolutePath[0].Replace(*FString("/"), *FString("\\"));
-	if (PathRelativePathToW(SelectedFileRelativePath, *HomeDir, FILE_ATTRIBUTE_DIRECTORY, *SelectedFileAbsolutePath[0], FILE_ATTRIBUTE_NORMAL) 
-		&& JsonFile != SelectedFileRelativePath)
+	// Make path relative to ProjectDir/StudyFramework
+	if (FPaths::MakePathRelativeTo(SelectedFilePath[0], *FSFUtils::GetStudyFrameworkPath())
+		&& JsonFile != SelectedFilePath[0])
 	{
 		this->Modify(true);
-		JsonFile = SelectedFileRelativePath;
+		JsonFile = SelectedFilePath[0];
 	}
 	LoadFromJson();
 }

@@ -9,6 +9,8 @@
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 #include <Windows.h>
 #include <winuser.h>
+#include <shlwapi.h>
+#pragma comment(lib, "Shlwapi.lib")
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -197,18 +199,28 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 
 void ASFStudySetup::SelectSetupFile()
 {
-	TArray<FString> OutFilenames;
-	FDesktopPlatformModule::Get()->OpenFileDialog(GetActiveWindow(), FString("Select Setup File"), FString(FPaths::ProjectDir() + "StudyFramework/"),FString(""), FString("JSON Files|*.json"), 0, OutFilenames);
+	// OpenFileDialog() requires array for return value,
+	// but the file picker window only allows one file to be selected,
+	// so using SelectedFileAbsolutePath[0] works fine
+	TArray<FString> SelectedFileAbsolutePath;
+	FDesktopPlatformModule::Get()->OpenFileDialog(GetActiveWindow(), FString("Select Setup File"), FSFUtils::GetStudyFrameworkPath(), 
+											FString(""), FString("JSON Files|*.json"), 0, SelectedFileAbsolutePath);
 
-	if(OutFilenames.Num()==0 || !OutFilenames[0].EndsWith(".json"))
+	if (SelectedFileAbsolutePath.Num() == 0 || !SelectedFileAbsolutePath[0].EndsWith(".json"))
 	{
 		return;
 	}
-	if(JsonFile != OutFilenames[0])
+	// Convert to path relative to ProjectDir/StudyFramework:
+	TCHAR SelectedFileRelativePath[MAX_PATH];
+	FString HomeDir = FSFUtils::GetStudyFrameworkPath();
+	// PathRelativePathToW needs paths with backslashes 
+	HomeDir = HomeDir.Replace(*FString("/"), *FString("\\"));
+	SelectedFileAbsolutePath[0] = SelectedFileAbsolutePath[0].Replace(*FString("/"), *FString("\\"));
+	if (PathRelativePathToW(SelectedFileRelativePath, *HomeDir, FILE_ATTRIBUTE_DIRECTORY, *SelectedFileAbsolutePath[0], FILE_ATTRIBUTE_NORMAL) 
+		&& JsonFile != SelectedFileRelativePath)
 	{
 		this->Modify(true);
-		// It seems like the file picker only allows a single file to be chosen anyway
-		JsonFile = OutFilenames[0];
+		JsonFile = SelectedFileRelativePath;
 	}
 	LoadFromJson();
 }

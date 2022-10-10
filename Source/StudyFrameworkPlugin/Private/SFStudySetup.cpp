@@ -203,7 +203,7 @@ void ASFStudySetup::SelectSetupFile()
 	// but the file picker window only allows one file to be selected,
 	// so using SelectedFileAbsolutePath[0] works fine
 	TArray<FString> SelectedFileAbsolutePath;
-	FDesktopPlatformModule::Get()->OpenFileDialog(GetActiveWindow(), FString("Select Setup File"), FSFUtils::GetStudyFrameworkPath(), 
+	FDesktopPlatformModule::Get()->OpenFileDialog(FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr), FString("Select Setup File"), FSFUtils::GetStudyFrameworkPath(),
 											FString(""), FString("JSON Files|*.json"), 0, SelectedFileAbsolutePath);
 
 	if (SelectedFileAbsolutePath.Num() == 0 || !SelectedFileAbsolutePath[0].EndsWith(".json"))

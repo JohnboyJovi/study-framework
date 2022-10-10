@@ -204,9 +204,12 @@ void ASFStudySetup::SelectSetupFile()
 	{
 		return;
 	}
-	this->Modify(true);
-	// It seems like the file picker only allows a single file to be chosen anyway
-	JsonFile = OutFilenames[0];
+	if(JsonFile != OutFilenames[0])
+	{
+		this->Modify(true);
+		// It seems like the file picker only allows a single file to be chosen anyway
+		JsonFile = OutFilenames[0];
+	}
 	LoadFromJson();
 }
 

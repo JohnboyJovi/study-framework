@@ -207,8 +207,12 @@ void ASFStudySetup::SelectSetupFile()
 		return;
 	}
 	// Make path relative to ProjectDir/StudyFramework
-	if (FPaths::MakePathRelativeTo(SelectedFilePath[0], *FSFUtils::GetStudyFrameworkPath())
-		&& JsonFile != SelectedFilePath[0])
+	if(!FPaths::MakePathRelativeTo(SelectedFilePath[0], *FSFUtils::GetStudyFrameworkPath()))
+	{
+		FSFLoggingUtils::Log("Was not able to make selected file path relative to working directory. Ensure that the paths share the same root folder (i.e. are located on the same drive)", true);
+		return;
+	}
+	if (JsonFile != SelectedFilePath[0])
 	{
 		this->Modify(true);
 		JsonFile = SelectedFilePath[0];

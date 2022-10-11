@@ -49,8 +49,7 @@ TSharedPtr<FJsonObject> FSFUtils::StringToJson(FString String)
 
 void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilePath)
 {
-	//Not absolute path, default to StudyFramework directory
-	if(!FilePath.Contains(":"))
+	if (FPaths::IsRelative(GetStudyFrameworkPath()))
 	{
 		FilePath = GetStudyFrameworkPath() + FilePath;
 	}
@@ -60,8 +59,7 @@ void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilePath)
 TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilePath)
 {
 	FString JsonString;
-	//Not absolute path, default to StudyFramework directory
-	if (!FilePath.Contains(":"))
+	if (FPaths::IsRelative(GetStudyFrameworkPath()))
 	{
 		FilePath = GetStudyFrameworkPath() + FilePath;
 	}

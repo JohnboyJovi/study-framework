@@ -49,20 +49,14 @@ TSharedPtr<FJsonObject> FSFUtils::StringToJson(FString String)
 
 void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilePath)
 {
-	if (FPaths::IsRelative(GetStudyFrameworkPath()))
-	{
-		FilePath = GetStudyFrameworkPath() + FilePath;
-	}
+	FilePath = GetStudyFrameworkPath() + FilePath;
 	FFileHelper::SaveStringToFile(JsonToString(Json), *(FilePath));
 }
 
 TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilePath)
 {
 	FString JsonString;
-	if (FPaths::IsRelative(GetStudyFrameworkPath()))
-	{
-		FilePath = GetStudyFrameworkPath() + FilePath;
-	}
+	FilePath = GetStudyFrameworkPath() + FilePath;
 	if(!FFileHelper::LoadFileToString(JsonString, *(FilePath)))
 	{
 		return nullptr;

@@ -268,6 +268,7 @@ void ASFStudySetup::LoadFromJson()
 	if (Json)
 	{
 		FromJson(Json);
+		FSFLoggingUtils::Log("Loaded setup file " + JsonFile);
 	}
 }
 

@@ -32,38 +32,46 @@ ASFStudySetup::ASFStudySetup()
 void ASFStudySetup::PostActorCreated()
 {
 	Super::PostActorCreated();
-	int uniqueFileExtension = 0;
-	int NumOfDigitsExtension;
-	while(FPaths::FileExists(FSFUtils::GetStudyFrameworkPath()+JsonFile))
+
+	// PostActorCreated() is called twice when actor is drag-'n'-dropped into level because:
+	// First a preview actor with transient values is created when dragging out of list
+	// Then the final actor is created once dropped into map.
+	// We only want to execute the code for the latter actor -> Workaround:
+	if (!HasAllFlags(RF_Transient))
 	{
-		NumOfDigitsExtension = FString::FromInt(uniqueFileExtension).Len();
-		JsonFile.RemoveFromEnd(".json");
-
-		// Filename ends with number to iterate
-		if(JsonFile.Right(NumOfDigitsExtension).IsNumeric())
+		int uniqueFileExtension = 0;
+		int NumOfDigitsExtension;
+		while (FPaths::FileExists(FSFUtils::GetStudyFrameworkPath() + JsonFile))
 		{
-			uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension));
-		}
+				NumOfDigitsExtension = FString::FromInt(uniqueFileExtension).Len();
+					JsonFile.RemoveFromEnd(".json");
 
-		// Filename ends with number but with fewer digits, e.g. file9.json exists but not file10.json
-		else if (NumOfDigitsExtension > 1)
-		{
-			uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension - 1));
-		}
+					// Filename ends with number to iterate
+					if (JsonFile.Right(NumOfDigitsExtension).IsNumeric())
+					{
+						uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension));
+					}
 
-		// There is no number at the end that should be removed before adding larger number
-		else
-		{
-			JsonFile = JsonFile + "1" + ".json";
-			continue;
-		}
+				// Filename ends with number but with fewer digits, e.g. file9.json exists but not file10.json
+					else if (NumOfDigitsExtension > 1)
+					{
+						uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension - 1));
+					}
 
-		JsonFile.RemoveFromEnd(FString::FromInt(uniqueFileExtension));
-		JsonFile.AppendInt(uniqueFileExtension+1);
-		JsonFile.Append(".json");
-		FSFLoggingUtils::Log("Changed JsonFile to " + JsonFile);
+				// There is no number at the end that should be removed before adding larger number
+					else
+					{
+						JsonFile = JsonFile + "1" + ".json";
+						continue;
+					}
+
+				JsonFile.RemoveFromEnd(FString::FromInt(uniqueFileExtension));
+				JsonFile.AppendInt(uniqueFileExtension + 1);
+				JsonFile.Append(".json");
+				FSFLoggingUtils::Log("Attempting to use " + JsonFile);
+		}
+		SaveToJson();
 	}
-	SaveToJson();
 }
 
 void ASFStudySetup::BeginPlay()

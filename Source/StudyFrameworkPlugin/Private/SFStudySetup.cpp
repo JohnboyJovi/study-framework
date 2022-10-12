@@ -43,32 +43,32 @@ void ASFStudySetup::PostActorCreated()
 		int NumOfDigitsExtension;
 		while (FPaths::FileExists(FSFUtils::GetStudyFrameworkPath() + JsonFile))
 		{
-				NumOfDigitsExtension = FString::FromInt(uniqueFileExtension).Len();
-					JsonFile.RemoveFromEnd(".json");
+			NumOfDigitsExtension = FString::FromInt(uniqueFileExtension).Len();
+			JsonFile.RemoveFromEnd(".json");
 
-					// Filename ends with number to iterate
-					if (JsonFile.Right(NumOfDigitsExtension).IsNumeric())
-					{
-						uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension));
-					}
+			// Filename ends with number to iterate
+			if (JsonFile.Right(NumOfDigitsExtension).IsNumeric())
+			{
+				uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension));
+			}
 
-				// Filename ends with number but with fewer digits, e.g. file9.json exists but not file10.json
-					else if (NumOfDigitsExtension > 1)
-					{
-						uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension - 1));
-					}
+			// Filename ends with number but with fewer digits, e.g. file9.json exists but not file10.json
+			else if (NumOfDigitsExtension > 1)
+			{
+				uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension - 1));
+			}
 
-				// There is no number at the end that should be removed before adding larger number
-					else
-					{
-						JsonFile = JsonFile + "1" + ".json";
-						continue;
-					}
+			// There is no number at the end that should be removed before adding larger number
+			else
+			{
+				JsonFile = JsonFile + "1" + ".json";
+				continue;
+			}
 
-				JsonFile.RemoveFromEnd(FString::FromInt(uniqueFileExtension));
-				JsonFile.AppendInt(uniqueFileExtension + 1);
-				JsonFile.Append(".json");
-				FSFLoggingUtils::Log("Attempting to use " + JsonFile);
+			JsonFile.RemoveFromEnd(FString::FromInt(uniqueFileExtension));
+			JsonFile.AppendInt(uniqueFileExtension + 1);
+			JsonFile.Append(".json");
+			FSFLoggingUtils::Log("Attempting to use " + JsonFile);
 		}
 		SaveToJson();
 	}

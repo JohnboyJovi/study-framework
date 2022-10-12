@@ -5,6 +5,8 @@
 #include "Help/SFUtils.h"
 #include "Logging/SFLogObject.h"
 #include "Logging/SFLoggingUtils.h"
+#include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
+#include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -13,6 +15,7 @@ ASFStudySetup::ASFStudySetup()
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
+	JsonFile = "StudySetup.json";
 
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
@@ -52,8 +55,8 @@ void ASFStudySetup::PreSave(const ITargetPlatform* TargetPlatform)
 #if WITH_EDITOR
 void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlends)
 {
-	//not needed anymore (done on saving map and on clicking the respective button for full control)
-	//SaveToJson();
+	//Re-enabled to avoid accidental data loss
+	SaveToJson();
 	Super::PostEditChangeProperty(MovieSceneBlends);
 }
 #endif
@@ -186,12 +189,40 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 	if(Json->GetStringField("UseGazeTracker") == "EyeTracking") UseGazeTracker = EGazeTrackerMode::EyeTracking;
 }
 
+void ASFStudySetup::SelectSetupFile()
+{
+	// OpenFileDialog() requires an array for the return value,
+	// but the file picker window only allows one file to be selected,
+	// so using SelectedFilePath[0] works fine consistently
+	TArray<FString> SelectedFilePath;
+	FDesktopPlatformModule::Get()->OpenFileDialog(FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr), FString("Select Setup File"), FSFUtils::GetStudyFrameworkPath(),
+											FString(""), FString("JSON Files|*.json"), 0, SelectedFilePath);
+
+	if (SelectedFilePath.Num() == 0 || !SelectedFilePath[0].EndsWith(".json"))
+	{
+		return;
+	}
+	// Make path relative to ProjectDir/StudyFramework
+	if(!FPaths::MakePathRelativeTo(SelectedFilePath[0], *FSFUtils::GetStudyFrameworkPath()))
+	{
+		FSFLoggingUtils::Log("Was not able to make selected file path relative to working directory. Ensure that the paths share the same root folder (i.e. are located on the same drive)", true);
+		return;
+	}
+	if (JsonFile != SelectedFilePath[0])
+	{
+		this->Modify(true);
+		JsonFile = SelectedFilePath[0];
+	}
+	LoadFromJson();
+}
+
 void ASFStudySetup::LoadFromJson()
 {
 	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(JsonFile);
 	if (Json)
 	{
 		FromJson(Json);
+		FSFLoggingUtils::Log("Loaded setup file " + JsonFile);
 	}
 }
 

@@ -77,17 +77,20 @@ public:
 	UFUNCTION()
 	USFStudyPhase* GetPhase(int Index);
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup Json Storage"))
-	FString JsonFile = "StudySetup.json";
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (Category = "Study Setup Json Storage"))
+	FString JsonFile;
+
+	UFUNCTION(BlueprintCallable)
+	void LoadFromJson();
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
-	void LoadFromJson();
+	void SelectSetupFile();
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
 
-	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
+	UFUNCTION(BlueprintCallable)
 	void SaveToJson() const;
 
 	bool ContainsNullptrInArrays();

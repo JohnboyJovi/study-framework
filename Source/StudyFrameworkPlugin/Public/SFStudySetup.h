@@ -22,6 +22,8 @@ class STUDYFRAMEWORKPLUGIN_API ASFStudySetup : public AActor
 public:
 	ASFStudySetup();
 
+	virtual void PostActorCreated() override;
+
 	virtual void BeginPlay() override;
 
 	virtual void PostLoad() override;

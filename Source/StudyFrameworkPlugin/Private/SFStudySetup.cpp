@@ -7,6 +7,7 @@
 #include "Logging/SFLoggingUtils.h"
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
+#include "Kismet/KismetStringLibrary.h"
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -15,7 +16,7 @@ ASFStudySetup::ASFStudySetup()
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
-	JsonFile = FSFUtils::GetStudyFrameworkPath() + "StudySetup.json";
+	JsonFile = "StudySetup.json";
 
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
@@ -26,6 +27,37 @@ ASFStudySetup::ASFStudySetup()
 		SpriteComponent->Mobility = EComponentMobility::Static;
 	}
 #endif // WITH_EDITORONLY_DATA
+}
+
+void ASFStudySetup::PostActorCreated()
+{
+	Super::PostActorCreated();
+	int uniqueFileExtension = 0;
+	int NumOfDigitsExtension;
+	while(FPaths::FileExists(FSFUtils::GetStudyFrameworkPath()+JsonFile))
+	{
+		NumOfDigitsExtension = (uniqueFileExtension / 10)+1;
+		FSFLoggingUtils::Log("uniqueFileExtension = " + FString::FromInt(uniqueFileExtension));
+		FSFLoggingUtils::Log("NumOfDigitsExtension = " + FString::FromInt(NumOfDigitsExtension));
+		JsonFile.RemoveFromEnd(".json");
+		if(JsonFile.Right(NumOfDigitsExtension).IsNumeric())
+		{
+			uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.RightChop(NumOfDigitsExtension)) + 1;
+			JsonFile.AppendInt(uniqueFileExtension);
+		}
+		else
+		{
+			if(NumOfDigitsExtension>1)
+			{
+				uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.RightChop(NumOfDigitsExtension - 1));
+			}
+			uniqueFileExtension = uniqueFileExtension + 1;
+			JsonFile.AppendInt(uniqueFileExtension);
+		}
+		JsonFile.Append(".json");
+		FSFLoggingUtils::Log("Changed JsonFile to " + JsonFile);
+	}
+	SaveToJson();
 }
 
 void ASFStudySetup::BeginPlay()
@@ -222,7 +254,8 @@ void ASFStudySetup::LoadFromJson()
 	if (Json)
 	{
 		FromJson(Json);
-		FSFLoggingUtils::Log("Loaded setup file " + JsonFile);
+		FSFLoggingUtils::Log("Loaded setup file " + FSFUtils::GetStudyFrameworkPath() + JsonFile);
+		FSFLoggingUtils::Log("with content" + FSFUtils::JsonToString(Json));
 	}
 }
 

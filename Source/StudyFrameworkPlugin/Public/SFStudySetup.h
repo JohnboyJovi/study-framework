@@ -86,7 +86,11 @@ public:
 	void LoadFromJson();
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
-	void SelectSetupFile();
+	void LoadSetupFile();
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
+	void SaveSetupFile();
+
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;

@@ -235,7 +235,7 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 	if(Json->GetStringField("UseGazeTracker") == "EyeTracking") UseGazeTracker = EGazeTrackerMode::EyeTracking;
 }
 
-void ASFStudySetup::SelectSetupFile()
+void ASFStudySetup::LoadSetupFile()
 {
 	// OpenFileDialog() requires an array for the return value,
 	// but the file picker window only allows one file to be selected,
@@ -260,6 +260,31 @@ void ASFStudySetup::SelectSetupFile()
 		JsonFile = SelectedFilePath[0];
 	}
 	LoadFromJson();
+}
+
+void ASFStudySetup::SaveSetupFile()
+{
+	TArray<FString> SelectedFilePath;
+	FDesktopPlatformModule::Get()->SaveFileDialog(FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr), FString("Save Setup File To"), FSFUtils::GetStudyFrameworkPath(), 
+		JsonFile, FString("JSON Files|*.json"), 0, SelectedFilePath);
+
+	if (SelectedFilePath.Num() == 0 || !SelectedFilePath[0].EndsWith(".json"))
+	{
+		return;
+	}
+
+	// Make path relative to ProjectDir/StudyFramework
+	if (!FPaths::MakePathRelativeTo(SelectedFilePath[0], *FSFUtils::GetStudyFrameworkPath()))
+	{
+		FSFLoggingUtils::Log("Was not able to make selected file path relative to working directory. Ensure that the paths share the same root folder (i.e. are located on the same drive)", true);
+		return;
+	}
+	if (JsonFile != SelectedFilePath[0])
+	{
+		this->Modify(true);
+		JsonFile = SelectedFilePath[0];
+	}
+	SaveToJson();
 }
 
 void ASFStudySetup::LoadFromJson()

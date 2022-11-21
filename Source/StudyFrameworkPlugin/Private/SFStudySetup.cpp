@@ -134,7 +134,7 @@ void ASFStudySetup::GenerateTestStudyRuns() const
 	{
 		const TArray<USFCondition*> Conditions = GetAllConditionsForRun(ParticipantID);
 		USFParticipant* TmpParticipant = NewObject<USFParticipant>();
-		TmpParticipant->Initialize(ParticipantID);
+		TmpParticipant->Initialize(ParticipantID, true);
 		TmpParticipant->SetStudyConditions(Conditions); //this also saves it to json
 	}
 }

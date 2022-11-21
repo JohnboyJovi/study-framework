@@ -18,9 +18,13 @@ USFParticipant::~USFParticipant()
 {
 }
 
-bool USFParticipant::Initialize(int Participant)
+bool USFParticipant::Initialize(int Participant, bool bSetIdOnly /*= false*/)
 {
 	ParticipantID = Participant;
+	if(bSetIdOnly)
+	{
+		return true;
+	}
 
 
 	const FString Timestamp = FDateTime::Now().ToString();

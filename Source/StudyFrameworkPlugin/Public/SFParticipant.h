@@ -28,7 +28,7 @@ public:
 	USFParticipant();
 	~USFParticipant();
 
-	bool Initialize(int Participant);
+	bool Initialize(int Participant, bool bSetIdOnly = false);
 	void SetStudyConditions(TArray<USFCondition*> NewConditions);
 
 	bool StartStudy();

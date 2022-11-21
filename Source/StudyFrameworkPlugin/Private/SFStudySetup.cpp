@@ -125,6 +125,20 @@ bool ASFStudySetup::CheckPhases() const
 		}
 	}
 
+	for(FString PhaseName : PhasesToOrderRandomize)
+	{
+		bool bPhaseExists = false;
+		for(int i=0; i<Phases.Num(); ++i)
+		{
+			if (Phases[i]->PhaseName == PhaseName) bPhaseExists = true;
+		}
+		if(!bPhaseExists)
+		{
+			FSFUtils::OpenMessageBox("Phase " + PhaseName + " cannot be randomized in order, since it does not exist!", true);
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -173,10 +187,28 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 		return TArray<USFCondition*>();
 	}
 
+	//so we have to potentially swap some phases
+	TArray<int> PhasesToShuffleIndices;
+	for(int i=0; i<Phases.Num(); ++i)
+	{
+		if (PhasesToOrderRandomize.Contains(Phases[i]->PhaseName))
+		{
+			PhasesToShuffleIndices.Add(i);
+		}
+	}
+	TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(RunningParticipantNumber, PhasesToShuffleIndices.Num());
+
 	TArray<USFCondition*> Conditions;
 	for (int i=0; i<Phases.Num(); ++i)
 	{
-		Conditions.Append(Phases[i]->GenerateConditions(RunningParticipantNumber, i));
+		int ActualIndex = i;
+		if(PhasesToShuffleIndices.Contains(i))
+		{
+			//this one needs to be shuffled
+			const int IndexInShuffleArray = PhasesToShuffleIndices.Find(i);
+			ActualIndex = PhasesToShuffleIndices[LatinSquare[IndexInShuffleArray]];
+		}
+		Conditions.Append(Phases[ActualIndex]->GenerateConditions(RunningParticipantNumber, ActualIndex));
 	}
 	return Conditions;
 }
@@ -207,6 +239,14 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 	}
 	Json->SetArrayField("Phases", PhasesArray);
 
+	TArray<TSharedPtr<FJsonValue>> PhasesToRandomize;
+	for (FString Phase : PhasesToOrderRandomize)
+	{
+		TSharedRef<FJsonValueString> JsonValue = MakeShared<FJsonValueString>(Phase);
+		PhasesToRandomize.Add(JsonValue);
+	}
+	Json->SetArrayField("PhasesToOrderRandomize", PhasesToRandomize);
+
 	Json->SetObjectField("FadeConfig", FadeConfig.GetAsJson());
 	Json->SetObjectField("ExperimenterViewConfig", ExperimenterViewConfig.GetAsJson());
 	if(UseGazeTracker == EGazeTrackerMode::NotTracking) Json->SetStringField("UseGazeTracker", "NotTracking");
@@ -227,9 +267,16 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 		Phase->FromJson(PhaseJson->AsObject());
 		Phases.Add(Phase);
 	}
+
+	PhasesToOrderRandomize.Empty();
+	TArray<TSharedPtr<FJsonValue>> PhasesToRandomize = Json->GetArrayField("PhasesToOrderRandomize");
+	for (TSharedPtr<FJsonValue> PhaseJson : PhasesToRandomize)
+	{
+		PhasesToOrderRandomize.Add(PhaseJson->AsString());
+	}
+
 	FadeConfig.FromJson(Json->GetObjectField("FadeConfig"));
 	ExperimenterViewConfig.FromJson(Json->GetObjectField("ExperimenterViewConfig"));
-
 	if(Json->GetStringField("UseGazeTracker") == "NotTracking") UseGazeTracker = EGazeTrackerMode::NotTracking;
 	if(Json->GetStringField("UseGazeTracker") == "HeadRotationOnly") UseGazeTracker = EGazeTrackerMode::HeadRotationOnly;
 	if(Json->GetStringField("UseGazeTracker") == "EyeTracking") UseGazeTracker = EGazeTrackerMode::EyeTracking;

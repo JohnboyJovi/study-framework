@@ -66,6 +66,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	EGazeTrackerMode UseGazeTracker = EGazeTrackerMode::NotTracking;
 
+	//give names of phases wich should be randomized in their order between participants
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	TArray<FString> PhasesToOrderRandomize;
+
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //

@@ -7,6 +7,7 @@
 #include "Logging/SFLoggingUtils.h"
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
+#include "Kismet/KismetStringLibrary.h"
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -26,6 +27,51 @@ ASFStudySetup::ASFStudySetup()
 		SpriteComponent->Mobility = EComponentMobility::Static;
 	}
 #endif // WITH_EDITORONLY_DATA
+}
+
+void ASFStudySetup::PostActorCreated()
+{
+	Super::PostActorCreated();
+
+	// PostActorCreated() is called twice when actor is drag-'n'-dropped into level because:
+	// First a preview actor with transient values is created when dragging out of list
+	// Then the final actor is created once dropped into map.
+	// We only want to execute the code for the latter actor -> Workaround:
+	if (!HasAllFlags(RF_Transient))
+	{
+		int uniqueFileExtension = 0;
+		int NumOfDigitsExtension;
+		while (FPaths::FileExists(FSFUtils::GetStudyFrameworkPath() + JsonFile))
+		{
+			NumOfDigitsExtension = FString::FromInt(uniqueFileExtension).Len();
+			JsonFile.RemoveFromEnd(".json");
+
+			// Filename ends with number to iterate
+			if (JsonFile.Right(NumOfDigitsExtension).IsNumeric())
+			{
+				uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension));
+			}
+
+			// Filename ends with number but with fewer digits, e.g. file9.json exists but not file10.json
+			else if (NumOfDigitsExtension > 1)
+			{
+				uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension - 1));
+			}
+
+			// There is no number at the end that should be removed before adding larger number
+			else
+			{
+				JsonFile = JsonFile + "1" + ".json";
+				continue;
+			}
+
+			JsonFile.RemoveFromEnd(FString::FromInt(uniqueFileExtension));
+			JsonFile.AppendInt(uniqueFileExtension + 1);
+			JsonFile.Append(".json");
+			FSFLoggingUtils::Log("Attempting to use " + JsonFile);
+		}
+		SaveToJson();
+	}
 }
 
 void ASFStudySetup::BeginPlay()

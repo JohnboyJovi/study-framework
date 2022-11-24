@@ -34,7 +34,7 @@ void FSFLoggingUtils::SetupLoggingStreams()
 	ILogStream* SFLog = UniLog.NewLogStream("SFLog", "StudyFramework/DebuggingLogs", "SFLog.txt", false);
 	SFLog->SetLogToDefaultLog(true);
 
-	//ParticipantLog, PositionLog, GazeTrackingLog are set up in Participant init function
+	//ParticipantLog, PositionLog, GazeTrackingLog are set up in SFParticipant::SetupLoggingStreams() function
 
 	ILogStream* SFErrorLog = UniLog.NewLogStream("SFErrorLog", "StudyFramework/DebuggingLogs", "SFLog.txt", false);
 	SFErrorLog->SetLogToDefaultLog(true);

@@ -61,6 +61,8 @@ public:
 	UFUNCTION()
 	void OnShowConditionsButtonPressed();
 
+	const ASFHMDSpectatorHUDHelp* GetHUDHelper();
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	USFHUDWidget* HUDWidget;

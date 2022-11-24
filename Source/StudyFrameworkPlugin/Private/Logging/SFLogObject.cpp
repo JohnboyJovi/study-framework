@@ -105,8 +105,8 @@ void USFLogObject::WriteGazeTrackingLogHeaderRow() {
 		"\t" + FString("Condition") +
 		"\t" + FString("UsingEyetracking") +
 		"\t" + FString("GazeTarget") +
-		"\t" + FString("HeadRotation-Origin") +
-		"\t" + FString("HeadRotation-Direction");
+		"\t" + FString("Gaze-Origin-X-Y-Z") +
+		"\t" + FString("Gaze-Direction-X-Y-Z");
 	UniLog.Log(GazeTrackingLogHeader, "GazeTrackingLog");
 }
 
@@ -127,8 +127,12 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 		"\t" + CurrentCondition +
 		"\t" + isTrackingEyes +
 		"\t" + GazeTarget +
-		"\t" + GazeTracker->GetGazeDirection().Origin.ToCompactString() +
-		"\t" + GazeTracker->GetGazeDirection().Direction.ToCompactString();
+		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Origin.X) +
+		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Origin.Y) +
+		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Origin.Z) +
+		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Direction.X) +
+		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Direction.Y) +
+		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Direction.Z);
 	if (UniLog.GetLogStream("GazeTrackingLog"))
 	{
 		UniLog.Log(out, "GazeTrackingLog");

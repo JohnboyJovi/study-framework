@@ -30,19 +30,26 @@ class STUDYFRAMEWORKPLUGIN_API USFGazeTracker : public UObject
 public:
 	void Init(EGazeTrackerMode Mode);
 
-	//returns pair of Origin and Direction, relative to the head!
+	//returns pair of Origin and Direction, in world coordinates
 	UFUNCTION(BlueprintCallable)
-	FGazeRay GetGazeDirection();
+	FGazeRay GetWorldGazeDirection();
 
 	//returns the name of the gaze target or empty string if none found or not tracking
 	UFUNCTION(BlueprintCallable)
 	FString GetCurrentGazeTarget();
+
+	//returns pair of Origin and Direction, relative to the head!
+	UFUNCTION(BlueprintCallable)
+	FGazeRay GetLocalGazeDirection();
 
 	UFUNCTION(BlueprintCallable)
 	void LaunchCalibration();
 
 	UFUNCTION(BlueprintCallable)
 	bool IsTrackingEyes();
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bDebugRenderRayTraces = false;
 
 private:
 

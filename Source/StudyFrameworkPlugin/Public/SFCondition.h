@@ -54,12 +54,12 @@ public:
 	TMap<FString,FString> FactorLevels;
 
 	UPROPERTY(BlueprintReadOnly)
-	FString Map = "undefined";
-
-	UPROPERTY(BlueprintReadOnly)
 	TMap<USFDependentVariable*,FString> DependentVariablesValues;
 
 protected:
+
+	UPROPERTY(BlueprintReadOnly)
+	FString Map = "";
 
 	UPROPERTY(BlueprintReadOnly)
 	float TimeTaken=0.0;

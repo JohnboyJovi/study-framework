@@ -48,7 +48,7 @@ public:
 	bool PhaseValid() const;
 
 	UFUNCTION()
-	TArray<USFCondition*> GenerateConditions(int ParticipantNr);
+	TArray<USFCondition*> GenerateConditions(int ParticipantNr, int PhaseIndex);
 
 
 	// ****************************************************************** // 

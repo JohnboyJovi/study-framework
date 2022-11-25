@@ -22,7 +22,7 @@ void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 		return;
 	}
 
-	FSFLoggingUtils::Log(FString("[FVAUtils::OpenMessageBox(ERROR = ") + (bError ? "TRUE" : "FALSE") +
+	FSFLoggingUtils::Log(FString("[FSFUtils::OpenMessageBox(ERROR = ") + (bError ? "TRUE" : "FALSE") +
 	    ")]: Opening Message Box with message: " + Text, bError);
 
 	FText Title = FText::FromString(FString(bError ? "ERROR" : "Message"));
@@ -47,15 +47,17 @@ TSharedPtr<FJsonObject> FSFUtils::StringToJson(FString String)
 	return Json;
 }
 
-void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName)
+void FSFUtils::WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilePath)
 {
-	FFileHelper::SaveStringToFile(JsonToString(Json), *(FPaths::ProjectDir() + "StudyFramework/" + FilenName));
+	FilePath = GetStudyFrameworkPath() + FilePath;
+	FFileHelper::SaveStringToFile(JsonToString(Json), *(FilePath));
 }
 
-TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilenName)
+TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilePath)
 {
 	FString JsonString;
-	if(!FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectDir() + "StudyFramework/" + FilenName)))
+	FilePath = GetStudyFrameworkPath() + FilePath;
+	if(!FFileHelper::LoadFileToString(JsonString, *(FilePath)))
 	{
 		return nullptr;
 	}
@@ -65,4 +67,9 @@ TSharedPtr<FJsonObject> FSFUtils::ReadJsonFromFile(FString FilenName)
 UWorld* FSFUtils::GetWorld()
 {
 	return GEngine->GetWorld();
+}
+
+FString FSFUtils::GetStudyFrameworkPath()
+{
+	return FPaths::ProjectDir() + "StudyFramework/";
 }

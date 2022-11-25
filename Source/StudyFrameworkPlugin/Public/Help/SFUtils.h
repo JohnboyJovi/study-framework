@@ -17,8 +17,9 @@ public:
 	static FString JsonToString(TSharedPtr<FJsonObject> Json);
 	static TSharedPtr<FJsonObject> StringToJson(FString String);
 
-	static void WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilenName);
-	static TSharedPtr<FJsonObject> ReadJsonFromFile(FString FilenName);
+	static void WriteJsonToFile(TSharedPtr<FJsonObject> Json, FString FilePath);
+	static TSharedPtr<FJsonObject> ReadJsonFromFile(FString FilePath);
 
 	static UWorld* GetWorld();
+	static FString GetStudyFrameworkPath();
 };

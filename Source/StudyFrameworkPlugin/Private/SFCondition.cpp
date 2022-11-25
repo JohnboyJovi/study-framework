@@ -3,6 +3,7 @@
 #include "UObject/UObjectGlobals.h"
 
 #include "SFMapFactor.h"
+#include "Logging/SFLoggingUtils.h"
 
 USFCondition::USFCondition()
 {
@@ -18,12 +19,14 @@ void USFCondition::Generate(const FString& InPhaseName, const TArray<int>& Condi
 	for (int i = 0; i < Factors.Num(); ++i)
 	{
 		USFStudyFactor* Factor = Factors[i];
+		FString FactorLevel = Factor->Levels[ConditionIndices[i]];
 		if (Factor->IsA(USFMapFactor::StaticClass()))
 		{
-			Map = Factor->Levels[ConditionIndices[i]];
-			continue;
+			Map = FactorLevel;
+			//for better readybility strip path!
+			FactorLevel = FPaths::GetBaseFilename(FactorLevel);
 		}
-		FactorLevels.Add(Factor->FactorName, Factor->Levels[ConditionIndices[i]]);
+		FactorLevels.Add(Factor->FactorName, FactorLevel);
 	}
 
 	for (USFDependentVariable* Var : DependentVars)
@@ -86,7 +89,7 @@ FString USFCondition::CreateIdentifiableName()
 
 FString USFCondition::ToString() const
 {
-	FString Out = PhaseName + "_" + FPaths::GetBaseFilename(Map);
+	FString Out = PhaseName;
 	for (auto Level : FactorLevels)
 	{
 		Out = Out + "_" + Level.Value;
@@ -102,6 +105,22 @@ bool USFCondition::operator==(USFCondition& Other)
 
 bool USFCondition::StoreDependentVariableData(const FString& VarName, const FString& Value)
 {
+	if(!WasStarted())
+	{
+		FSFLoggingUtils::Log(
+			"Cannot log data '" + Value + "' for dependent variable '" + VarName +
+			"' since condition was not started yet, probably still fading!", true);
+		return false;
+	}
+
+	if (IsFinished())
+	{
+		FSFLoggingUtils::Log(
+			"Cannot log data '" + Value + "' for dependent variable '" + VarName +
+			"' since condition was has finished, probably already fading!", true);
+		return false;
+	}
+
 	for (auto& Var : DependentVariablesValues)
 	{
 		if (Var.Key->Name == VarName)
@@ -110,6 +129,10 @@ bool USFCondition::StoreDependentVariableData(const FString& VarName, const FStr
 			return true;
 		}
 	}
+
+	FSFLoggingUtils::Log(
+		"Cannot log data '" + Value + "' for dependent variable '" + VarName +
+		"' since it does not exist for this condition!", true);
 	return false;
 }
 
@@ -151,10 +174,6 @@ bool USFCondition::RecoverStudyResults(TArray<FString>& Header, TArray<FString>&
 			return false;
 		}
 	}
-	if (!Header.Contains("Map") || Entries[Header.Find("Map")] != Map)
-	{
-		return false;
-	}
 
 	//so this is the right condition
 	for (auto& DepVar : DependentVariablesValues)
@@ -171,7 +190,6 @@ FString USFCondition::GetPrettyName()
 {
 	FString ConditionString = "(";
 	ConditionString += "Phase: " + PhaseName;
-	ConditionString += "; Map: " + FPaths::GetBaseFilename(Map);
 	for (auto FactorLevel : FactorLevels)
 	{
 		ConditionString += "; " + FactorLevel.Key + ": " + FactorLevel.Value;

@@ -120,8 +120,10 @@ bool USFStudyPhase::PhaseValid() const
 	return true;
 }
 
-TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
+TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int PhaseIndex)
 {
+	//we need the phase index, because we additionally use this to seed the Latin Square randomization so tow identical phases would have different orders
+
 	// first restructure factors, such that:
 	// - a potential enBlock factor is the first one
 	TArray<USFStudyFactor*> SortedFactors = SortFactors();
@@ -194,12 +196,12 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 	for (int Repetition = 0; Repetition < NrDifferentOrderRepetitions; ++Repetition)
 	{
 		const TArray<int> LatinSquareRndReOrderEnBlock = USFStudyFactor::GenerateLatinSquareOrder(
-			ParticipantNr + Repetition, enBlockConditions);
+			ParticipantNr + PhaseIndex + Repetition, enBlockConditions);
 		for (int i = 0; i < enBlockConditions; ++i)
 		{
 			//have a different reshuffling for every enBlock block
 			const TArray<int> LatinSquareRndReOrder = USFStudyFactor::GenerateLatinSquareOrder(
-				ParticipantNr + Repetition + i, NrLatinSqConditions);
+				ParticipantNr + PhaseIndex + Repetition + i, NrLatinSqConditions);
 
 			// if we have enBlockConditions>1 we need to copy and shuffle the whole enBlock Block, otherwise the i loop is trivially run once only
 			for (int j = 0; j < LatinSquareRndReOrder.Num(); ++j)
@@ -250,7 +252,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr)
 			continue;
 		}
 
-		TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(ParticipantNr, Factor->Levels.Num());
+		TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(ParticipantNr + PhaseIndex, Factor->Levels.Num());
 		if (LatinSquare.Num() < ConditionsIndices.Num())
 		{
 			FSFLoggingUtils::Log(

@@ -121,7 +121,6 @@ void USFParticipant::StoreInPhaseLongTable() const
 	if (!FPaths::FileExists(Filename))
 	{
 		FString Header = "ParticipantID";
-		Header += ",Map";
 		for (auto Factor : CurrCondition->FactorLevels)
 		{
 			Header += "," + Factor.Key;
@@ -135,7 +134,6 @@ void USFParticipant::StoreInPhaseLongTable() const
 	}
 
 	FString ConditionResults = FString::FromInt(ParticipantID);
-	ConditionResults += "," + CurrCondition->Map;
 	for (auto Factor : CurrCondition->FactorLevels)
 	{
 		ConditionResults += "," + Factor.Value;
@@ -181,7 +179,6 @@ USFCondition* USFParticipant::GetNextCondition() const
 	// Get next Condition
 	if (CurrentConditionIdx + 1 >= Conditions.Num())
 	{
-		FSFLoggingUtils::Log("[USFParticipant::NextCondition()]: All conditions already ran, no NextCondition", false);
 		return nullptr;
 	}
 	USFCondition* UpcomingCondition = Conditions[CurrentConditionIdx + 1];

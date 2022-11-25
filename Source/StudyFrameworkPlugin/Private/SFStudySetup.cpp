@@ -5,6 +5,9 @@
 #include "Help/SFUtils.h"
 #include "Logging/SFLogObject.h"
 #include "Logging/SFLoggingUtils.h"
+#include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
+#include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
+#include "Kismet/KismetStringLibrary.h"
 
 ASFStudySetup::ASFStudySetup()
 {
@@ -13,6 +16,7 @@ ASFStudySetup::ASFStudySetup()
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComponent;
 	RootComponent->Mobility = EComponentMobility::Static;
+	JsonFile = "StudySetup.json";
 
 #if WITH_EDITORONLY_DATA
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
@@ -23,6 +27,51 @@ ASFStudySetup::ASFStudySetup()
 		SpriteComponent->Mobility = EComponentMobility::Static;
 	}
 #endif // WITH_EDITORONLY_DATA
+}
+
+void ASFStudySetup::PostActorCreated()
+{
+	Super::PostActorCreated();
+
+	// PostActorCreated() is called twice when actor is drag-'n'-dropped into level because:
+	// First a preview actor with transient values is created when dragging out of list
+	// Then the final actor is created once dropped into map.
+	// We only want to execute the code for the latter actor -> Workaround:
+	if (!HasAllFlags(RF_Transient))
+	{
+		int uniqueFileExtension = 0;
+		int NumOfDigitsExtension;
+		while (FPaths::FileExists(FSFUtils::GetStudyFrameworkPath() + JsonFile))
+		{
+			NumOfDigitsExtension = FString::FromInt(uniqueFileExtension).Len();
+			JsonFile.RemoveFromEnd(".json");
+
+			// Filename ends with number to iterate
+			if (JsonFile.Right(NumOfDigitsExtension).IsNumeric())
+			{
+				uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension));
+			}
+
+			// Filename ends with number but with fewer digits, e.g. file9.json exists but not file10.json
+			else if (NumOfDigitsExtension > 1)
+			{
+				uniqueFileExtension = UKismetStringLibrary::Conv_StringToInt(JsonFile.Right(NumOfDigitsExtension - 1));
+			}
+
+			// There is no number at the end that should be removed before adding larger number
+			else
+			{
+				JsonFile = JsonFile + "1" + ".json";
+				continue;
+			}
+
+			JsonFile.RemoveFromEnd(FString::FromInt(uniqueFileExtension));
+			JsonFile.AppendInt(uniqueFileExtension + 1);
+			JsonFile.Append(".json");
+			FSFLoggingUtils::Log("Attempting to use " + JsonFile);
+		}
+		SaveToJson();
+	}
 }
 
 void ASFStudySetup::BeginPlay()
@@ -52,8 +101,8 @@ void ASFStudySetup::PreSave(const ITargetPlatform* TargetPlatform)
 #if WITH_EDITOR
 void ASFStudySetup::PostEditChangeProperty(FPropertyChangedEvent& MovieSceneBlends)
 {
-	//not needed anymore (done on saving map and on clicking the respective button for full control)
-	//SaveToJson();
+	//Re-enabled to avoid accidental data loss
+	SaveToJson();
 	Super::PostEditChangeProperty(MovieSceneBlends);
 }
 #endif
@@ -76,6 +125,20 @@ bool ASFStudySetup::CheckPhases() const
 		}
 	}
 
+	for(FString PhaseName : PhasesToOrderRandomize)
+	{
+		bool bPhaseExists = false;
+		for(int i=0; i<Phases.Num(); ++i)
+		{
+			if (Phases[i]->PhaseName == PhaseName) bPhaseExists = true;
+		}
+		if(!bPhaseExists)
+		{
+			FSFUtils::OpenMessageBox("Phase " + PhaseName + " cannot be randomized in order, since it does not exist!", true);
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -85,7 +148,7 @@ void ASFStudySetup::GenerateTestStudyRuns() const
 	{
 		const TArray<USFCondition*> Conditions = GetAllConditionsForRun(ParticipantID);
 		USFParticipant* TmpParticipant = NewObject<USFParticipant>();
-		TmpParticipant->Initialize(ParticipantID);
+		TmpParticipant->Initialize(ParticipantID, true);
 		TmpParticipant->SetStudyConditions(Conditions); //this also saves it to json
 	}
 }
@@ -124,10 +187,28 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 		return TArray<USFCondition*>();
 	}
 
-	TArray<USFCondition*> Conditions;
-	for (USFStudyPhase* Phase : Phases)
+	//so we have to potentially swap some phases
+	TArray<int> PhasesToShuffleIndices;
+	for(int i=0; i<Phases.Num(); ++i)
 	{
-		Conditions.Append(Phase->GenerateConditions(RunningParticipantNumber));
+		if (PhasesToOrderRandomize.Contains(Phases[i]->PhaseName))
+		{
+			PhasesToShuffleIndices.Add(i);
+		}
+	}
+	TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(RunningParticipantNumber, PhasesToShuffleIndices.Num());
+
+	TArray<USFCondition*> Conditions;
+	for (int i=0; i<Phases.Num(); ++i)
+	{
+		int ActualIndex = i;
+		if(PhasesToShuffleIndices.Contains(i))
+		{
+			//this one needs to be shuffled
+			const int IndexInShuffleArray = PhasesToShuffleIndices.Find(i);
+			ActualIndex = PhasesToShuffleIndices[LatinSquare[IndexInShuffleArray]];
+		}
+		Conditions.Append(Phases[ActualIndex]->GenerateConditions(RunningParticipantNumber, ActualIndex));
 	}
 	return Conditions;
 }
@@ -158,6 +239,14 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 	}
 	Json->SetArrayField("Phases", PhasesArray);
 
+	TArray<TSharedPtr<FJsonValue>> PhasesToRandomize;
+	for (FString Phase : PhasesToOrderRandomize)
+	{
+		TSharedRef<FJsonValueString> JsonValue = MakeShared<FJsonValueString>(Phase);
+		PhasesToRandomize.Add(JsonValue);
+	}
+	Json->SetArrayField("PhasesToOrderRandomize", PhasesToRandomize);
+
 	Json->SetObjectField("FadeConfig", FadeConfig.GetAsJson());
 	Json->SetObjectField("ExperimenterViewConfig", ExperimenterViewConfig.GetAsJson());
 	if(UseGazeTracker == EGazeTrackerMode::NotTracking) Json->SetStringField("UseGazeTracker", "NotTracking");
@@ -178,12 +267,71 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 		Phase->FromJson(PhaseJson->AsObject());
 		Phases.Add(Phase);
 	}
+
+	PhasesToOrderRandomize.Empty();
+	TArray<TSharedPtr<FJsonValue>> PhasesToRandomize = Json->GetArrayField("PhasesToOrderRandomize");
+	for (TSharedPtr<FJsonValue> PhaseJson : PhasesToRandomize)
+	{
+		PhasesToOrderRandomize.Add(PhaseJson->AsString());
+	}
+
 	FadeConfig.FromJson(Json->GetObjectField("FadeConfig"));
 	ExperimenterViewConfig.FromJson(Json->GetObjectField("ExperimenterViewConfig"));
-
 	if(Json->GetStringField("UseGazeTracker") == "NotTracking") UseGazeTracker = EGazeTrackerMode::NotTracking;
 	if(Json->GetStringField("UseGazeTracker") == "HeadRotationOnly") UseGazeTracker = EGazeTrackerMode::HeadRotationOnly;
 	if(Json->GetStringField("UseGazeTracker") == "EyeTracking") UseGazeTracker = EGazeTrackerMode::EyeTracking;
+}
+
+void ASFStudySetup::LoadSetupFile()
+{
+	// OpenFileDialog() requires an array for the return value,
+	// but the file picker window only allows one file to be selected,
+	// so using SelectedFilePath[0] works fine consistently
+	TArray<FString> SelectedFilePath;
+	FDesktopPlatformModule::Get()->OpenFileDialog(FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr), FString("Select Setup File"), FSFUtils::GetStudyFrameworkPath(),
+											FString(""), FString("JSON Files|*.json"), 0, SelectedFilePath);
+
+	if (SelectedFilePath.Num() == 0 || !SelectedFilePath[0].EndsWith(".json"))
+	{
+		return;
+	}
+	// Make path relative to ProjectDir/StudyFramework
+	if(!FPaths::MakePathRelativeTo(SelectedFilePath[0], *FSFUtils::GetStudyFrameworkPath()))
+	{
+		FSFLoggingUtils::Log("Was not able to make selected file path relative to working directory. Ensure that the paths share the same root folder (i.e. are located on the same drive)", true);
+		return;
+	}
+	if (JsonFile != SelectedFilePath[0])
+	{
+		this->Modify(true);
+		JsonFile = SelectedFilePath[0];
+	}
+	LoadFromJson();
+}
+
+void ASFStudySetup::SaveSetupFile()
+{
+	TArray<FString> SelectedFilePath;
+	FDesktopPlatformModule::Get()->SaveFileDialog(FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr), FString("Save Setup File To"), FSFUtils::GetStudyFrameworkPath(), 
+		JsonFile, FString("JSON Files|*.json"), 0, SelectedFilePath);
+
+	if (SelectedFilePath.Num() == 0 || !SelectedFilePath[0].EndsWith(".json"))
+	{
+		return;
+	}
+
+	// Make path relative to ProjectDir/StudyFramework
+	if (!FPaths::MakePathRelativeTo(SelectedFilePath[0], *FSFUtils::GetStudyFrameworkPath()))
+	{
+		FSFLoggingUtils::Log("Was not able to make selected file path relative to working directory. Ensure that the paths share the same root folder (i.e. are located on the same drive)", true);
+		return;
+	}
+	if (JsonFile != SelectedFilePath[0])
+	{
+		this->Modify(true);
+		JsonFile = SelectedFilePath[0];
+	}
+	SaveToJson();
 }
 
 void ASFStudySetup::LoadFromJson()
@@ -192,6 +340,7 @@ void ASFStudySetup::LoadFromJson()
 	if (Json)
 	{
 		FromJson(Json);
+		FSFLoggingUtils::Log("Loaded setup file " + JsonFile);
 	}
 }
 

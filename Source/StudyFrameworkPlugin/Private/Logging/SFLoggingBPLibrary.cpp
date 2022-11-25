@@ -13,9 +13,6 @@
      USFCondition* CurrCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition();
      if (!CurrCondition->StoreDependentVariableData(DependentVariableName, Value))
      {
-         FSFLoggingUtils::Log(
-             "Cannot log data '" + Value + "' for dependent variable '" + DependentVariableName +
-             "' since it does not exist for this condition!", true);
          return;
      }
      LogComment("Recorded " + DependentVariableName + ": " + Value);

@@ -27,7 +27,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UButton* GoToButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Phase;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Map;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text0;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text1;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) UTextBlock* Text2;

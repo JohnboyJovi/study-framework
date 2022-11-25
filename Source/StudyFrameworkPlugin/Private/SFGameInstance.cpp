@@ -315,9 +315,10 @@ bool USFGameInstance::StartStudy()
 void USFGameInstance::EndStudy()
 {
 	USFCondition* LastCondition = Participant->GetCurrentCondition();
-	if (LastCondition && LastCondition->WasStarted())
-		LastCondition->End();
-
+	if (!LastCondition || !LastCondition->WasStarted() || LastCondition->IsFinished())
+		return;
+		
+	LastCondition->End();
 	Participant->EndStudy();
 
 	UpdateHUD("Study ended");
@@ -332,9 +333,17 @@ void USFGameInstance::EndStudy()
 
 bool USFGameInstance::NextCondition(bool bForced /*=false*/)
 {
+	// Check if is already fading
+	if (FadeHandler->GetIsFading())
+	{
+		FSFLoggingUtils::Log("[USFGameInstance::NextCondition()]: Already Fading between levels", true);
+		return false;
+	}
+
 	USFCondition* NextCondition = Participant->GetNextCondition();
 	if (!NextCondition)
 	{
+		FSFLoggingUtils::Log("[SFGameInstance::NextCondition]: All conditions already ran, no NextCondition", false);
 		EndStudy();
 		return false;
 	}
@@ -428,7 +437,18 @@ FString USFGameInstance::GetFactorLevel(FString FactorName) const
 	return "FactorNotPresent";
 }
 
-
+void USFGameInstance::LogToHUD(FString Text)
+{
+	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()) &&
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->IsWidgetPresent())
+	{
+		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->AddLogMessage(Text);
+	}
+	else
+	{
+		HUDSavedData.LogMessages.Add(Text);
+	}
+}
 
 void USFGameInstance::UpdateHUD(FString Status)
 {
@@ -441,19 +461,6 @@ void USFGameInstance::UpdateHUD(FString Status)
 		HUDSavedData.Status = Status;
 		if (Participant)
 			HUDSavedData.Participant = FString::FromInt(Participant->GetID());
-	}
-}
-
-void USFGameInstance::LogToHUD(FString Text)
-{
-	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()) &&
-		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->IsWidgetPresent())
-	{
-		Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD())->AddLogMessage(Text);
-	}
-	else
-	{
-		HUDSavedData.LogMessages.Add(Text);
 	}
 }
 

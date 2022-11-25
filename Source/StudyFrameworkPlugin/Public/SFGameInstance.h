@@ -93,8 +93,8 @@ public:
 	// ****************************************************************** //
 
 	//use this to print something to the log panel of the HUD, e.g., to inform the experimenter
-	UFUNCTION()
-		void LogToHUD(FString Text);
+	UFUNCTION(BlueprintCallable)
+	void LogToHUD(FString Text);
 
 	UFUNCTION()
 	void UpdateHUD(FString Status);
@@ -116,7 +116,7 @@ public:
 	// ****************************************************************** //
 
 	UFUNCTION()
-		USFLogObject* GetLogObject();
+	USFLogObject* GetLogObject();
 
 	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
 	UFUNCTION(BlueprintCallable, meta=(DeprecatedFunction, DeprecationMessage="Please use SFLoggingBPLibrary::LogComment instead"))
@@ -131,7 +131,7 @@ public:
 
 	//Needed to use core tick function
 	UPROPERTY(BlueprintAssignable)
-		FOnFadedInDelegate OnFadedInDelegate;
+	FOnFadedInDelegate OnFadedInDelegate;
 	FDelegateHandle TickDelegateHandle;
 
 protected:
@@ -185,10 +185,10 @@ protected:
 	bool bStartedOnUnrelatedMap = false;
 
 	UPROPERTY()
-		USFGazeTracker* GazeTracker;
+	USFGazeTracker* GazeTracker;
 
 	//Controls central logging functionality, stores logging parameters
 	UPROPERTY()
-		USFLogObject* LogObject;
+	USFLogObject* LogObject;
 };
 

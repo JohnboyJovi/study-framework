@@ -153,8 +153,6 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, const FString& Status)
 
 	HUDWidget->SetPhase(Condition->PhaseName);
 	TMap<FString, FString> FactorLevels = Condition->FactorLevels;
-	//Add map since it is not by default in FactorLevels
-	FactorLevels.Add("Map", FPaths::GetBaseFilename(Condition->Map));
 	HUDWidget->SetCondition(FactorLevels);
 
 	USFGameInstance::Get()->HUDSavedData = HUDWidget->GetData();

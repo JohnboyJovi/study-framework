@@ -7,6 +7,9 @@
 #include "HUD/SFExperimenterWindow.h"
 #include "Logging/SFLogObject.h"
 #include "GazeTracking/SFGazeTracker.h"
+// includes below marked as "possibly unused", but they are vital for build to succeed
+#include "Components/BillboardComponent.h"
+#include "Engine/Texture2D.h"
 
 #include "SFStudySetup.generated.h"
 
@@ -18,6 +21,8 @@ class STUDYFRAMEWORKPLUGIN_API ASFStudySetup : public AActor
 
 public:
 	ASFStudySetup();
+
+	virtual void PostActorCreated() override;
 
 	virtual void BeginPlay() override;
 
@@ -61,6 +66,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	EGazeTrackerMode UseGazeTracker = EGazeTrackerMode::NotTracking;
 
+	//give names of phases wich should be randomized in their order between participants
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	TArray<FString> PhasesToOrderRandomize;
+
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //
@@ -74,17 +83,24 @@ public:
 	UFUNCTION()
 	USFStudyPhase* GetPhase(int Index);
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup Json Storage"))
-	FString JsonFile = "StudySetup.json";
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (Category = "Study Setup Json Storage"))
+	FString JsonFile;
+
+	UFUNCTION(BlueprintCallable)
+	void LoadFromJson();
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
-	void LoadFromJson();
+	void LoadSetupFile();
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
+	void SaveSetupFile();
+
 protected:
 
 	TSharedPtr<FJsonObject> GetAsJson() const;
 	void FromJson(TSharedPtr<FJsonObject> Json);
 
-	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Study Setup Json Storage")
+	UFUNCTION(BlueprintCallable)
 	void SaveToJson() const;
 
 	bool ContainsNullptrInArrays();

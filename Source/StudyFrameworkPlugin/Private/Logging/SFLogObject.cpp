@@ -103,7 +103,7 @@ void USFLogObject::WritePositionLogToFile() {
 void USFLogObject::WriteGazeTrackingLogHeaderRow() {
 	FString GazeTrackingLogHeader = FString("ElapsedTime") +
 		"\t" + FString("Condition") +
-		"\t" + FString("UsingEyetracking") +
+		"\t" + FString("TrackingEyes") +
 		"\t" + FString("GazeTarget") +
 		"\t" + FString("Gaze-Origin-X-Y-Z") +
 		"\t" + FString("Gaze-Direction-X-Y-Z");

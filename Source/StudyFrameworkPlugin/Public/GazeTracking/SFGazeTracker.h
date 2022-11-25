@@ -45,6 +45,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LaunchCalibration();
 
+	//whether currently the eyes are tracked, otherwise head-forward is used (this can change during execution if the HMD is taken off etc.)
 	UFUNCTION(BlueprintCallable)
 	bool IsTrackingEyes();
 

@@ -36,7 +36,7 @@ void USFGazeTracker::Init(EGazeTrackerMode Mode)
 
 FGazeRay USFGazeTracker::GetLocalGazeDirection()
 {
-	if(!IsTrackingEyes())
+	if(!bEyeTrackingStarted)
 	{
 		// if no eye tracker is used we always "look ahead"
 		FGazeRay GazeRay;
@@ -136,11 +136,13 @@ bool USFGazeTracker::IsTrackingEyes()
 {
 	if (!bEyeTrackingStarted)
 		return false;
-	//TODO: this does not seem to work properly!!!! check gaze logs
+
 #ifdef WITH_SRANIPAL
-	ViveSR::anipal::AnipalStatus Status;
-	int Error = ViveSR::anipal::GetStatus(ViveSR::anipal::Eye::ANIPAL_TYPE_EYE_V2, &Status);
-	return Status == ViveSR::anipal::AnipalStatus::WORKING;
+	ViveSR::anipal::Eye::EyeData_v2 Data;
+	ViveSR::anipal::Eye::GetEyeData_v2(&Data);
+
+	//no_user apparently is true, when a user is there... (weird but consistent)
+	return Data.no_user;
 #endif
 
 	return true;

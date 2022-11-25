@@ -1,5 +1,5 @@
 #include "GazeTracking/SFGazeTracker.h"
-
+#include "Logging/SFLoggingBPLibrary.h"
 #include "SFGameInstance.h"
 #include "GazeTracking/SFGazeTarget.h"
 #include "GazeTracking/SFGazeTargetActor.h"
@@ -26,7 +26,7 @@ void USFGazeTracker::Init(EGazeTrackerMode Mode)
 		}
 		else
 		{
-			USFGameInstance::Get()->LogComment("No Vive Pro Eye present, use head rotation only for gaze tracking.");
+			USFLoggingBPLibrary::LogComment("No Vive Pro Eye present, use head rotation only for gaze tracking.", true);
 		}
 #else
 		FSFUtils::OpenMessageBox("SRanipal Plugin is not present, cannot use eye tracking! Check out, e.g., StudyFramework Wiki where to get it", true);
@@ -34,10 +34,11 @@ void USFGazeTracker::Init(EGazeTrackerMode Mode)
 	}
 }
 
-FGazeRay USFGazeTracker::GetGazeDirection()
+FGazeRay USFGazeTracker::GetLocalGazeDirection()
 {
-	if(!IsTrackingEyes())
+	if(!bEyeTrackingStarted)
 	{
+		// if no eye tracker is used we always "look ahead"
 		FGazeRay GazeRay;
 		GazeRay.Origin = FVector::ZeroVector;
 		GazeRay.Direction = FVector::ForwardVector;;
@@ -54,29 +55,52 @@ FGazeRay USFGazeTracker::GetGazeDirection()
 	return GazeRay;
 }
 
-FString USFGazeTracker::GetCurrentGazeTarget()
+FGazeRay USFGazeTracker::GetWorldGazeDirection()
 {
-	FString GazedAtTarget = "";
-	const float Distance = 1000.0f;
-
-	FGazeRay GazeRay = GetGazeDirection();
-	// if no eye tracker is used we always "look ahead"
-	// GazeDirection = FVector(1,0,0);
+	FGazeRay LocalGazeRay = GetLocalGazeDirection();
 
 	UWorld* World = USFGameInstance::Get()->GetWorld();
 
 	//the gaze ray is relative to the HMD
 	const APlayerCameraManager* CamManager = World->GetFirstPlayerController()->
-	                                                                 PlayerCameraManager;
+		PlayerCameraManager;
 	const FVector CameraLocation = CamManager->GetCameraLocation();
 	const FRotator CameraRotation = CamManager->GetCameraRotation();
-	const FVector RayCastOrigin = CameraLocation + CameraRotation.RotateVector(GazeRay.Origin);
-	const FVector RayCastEnd = (CameraRotation.RotateVector(GazeRay.Direction) * Distance) + RayCastOrigin;
+
+	FGazeRay GazeRay;
+	GazeRay.Origin = CameraLocation + CameraRotation.RotateVector(LocalGazeRay.Origin);
+	GazeRay.Direction = CameraRotation.RotateVector(LocalGazeRay.Direction);
+
+	return GazeRay;
+}
+
+FString USFGazeTracker::GetCurrentGazeTarget()
+{
+	FString GazedAtTarget = "";
+	const float Distance = 1000.0f;
+
+	FGazeRay GazeRay = GetWorldGazeDirection();
+
+
+	const FVector RayCastOrigin = GazeRay.Origin;
+	const FVector RayCastEnd = (GazeRay.Direction * Distance) + RayCastOrigin;
 
 	//FSFUtils::Log("Cast Ray from "+RayCastOrigin.ToString()+" to "+RayCastEnd.ToString());
 
 	FHitResult HitResult;
-	World->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, EYE_TRACKING_TRACE_CHANNEL);
+	UWorld* World = USFGameInstance::Get()->GetWorld();
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(World->GetFirstPlayerController()->AcknowledgedPawn);
+	QueryParams.AddIgnoredActor(USFGameInstance::Get()->GetHUD()->GetHUDHelper());
+
+	World->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, EYE_TRACKING_TRACE_CHANNEL, QueryParams);
+
+	if (bDebugRenderRayTraces)
+	{
+		//this line trace is more comfortable for debug drawing, however has problems with channel tracing, so we use LineTraceSingleByChannel() above
+		FHitResult TmpHitRes;
+		UKismetSystemLibrary::LineTraceSingle(World, RayCastOrigin, RayCastEnd, ETraceTypeQuery::TraceTypeQuery4, false, {}, EDrawDebugTrace::ForDuration, TmpHitRes, true);
+	}
 
 
 	if (HitResult.bBlockingHit)
@@ -104,17 +128,22 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 void USFGazeTracker::LaunchCalibration()
 {
 #ifdef WITH_SRANIPAL
-	//TODO: not tested yet!
 	ViveSR::anipal::Eye::LaunchEyeCalibration(nullptr);
 #endif
 }
 
 bool USFGazeTracker::IsTrackingEyes()
 {
-	//TODO: maybe use
-	//#ifdef WITH_SRANIPAL
-	//ViveSR::anipal::AnipalStatus Status;
-	//int Error = ViveSR::anipal::GetStatus(ViveSR::anipal::Eye::ANIPAL_TYPE_EYE_V2, &Status);
-	//#endif
-	return bEyeTrackingStarted;
+	if (!bEyeTrackingStarted)
+		return false;
+
+#ifdef WITH_SRANIPAL
+	ViveSR::anipal::Eye::EyeData_v2 Data;
+	ViveSR::anipal::Eye::GetEyeData_v2(&Data);
+
+	//no_user apparently is true, when a user is there... (weird but consistent)
+	return Data.no_user;
+#endif
+
+	return true;
 }

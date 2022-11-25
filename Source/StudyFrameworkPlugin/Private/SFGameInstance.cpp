@@ -131,10 +131,14 @@ void USFGameInstance::RestoreLastParticipantForDebugStart(USFCondition* InStartC
 	const int ParticipantID = USFParticipant::GetLastParticipantId();
 	Participant = NewObject<USFParticipant>(this,
 	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
+	
+	StudySetup = USFParticipant::GetLastParticipantSetup();
+
 	Participant->Initialize(ParticipantID);
+	Participant->SetupLoggingStreams(StudySetup->UseGazeTracker != EGazeTrackerMode::NotTracking);
 	Participant->LoadConditionsFromJson();
 
-	StudySetup = USFParticipant::GetLastParticipantSetup();
+	
 	InitFadeHandler(StudySetup->FadeConfig);
 
 	StartCondition = InStartCondition;
@@ -240,6 +244,7 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	Participant = NewObject<USFParticipant>(this,
 	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
 	Participant->Initialize(ParticipantID);
+	Participant->SetupLoggingStreams(StudySetup->UseGazeTracker != EGazeTrackerMode::NotTracking);
 	Participant->SetStudyConditions(Conditions);
 
 	if (bRecoverParticipantData)
@@ -531,7 +536,8 @@ USFParticipant* USFGameInstance::GetParticipant() const
 bool USFGameInstance::LogTick(float DeltaSeconds)
 {
 	if (LogObject->bLoggingLoopsActive){
-		LogObject->LoggingLoopsLogToFile();
+		LogObject->WritePositionLogToFile();
+		LogObject->WriteGazeTrackingLogToFile();
 	}	
 	return true;
 }

@@ -28,7 +28,8 @@ public:
 	USFParticipant();
 	~USFParticipant();
 
-	bool Initialize(int Participant, bool bSetIdOnly = false);
+	bool Initialize(int Participant);
+	void SetupLoggingStreams(bool bGazeTracking);
 	void SetStudyConditions(TArray<USFCondition*> NewConditions);
 
 	bool StartStudy();

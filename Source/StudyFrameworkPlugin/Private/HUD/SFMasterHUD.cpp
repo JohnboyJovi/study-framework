@@ -243,3 +243,7 @@ void ASFMasterHUD::OnShowConditionsButtonPressed()
 		}
 	}
 }
+
+const ASFHMDSpectatorHUDHelp* ASFMasterHUD::GetHUDHelper() {
+	return HMDHUDHelper;
+}

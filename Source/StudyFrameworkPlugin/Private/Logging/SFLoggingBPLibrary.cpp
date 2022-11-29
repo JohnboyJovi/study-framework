@@ -22,7 +22,7 @@
 
  void USFLoggingBPLibrary::LogComment(const FString& Comment, bool AlsoLogToHUD /*=false*/)
  {
-     UniLog.Log("#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTime() + ": " + Comment, "ParticipantLog");
+     UniLog.Log("#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTimeAsString() + ": " + Comment, "ParticipantLog");
      FSFLoggingUtils::Log("Logged Comment: " + Comment);
      if (AlsoLogToHUD)
      {

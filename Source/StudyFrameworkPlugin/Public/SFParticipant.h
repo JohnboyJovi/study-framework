@@ -49,7 +49,8 @@ public:
 	static bool GetLastParticipantFinished();
 	static ASFStudySetup* GetLastParticipantSetup();
 
-	FString GetCurrentTime() const;
+	FString GetCurrentTimeAsString() const;
+	float GetCurrentTime() const;
 
 	bool LoadConditionsFromJson();
 	void RecoverStudyResultsOfFinishedConditions();

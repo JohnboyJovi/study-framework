@@ -78,7 +78,7 @@ void USFLogObject::WritePositionLogToFile() {
 				FString("Debug");
 			// NOTE: When changing output, update header row (see above)
 
-			FString out = USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
+			FString out = USFGameInstance::Get()->GetParticipant()->GetCurrentTimeAsString() +
 				"\t" + ComponentLoggingInfo.LogName +
 				"\t" + CurrentCondition +
 				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentLocation().X) +
@@ -123,7 +123,7 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 								FString("Debug");
 	FString isTrackingEyes = USFGameInstance::Get()->GetGazeTracker()->IsTrackingEyes() ? "1" : "0";
 	// NOTE: When changing output, update header row (see above)
-	FString out = USFGameInstance::Get()->GetParticipant()->GetCurrentTime() +
+	FString out = USFGameInstance::Get()->GetParticipant()->GetCurrentTimeAsString() +
 		"\t" + CurrentCondition +
 		"\t" + isTrackingEyes +
 		"\t" + GazeTarget +

@@ -106,10 +106,14 @@ TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 	return LoadedConditions;
 }
 
-FString USFParticipant::GetCurrentTime() const
+FString USFParticipant::GetCurrentTimeAsString() const
 {
-	const double CurrTime = FPlatformTime::Seconds() - StartTime;
-	return FString::Printf(TEXT("%.3f"), CurrTime);
+	return FString::Printf(TEXT("%.3f"), GetCurrentTime());
+}
+
+float USFParticipant::GetCurrentTime() const
+{
+	return FPlatformTime::Seconds() - StartTime;
 }
 
 void USFParticipant::StoreInPhaseLongTable() const

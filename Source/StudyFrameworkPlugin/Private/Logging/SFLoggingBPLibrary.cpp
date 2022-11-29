@@ -30,7 +30,12 @@
      }
  }
 
- void USFLoggingBPLibrary::AddActor(AActor* Actor, int32 LogTimer, FString LogName)
+void USFLoggingBPLibrary::LogToHUD(const FString& String)
+{
+  USFGameInstance::Get()->LogToHUD(String);
+}
+
+void USFLoggingBPLibrary::AddActor(AActor* Actor, int32 LogTimer, FString LogName)
  {
      if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
      {

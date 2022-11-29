@@ -31,4 +31,8 @@ public:
 	//and optionally log to HUD (default=false)
 	UFUNCTION(BlueprintCallable)
 		static void LogComment(const FString& Comment, bool AlsoLogToHUD = false);
+
+	//Log something to the HUD, for debugging or giving information to the experimentator
+	UFUNCTION(BlueprintCallable)
+		static void LogToHUD(const FString& String);
 };

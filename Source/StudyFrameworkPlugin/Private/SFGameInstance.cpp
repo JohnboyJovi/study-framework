@@ -422,6 +422,15 @@ bool USFGameInstance::IsStarted() const
 	return bStudyStarted;
 }
 
+float USFGameInstance::GetCurrentTime() const
+{
+	if(GetParticipant() && IsStarted())
+	{
+		return GetParticipant()->GetCurrentTime();
+	}
+	return 0.0f;
+}
+
 FString USFGameInstance::GetFactorLevel(FString FactorName) const
 {
 	if(!Participant)

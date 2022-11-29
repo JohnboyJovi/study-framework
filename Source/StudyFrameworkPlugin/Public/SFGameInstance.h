@@ -62,6 +62,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsStarted() const;
 
+	//the time that passed since the start of the study in seconds
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentTime() const;
+
 	//Get the level of a given factor in the current condition
 	//use this to configure everything in the scene for this condition
 	//Right Level is already accessible in BeginPlay

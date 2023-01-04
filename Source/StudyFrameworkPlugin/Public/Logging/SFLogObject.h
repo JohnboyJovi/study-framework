@@ -44,15 +44,10 @@ private:
 	USFLogObject();
 
 public:
-	TArray<FComponentLoggingInformation> ComponentLoggingInfoArray;
-	FDateTime StaticDateTime;
-	FString LogDir = "";
-	bool bLoggingLoopsActive = false;
-	int32 ProbandID;
-	
 	void AddComponentWithName(USceneComponent* Component, int32 LogTimer, FString LogName);
 
 	void RemoveEntryByComponent(const USceneComponent* Component);
+	void RemoveAllTrackedComponents();
 	FComponentLoggingInformation* GetEntryByComponent(const USceneComponent* Component);
 	void Initialize();
 
@@ -64,15 +59,22 @@ public:
 
 	UFUNCTION()
 	bool GetLoggingLoopsActive();
-	UFUNCTION()
-		static void WritePositionLogHeaderRow();
-	UFUNCTION()
-		static void WritePositionLogToFile();
 
 	UFUNCTION()
-		static void WriteGazeTrackingLogHeaderRow();
+	static void WritePositionLogToFile();
 
 	UFUNCTION()
-		static void WriteGazeTrackingLogToFile();
+	static void WriteGazeTrackingLogToFile();
 
+private:
+
+	void CreatePositionLogFile();
+	void CreateGazeTrackingLogFile();
+
+	TArray<FComponentLoggingInformation> ComponentLoggingInfoArray;
+	FDateTime StaticDateTime;
+	bool bLoggingLoopsActive = false;
+
+	bool bPositionLoggingFileCreated = false;
+	bool bGazingLoggingFileCreated = false;
 };

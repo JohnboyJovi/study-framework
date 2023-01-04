@@ -16,5 +16,7 @@ public:
 
 	// To setup the debugging logs to be used
 	static void SetupDebugLoggingStreams();
+
+	static void SetupParticipantLoggingStream(const FString& ParticipantInfix);
 };
 

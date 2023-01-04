@@ -43,14 +43,25 @@ void USFLogObject::RemoveEntryByComponent(const USceneComponent* Component)
 	}
 }
 
+void USFLogObject::RemoveAllTrackedComponents()
+{
+	ComponentLoggingInfoArray.Empty();
+}
+
 void USFLogObject::Initialize() {
 	StaticDateTime = FDateTime::Now();
-	ProbandID = 0;
 	ComponentLoggingInfoArray.SetNum(0, true);
+	bGazingLoggingFileCreated = false;
+	bPositionLoggingFileCreated = false;
 }
 
 // NOTE: When changing header row, update output (see below)
-void USFLogObject::WritePositionLogHeaderRow() {
+void USFLogObject::CreatePositionLogFile() {
+
+	const FString& ParticipantInfix = USFGameInstance::Get()->GetParticipant()->GetParticipantLoggingInfix();
+	ILogStream* PositionLog = UniLog.NewLogStream("PositionLog", "StudyFramework/StudyLogs/PositionLogs",
+		"Position" + ParticipantInfix + ".txt", false);
+
 	FString PositionLogHeader = FString("ElapsedTime") +
 		"\t" + FString("LogName") +
 		"\t" + FString("Condition") +
@@ -61,6 +72,8 @@ void USFLogObject::WritePositionLogHeaderRow() {
 		"\t" + FString("Rotation-Yaw") +
 		"\t" + FString("Rotation-Roll");
 	UniLog.Log(PositionLogHeader, "PositionLog");
+
+	bPositionLoggingFileCreated = true;
 }
 
 void USFLogObject::WritePositionLogToFile() {
@@ -68,7 +81,14 @@ void USFLogObject::WritePositionLogToFile() {
 	{
 		return;
 	}
+
 	USFLogObject* LogObject = USFGameInstance::Get()->GetLogObject();
+
+	if(!USFGameInstance::Get()->GetLogObject()->bPositionLoggingFileCreated && LogObject->ComponentLoggingInfoArray.Num()>0)
+	{
+		USFGameInstance::Get()->GetLogObject()->CreatePositionLogFile();
+	}
+	
 	for (auto& ComponentLoggingInfo : LogObject->ComponentLoggingInfoArray) {
 		if (ComponentLoggingInfo.LogNextTick == true) {
 			ComponentLoggingInfo.LogNextTick = false;
@@ -100,7 +120,12 @@ void USFLogObject::WritePositionLogToFile() {
 }
 
 // NOTE: When changing header row, update output (see below)
-void USFLogObject::WriteGazeTrackingLogHeaderRow() {
+void USFLogObject::CreateGazeTrackingLogFile() {
+
+	const FString& ParticipantInfix = USFGameInstance::Get()->GetParticipant()->GetParticipantLoggingInfix();
+	ILogStream* GazeTrackingLog = UniLog.NewLogStream("GazeTrackingLog", "StudyFramework/StudyLogs/GazeTrackingLogs",
+		"GazeTracking" + ParticipantInfix + ".txt", false);
+
 	FString GazeTrackingLogHeader = FString("ElapsedTime") +
 		"\t" + FString("Condition") +
 		"\t" + FString("TrackingEyes") +
@@ -108,6 +133,8 @@ void USFLogObject::WriteGazeTrackingLogHeaderRow() {
 		"\t" + FString("Gaze-Origin-X-Y-Z") +
 		"\t" + FString("Gaze-Direction-X-Y-Z");
 	UniLog.Log(GazeTrackingLogHeader, "GazeTrackingLog");
+
+	bGazingLoggingFileCreated = true;
 }
 
 void USFLogObject::WriteGazeTrackingLogToFile() {
@@ -115,7 +142,19 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 	{
 		return;
 	}
+
 	USFGazeTracker* GazeTracker = USFGameInstance::Get()->GetGazeTracker();
+	if(!GazeTracker)
+	{
+		return;
+	}
+
+	if (!USFGameInstance::Get()->GetLogObject()->bGazingLoggingFileCreated)
+	{
+		USFGameInstance::Get()->GetLogObject()->CreateGazeTrackingLogFile();
+	}
+
+	
 	FString GazeTarget = GazeTracker->GetCurrentGazeTarget() == "" ? "-" : GazeTracker->GetCurrentGazeTarget();
 	//When starting in Debug-Mode (i.e. not through the HUD) no condition is defined. 
 	FString CurrentCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() ?

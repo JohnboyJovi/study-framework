@@ -24,31 +24,10 @@ bool USFParticipant::Initialize(int Participant)
 
 	StartTime = FPlatformTime::Seconds();
 
-	return true;
-}
+	ParticipantLoggingInfix = "LogParticipant-" + FString::FromInt(ParticipantID) + "_" + FDateTime::Now().ToString();
+	FSFLoggingUtils::SetupParticipantLoggingStream(ParticipantLoggingInfix);
 
-void USFParticipant::SetupLoggingStreams(bool bGazeTracking)
-{
-	const FString Timestamp = FDateTime::Now().ToString();
-	const FString Filename = "LogParticipant-" + FString::FromInt(ParticipantID) + "_" + Timestamp + ".txt";
-	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "StudyFramework/StudyLogs/ParticipantLogs",
-		Filename, false);
-	ILogStream* PositionLog = UniLog.NewLogStream("PositionLog", "StudyFramework/StudyLogs/PositionLogs",
-		"Position" + Filename, false);
-	if (bGazeTracking)
-	{
-		ILogStream* GazeTrackingLog = UniLog.NewLogStream("GazeTrackingLog", "StudyFramework/StudyLogs/GazeTrackingLogs",
-			"GazeTracking" + Filename, false);
-	}
-	if (USFGameInstance::Get())
-	{
-		USFGameInstance::Get()->GetLogObject()->WritePositionLogHeaderRow();
-		USFGameInstance::Get()->GetLogObject()->WriteGazeTrackingLogHeaderRow();
-	}
-	else
-	{
-		FSFLoggingUtils::Log("GameInstance not set up yet, no header rows are written to participant logs.");
-	}
+	return true;
 }
 
 void USFParticipant::SetStudyConditions(TArray<USFCondition*> NewConditions)
@@ -256,6 +235,11 @@ ASFStudySetup* USFParticipant::GetLastParticipantSetup()
 	Setup->LoadFromJson();
 
 	return Setup;
+}
+
+const FString& USFParticipant::GetParticipantLoggingInfix() const
+{
+	return ParticipantLoggingInfix;
 }
 
 bool USFParticipant::LoadConditionsFromJson()

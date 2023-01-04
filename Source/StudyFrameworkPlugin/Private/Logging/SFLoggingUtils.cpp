@@ -46,3 +46,9 @@ void FSFLoggingUtils::SetupDebugLoggingStreams()
 	SFErrorLog->SetLogOnScreenOnMaster(true);
 	SFErrorLog->SetOnScreenColor(FColor::Red);
 }
+
+void FSFLoggingUtils::SetupParticipantLoggingStream(const FString& ParticipantInfix)
+{
+	ILogStream* ParticipantLog = UniLog.NewLogStream("ParticipantLog", "StudyFramework/StudyLogs/ParticipantLogs",
+		ParticipantInfix + ".txt", false);
+}

@@ -29,7 +29,6 @@ public:
 	~USFParticipant();
 
 	bool Initialize(int Participant);
-	void SetupLoggingStreams(bool bGazeTracking);
 	void SetStudyConditions(TArray<USFCondition*> NewConditions);
 
 	bool StartStudy();
@@ -48,6 +47,8 @@ public:
 	static int GetLastParticipantLastConditionStarted();
 	static bool GetLastParticipantFinished();
 	static ASFStudySetup* GetLastParticipantSetup();
+
+	const FString& GetParticipantLoggingInfix() const;
 
 	FString GetCurrentTimeAsString() const;
 	float GetCurrentTime() const;
@@ -84,4 +85,6 @@ protected:
 	int CurrentConditionIdx;
 
 	double StartTime = 0.0;
+
+	FString ParticipantLoggingInfix;
 };

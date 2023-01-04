@@ -15,6 +15,6 @@ public:
 	static void Log(FString Text, bool Error = false);
 
 	// To setup the debugging logs to be used
-	static void SetupLoggingStreams();
+	static void SetupDebugLoggingStreams();
 };
 

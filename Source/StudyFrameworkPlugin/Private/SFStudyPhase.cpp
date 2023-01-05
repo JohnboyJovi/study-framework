@@ -63,6 +63,7 @@ bool USFStudyPhase::PhaseValid() const
 	}
 
 	int NrEnBlockFactors = 0;
+	int NrInOrderFactors = 0;
 	int NrRandomFactors = 0;
 	int NrNonCombinedFactors = 0;
 
@@ -95,7 +96,7 @@ bool USFStudyPhase::PhaseValid() const
 		}
 
 		NrEnBlockFactors += (Factor->MixingOrder == EFactorMixingOrder::EnBlock ? 1 : 0);
-		NrEnBlockFactors += (Factor->MixingOrder == EFactorMixingOrder::InOrder ? 1 : 0);
+		NrInOrderFactors += (Factor->MixingOrder == EFactorMixingOrder::InOrder ? 1 : 0);
 		NrRandomFactors += (Factor->MixingOrder == EFactorMixingOrder::RandomOrder ? 1 : 0);
 
 		if (NrEnBlockFactors > 1)

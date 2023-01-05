@@ -144,13 +144,22 @@ bool ASFStudySetup::CheckPhases() const
 
 void ASFStudySetup::GenerateTestStudyRuns() const
 {
+	TArray<FString> RunStrings;
 	for (int ParticipantID = 0; ParticipantID < NrOfRunsToGenerate; ++ParticipantID)
 	{
 		const TArray<USFCondition*> Conditions = GetAllConditionsForRun(ParticipantID);
 		USFParticipant* TmpParticipant = NewObject<USFParticipant>();
 		TmpParticipant->Initialize(ParticipantID);
 		TmpParticipant->SetStudyConditions(Conditions); //this also saves it to json
+
+		FString RunString = FString::FromInt(ParticipantID);
+		for(USFCondition* Condition : Conditions)
+		{
+			RunString += "\t" + Condition->ToString();
+		}
+		RunStrings.Add(RunString);
 	}
+	FFileHelper::SaveStringArrayToFile(RunStrings, *(FPaths::ProjectDir() + "StudyFramework/StudyRuns/GeneratedDebugRuns.txt"));
 }
 
 void ASFStudySetup::ClearStudyResults() const

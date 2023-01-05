@@ -455,6 +455,8 @@ void USFGameInstance::LogToHUD(FString Text)
 	{
 		HUDSavedData.LogMessages.Add(Text);
 	}
+	//by default we also log this into the debug stream, so you can also check on older messages
+	FSFLoggingUtils::Log("[Logged to HUD] " + Text);
 }
 
 void USFGameInstance::UpdateHUD(FString Status)

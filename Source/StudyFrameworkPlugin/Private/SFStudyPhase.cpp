@@ -123,13 +123,12 @@ bool USFStudyPhase::PhaseValid() const
 
 TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int PhaseIndex)
 {
-	//we need the phase index, because we additionally use this to seed the Latin Square randomization so tow identical phases would have different orders
+	//we need the phase index, because we additionally use this to seed the Latin Square randomization so two identical phases would have different orders
 
 	// first restructure factors, such that:
 	// - a potential enBlock factor is the first one
 	TArray<USFStudyFactor*> SortedFactors = SortFactors();
-	const bool bHasEnBlock = SortedFactors[0]->MixingOrder == EFactorMixingOrder::EnBlock
-		|| SortedFactors[0]->MixingOrder == EFactorMixingOrder::InOrder;
+	const bool bHasEnBlock = SortedFactors[0]->MixingOrder == EFactorMixingOrder::EnBlock;
 
 	TArray<USFCondition*> Conditions;
 	int NumberOfConditions = 1;
@@ -207,18 +206,18 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int P
 			// if we have enBlockConditions>1 we need to copy and shuffle the whole enBlock Block, otherwise the i loop is trivially run once only
 			for (int j = 0; j < LatinSquareRndReOrder.Num(); ++j)
 			{
-				if (SortedFactors[0]->MixingOrder == EFactorMixingOrder::EnBlock)
+				//if (bHasEnBlock)
+				//{
+					ConditionsIndices.Add(ConditionsIndicesCopy[
+						enBlockConditions * LatinSquareRndReOrderEnBlock[i] + LatinSquareRndReOrder[j]
+					]);
+				//}
+				/*else
 				{
 					ConditionsIndices.Add(ConditionsIndicesCopy[
-						enBlockConditions * LatinSquareRndReOrder[j] + LatinSquareRndReOrderEnBlock[i]
+						enBlockConditions * i + LatinSquareRndReOrder[j]
 					]);
-				}
-				else
-				{
-					ConditionsIndices.Add(ConditionsIndicesCopy[
-						enBlockConditions * LatinSquareRndReOrder[j] + i
-					]);
-				}
+				}*/
 			}
 		}
 	}
@@ -458,16 +457,16 @@ int USFStudyPhase::GetMapFactorIndex() const
 
 TArray<USFStudyFactor*> USFStudyPhase::SortFactors() const
 {
-	//puts the enBlock factor first!
+	//puts the enBlock factor first! (in PhaseValid() it is checked that max one exists!)
 	TArray<USFStudyFactor*> SortedFactors;
 
 	for (USFStudyFactor* Factor : Factors)
 	{
-		if (Factor->MixingOrder == EFactorMixingOrder::RandomOrder)
+		if (Factor->MixingOrder == EFactorMixingOrder::RandomOrder || Factor->MixingOrder == EFactorMixingOrder::InOrder)
 		{
 			SortedFactors.Add(Factor);
 		}
-		else if (Factor->MixingOrder == EFactorMixingOrder::EnBlock || Factor->MixingOrder == EFactorMixingOrder::InOrder)
+		else if (Factor->MixingOrder == EFactorMixingOrder::EnBlock)
 		{
 			//putting it as first factor in
 			SortedFactors.Insert(Factor, 0);

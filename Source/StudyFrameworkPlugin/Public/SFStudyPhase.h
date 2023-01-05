@@ -96,6 +96,6 @@ private:
 	USFMapFactor* GetMapFactor() const;
 	int GetMapFactorIndex() const;
 
-	//puts any enBlock or InOrder factor first
+	//puts any enBlock factor first (if one exists)
 	TArray<USFStudyFactor*> SortFactors() const;
 };

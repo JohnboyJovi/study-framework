@@ -57,6 +57,9 @@ public:
 	UFUNCTION(CallInEditor, Category = "Study Setup Debug")
 	void ClearStudyResults() const;
 
+	//if you want to use it override the method below (ConditionSortingCallback_Implementation)
+	virtual TArray<USFCondition*> ConditionSortingCallback(const TArray<USFCondition*>& Conditions) const;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
 	FFadeConfig FadeConfig;
 

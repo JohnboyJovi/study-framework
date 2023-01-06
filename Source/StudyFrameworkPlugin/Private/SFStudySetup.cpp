@@ -188,6 +188,12 @@ void ASFStudySetup::ClearStudyResults() const
 	DeleteFolder("StudyLogs");
 }
 
+TArray<USFCondition*> ASFStudySetup::ConditionSortingCallback(const TArray<USFCondition*>& Conditions) const
+{
+	//in this default implementation we don't do anything here
+	return Conditions;
+}
+
 TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber) const
 {
 	if (!CheckPhases())
@@ -219,6 +225,9 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 		}
 		Conditions.Append(Phases[ActualIndex]->GenerateConditions(RunningParticipantNumber, ActualIndex));
 	}
+
+	Conditions = ConditionSortingCallback(Conditions);
+
 	return Conditions;
 }
 

@@ -42,17 +42,6 @@ void USFStudyPhase::AddDependentVariable(FString Name)
 	DependentVariables.Add(Variable);
 }
 
-void USFStudyPhase::SetRepetitions(int Num, EPhaseRepetitionType Type)
-{
-	NumberOfRepetitions = Num;
-	TypeOfRepetition = Type;
-	if (TypeOfRepetition != EPhaseRepetitionType::SameOrder)
-	{
-		FSFLoggingUtils::Log(
-			"Currently only SameOrder repetitions supported! Please implement in USFStudyPhase::GenerateOrder().", true);
-	}
-}
-
 bool USFStudyPhase::PhaseValid() const
 {
 	USFMapFactor* MapFactor = GetMapFactor();
@@ -152,24 +141,8 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int P
 
 	//create an array holding for each condition an array of each factors' level index
 	TArray<TArray<int>> ConditionsIndices;
-	ConditionsIndices.Reserve(NumberOfConditions * NumberOfRepetitions);
+	ConditionsIndices.Reserve(NumberOfConditions);
 	CreateAllConditionsRecursively(0, {}, SortedFactors, ParticipantNr, ConditionsIndices);
-
-	if (TypeOfRepetition == EPhaseRepetitionType::FullyRandom)
-	{
-		//simply copy the conditions before shuffling, but always the same next to each other
-		//otherwise the latin square had problems due to its modulo nature (still due to doubling conditions not perfect)
-		TArray<TArray<int>> ConditionsIndicesCopy = ConditionsIndices;
-		ConditionsIndices.Empty();
-		for (int i = 0; i < ConditionsIndicesCopy.Num(); ++i)
-		{
-			for (int r = 0; r < NumberOfRepetitions; ++r)
-			{
-				TArray<int> ConditionIndices = ConditionsIndicesCopy[i]; //make a copy
-				ConditionsIndices.Add(ConditionIndices);
-			}
-		}
-	}
 
 
 	// ****************************
@@ -194,50 +167,29 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int P
 		FullyRandomFactorsStartIndex++;
 	}
 
-	// for fully random repetitions were already added above and for same order will be farther below,
-	// so only set NrDifferentOrderRepetitions if we are repeating DifferentOrder
-	const int NrDifferentOrderRepetitions = TypeOfRepetition == EPhaseRepetitionType::DifferentOrder ? NumberOfRepetitions : 1;
-	for (int Repetition = 0; Repetition < NrDifferentOrderRepetitions; Repetition++)
-	{
-		//create shuffling of enBlock factor, trivial case ({0}) if we do not have an enBlock factor
-		const TArray<int> EnBlockLatinSquare = USFStudyFactor::GenerateLatinSquareOrder(
-			ParticipantNr + PhaseIndex + Repetition, NumEnBlockLevels);
 
-		for (int EnBlockLevel = 0; EnBlockLevel < NumEnBlockLevels; EnBlockLevel++)
+	//create shuffling of enBlock factor, trivial case ({0}) if we do not have an enBlock factor
+	const TArray<int> EnBlockLatinSquare = USFStudyFactor::GenerateLatinSquareOrder(
+		ParticipantNr + PhaseIndex, NumEnBlockLevels);
+
+	for (int EnBlockLevel = 0; EnBlockLevel < NumEnBlockLevels; EnBlockLevel++)
+	{
+		for (int InOrderLevel = 0; InOrderLevel < NumInOrderLevels; InOrderLevel++)
 		{
-			for (int InOrderLevel = 0; InOrderLevel < NumInOrderLevels; InOrderLevel++)
+			const TArray<int> FullyRandomLatinSquare = USFStudyFactor::GenerateLatinSquareOrder(
+				ParticipantNr + PhaseIndex + EnBlockLevel + InOrderLevel, NumFullyRandomConditions);
+			//we use all EnBlockLevel + InOrderLevel also for "seeding" so it is not repetitive
+			for (int FullyRandomCondition = 0; FullyRandomCondition < FullyRandomLatinSquare.Num(); FullyRandomCondition++)
 			{
-				const TArray<int> FullyRandomLatinSquare = USFStudyFactor::GenerateLatinSquareOrder(
-					ParticipantNr + PhaseIndex + Repetition + EnBlockLevel + InOrderLevel, NumFullyRandomConditions);
-				//we use all EnBlockLevel + InOrderLevel also for "seeding" so it is not repetitive
-				for (int FullyRandomCondition = 0; FullyRandomCondition < FullyRandomLatinSquare.Num(); FullyRandomCondition++)
-				{
-					ConditionsIndices.Add(ConditionsIndicesCopy[
-						NumInOrderLevels * NumFullyRandomConditions * EnBlockLatinSquare[EnBlockLevel]
-							+ NumFullyRandomConditions * InOrderLevel
-							+ FullyRandomLatinSquare[FullyRandomCondition]
-					]);
-				}
+				ConditionsIndices.Add(ConditionsIndicesCopy[
+					NumInOrderLevels * NumFullyRandomConditions * EnBlockLatinSquare[EnBlockLevel]
+						+ NumFullyRandomConditions * InOrderLevel
+						+ FullyRandomLatinSquare[FullyRandomCondition]
+				]);
 			}
 		}
 	}
 
-	// ****************************
-	//   Add SameOrder repetitions
-	// ****************************
-
-	if (TypeOfRepetition == EPhaseRepetitionType::SameOrder)
-	{
-		const int NrConditions = ConditionsIndices.Num();
-		for (int r = 0; r < NumberOfRepetitions - 1; ++r)
-		{
-			for (int i = 0; i < NrConditions; ++i)
-			{
-				TArray<int> ConditionIndices = ConditionsIndices[i]; //make a copy
-				ConditionsIndices.Add(ConditionIndices);
-			}
-		}
-	}
 
 
 	// ****************************
@@ -321,25 +273,6 @@ TSharedPtr<FJsonObject> USFStudyPhase::GetAsJson() const
 	}
 	Json->SetArrayField("Dependent Variables", DependentVarsArray);
 
-	// NumberOfRepetitions
-	Json->SetNumberField("Number Of Repetitions", NumberOfRepetitions);
-
-	// TypeOfRepetition
-	switch (TypeOfRepetition)
-	{
-	case EPhaseRepetitionType::SameOrder:
-		Json->SetStringField("TypeOfRepetition", "SameOrder");
-		break;
-	case EPhaseRepetitionType::DifferentOrder:
-		Json->SetStringField("TypeOfRepetition", "DifferentOrder");
-		break;
-	case EPhaseRepetitionType::FullyRandom:
-		Json->SetStringField("TypeOfRepetition", "FullyRandom");
-		break;
-	default:
-		FSFLoggingUtils::Log("[USFStudyPhase::GetAsJson] unknown TypeOfRepetition!", true);
-	}
-
 	return Json;
 }
 
@@ -373,29 +306,6 @@ void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
 		DependentVariable->FromJson(Var->AsObject());
 		DependentVariables.Add(DependentVariable);
 	}
-
-	// NumberOfRepetitions
-	NumberOfRepetitions = Json->GetNumberField("Number Of Repetitions");
-
-	// TypeOfRepetition
-	FString RepetitionTypeStr = Json->GetStringField("TypeOfRepetition");
-	if (RepetitionTypeStr == "SameOrder")
-	{
-		TypeOfRepetition = EPhaseRepetitionType::SameOrder;
-	}
-	else if (RepetitionTypeStr == "DifferentOrder")
-	{
-		TypeOfRepetition = EPhaseRepetitionType::DifferentOrder;
-	}
-	else if (RepetitionTypeStr == "FullyRandom")
-	{
-		TypeOfRepetition = EPhaseRepetitionType::FullyRandom;
-	}
-	else
-	{
-		FSFLoggingUtils::Log("[USFStudyPhase::FromJson] unknown TypeOfRepetition: " + RepetitionTypeStr, true);
-	}
-
 }
 
 bool USFStudyPhase::ContainsNullptrInArrays()
@@ -416,17 +326,6 @@ bool USFStudyPhase::ContainsNullptrInArrays()
 	}
 	return false;
 }
-
-#if WITH_EDITOR
-bool USFStudyPhase::CanEditChange(const FProperty* InProperty) const
-{
-	if (InProperty->GetFName() == "TypeOfRepetition" && NumberOfRepetitions <= 1)
-	{
-		return false;
-	}
-	return true;
-}
-#endif
 
 bool USFStudyPhase::ContainsAMapFactor() const
 {

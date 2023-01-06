@@ -92,7 +92,7 @@ FString USFCondition::ToString() const
 	FString Out = PhaseName;
 	for (auto Level : FactorLevels)
 	{
-		Out = Out + "_" + Level.Value;
+		Out += "_" + Level.Value;
 	}
 	return Out;
 }

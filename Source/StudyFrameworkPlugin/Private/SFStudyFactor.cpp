@@ -115,6 +115,17 @@ bool USFStudyFactor::CanEditChange(const FProperty * InProperty) const
 	}
 	return true;
 }
+
+void USFStudyFactor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	UObject::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (Type == EFactorType::Between)
+	{
+		//especially if still EnBlock is set as MixingOrder that breaks the randomization algorithm
+		MixingOrder = EFactorMixingOrder::RandomOrder;
+	}
+}
 #endif
 
 TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int ParticipantId, int NrConditions)

@@ -35,6 +35,8 @@ public:
 #if WITH_EDITOR
 	//check what properties can be changed/used dependent on other properties
 	virtual bool CanEditChange(const FProperty* InProperty) const;
+
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
 	//Name of this factor, used for identifying it and also for getting its level during execution

@@ -158,7 +158,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int P
 	int NumEnBlockLevels = bHasEnBlock ? SortedFactors[0]->Levels.Num() : 1;
 	int NumInOrderLevels = 1;
 
-	while (SortedFactors[FullyRandomFactorsStartIndex]->MixingOrder != EFactorMixingOrder::RandomOrder) {
+	while (FullyRandomFactorsStartIndex < SortedFactors.Num() && SortedFactors[FullyRandomFactorsStartIndex]->MixingOrder != EFactorMixingOrder::RandomOrder) {
 		//so we jump over all inOrder factors and the enBlock factor (if it exists)
 		NumFullyRandomConditions /= SortedFactors[FullyRandomFactorsStartIndex]->Levels.Num();
 		if (SortedFactors[FullyRandomFactorsStartIndex]->MixingOrder == EFactorMixingOrder::InOrder) {

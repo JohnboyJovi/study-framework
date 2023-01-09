@@ -226,7 +226,7 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 		Conditions.Append(Phases[ActualIndex]->GenerateConditions(RunningParticipantNumber, ActualIndex));
 	}
 
-	Conditions = ConditionSortingCallback(Conditions);
+	Conditions = ConditionSortingCallback(Conditions, RunningParticipantNumber);
 
 	return Conditions;
 }

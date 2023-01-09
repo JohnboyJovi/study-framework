@@ -57,8 +57,12 @@ public:
 	UFUNCTION(CallInEditor, Category = "Study Setup Debug")
 	void ClearStudyResults() const;
 
-	//if you want to use it override the method below (ConditionSortingCallback_Implementation)
-	virtual TArray<USFCondition*> ConditionSortingCallback(const TArray<USFCondition*>& Conditions) const;
+	//This method can be overriden if you want to manually change the order of the conditions after they were created from the phases (with their factors)
+	// Conditions:								holds those created conditions in the order defined by phases/factors
+	// ParticipantRunningNumber:	is the running number of the participant starting at 0 an then up to the number of participants
+	//														it can be useful if you want to implement some counterbalancing yourself
+	// return:										the updated order of the condition. CAUTION: deleting or creating new ones gives undefined behavior!
+	virtual TArray<USFCondition*> ConditionSortingCallback(const TArray<USFCondition*>& Conditions, int ParticipantRunningNumber) const;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
 	FFadeConfig FadeConfig;

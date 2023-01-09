@@ -188,7 +188,7 @@ void ASFStudySetup::ClearStudyResults() const
 	DeleteFolder("StudyLogs");
 }
 
-TArray<USFCondition*> ASFStudySetup::ConditionSortingCallback(const TArray<USFCondition*>& Conditions) const
+TArray<USFCondition*> ASFStudySetup::ConditionSortingCallback(const TArray<USFCondition*>& Conditions, int ParticipantRunningNumber) const
 {
 	//in this default implementation we don't do anything here
 	return Conditions;

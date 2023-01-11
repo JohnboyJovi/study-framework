@@ -73,6 +73,9 @@ public:
 	FString GetFactorLevel(FString FactorName) const;
 
 	UFUNCTION(BlueprintCallable)
+	FString GetCurrentPhase() const;
+
+	UFUNCTION(BlueprintCallable)
 	USFGazeTracker* GetGazeTracker() const;
 
 	// ****************************************************************** // 

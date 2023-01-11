@@ -444,6 +444,20 @@ FString USFGameInstance::GetFactorLevel(FString FactorName) const
 	return "FactorNotPresent";
 }
 
+FString USFGameInstance::GetCurrentPhase() const
+{
+	if (!Participant)
+	{
+		return "ParticipantNotSet";
+	}
+
+	if (!Participant->GetCurrentCondition())
+	{
+		return "NoConditionActive";
+	}
+	return Participant->GetCurrentCondition()->PhaseName;
+}
+
 void USFGameInstance::LogToHUD(FString Text)
 {
 	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()) &&

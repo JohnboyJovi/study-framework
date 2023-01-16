@@ -52,6 +52,8 @@ public:
 	void GenerateTestStudyRuns() const;
 	UPROPERTY(EditAnywhere, Category = "Study Setup Debug")
 	int NrOfRunsToGenerate = 1;
+	UPROPERTY(EditAnywhere, Category = "Study Setup Debug")
+	TArray<FString> ExcludeFactorsFromGeneratedRunsTable;
 
 	//CAUTION: this removes results, should only be called to prepare before starting the actual study!
 	UFUNCTION(CallInEditor, Category = "Study Setup Debug")

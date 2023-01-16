@@ -155,7 +155,15 @@ void ASFStudySetup::GenerateTestStudyRuns() const
 		FString RunString = FString::FromInt(ParticipantID);
 		for(USFCondition* Condition : Conditions)
 		{
-			RunString += "\t" + Condition->ToString();
+			FString ConditionStr = Condition->PhaseName;
+			for (auto Level : Condition->FactorLevels)
+			{
+				if(!ExcludeFactorsFromGeneratedRunsTable.Contains(Level.Key))
+				{
+					ConditionStr += "_" + Level.Value;
+				}
+			}
+			RunString += "\t\t" + ConditionStr;
 		}
 		RunStrings.Add(RunString);
 	}

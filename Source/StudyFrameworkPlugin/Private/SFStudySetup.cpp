@@ -273,6 +273,17 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 	}
 	Json->SetArrayField("PhasesToOrderRandomize", PhasesToRandomize);
 
+	//Independent Variables
+	TArray<TSharedPtr<FJsonValue>> IndependentVarsArray;
+	for (USFIndependentVariable* Var : IndependentVariables) {
+		if (!Var) {
+			continue;
+		}
+		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(Var->GetAsJson());
+		IndependentVarsArray.Add(JsonValue);
+	}
+	Json->SetArrayField("Independent Variables", IndependentVarsArray);
+
 	Json->SetObjectField("FadeConfig", FadeConfig.GetAsJson());
 	Json->SetObjectField("ExperimenterViewConfig", ExperimenterViewConfig.GetAsJson());
 	if(UseGazeTracker == EGazeTrackerMode::NotTracking) Json->SetStringField("UseGazeTracker", "NotTracking");
@@ -299,6 +310,14 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 	for (TSharedPtr<FJsonValue> PhaseJson : PhasesToRandomize)
 	{
 		PhasesToOrderRandomize.Add(PhaseJson->AsString());
+	}
+
+	IndependentVariables.Empty();
+	TArray<TSharedPtr<FJsonValue>> IndependentVarsArray = Json->GetArrayField("Independent Variables");
+	for (auto Var : IndependentVarsArray) {
+		USFIndependentVariable* IndependentVariable = NewObject<USFIndependentVariable>(this);
+		IndependentVariable->FromJson(Var->AsObject());
+		IndependentVariables.Add(IndependentVariable);
 	}
 
 	FadeConfig.FromJson(Json->GetObjectField("FadeConfig"));

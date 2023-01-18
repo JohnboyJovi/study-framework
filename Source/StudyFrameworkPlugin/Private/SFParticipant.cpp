@@ -52,17 +52,25 @@ void USFParticipant::GenerateExecutionJsonFile() const
 	}
 	Json->SetArrayField("Conditions", ConditionsArray);
 
+	TArray<TSharedPtr<FJsonValue>> IndependentArray;
+	for (auto Entry : IndependentVariablesValues) {
+		TSharedPtr<FJsonObject> JsonVar = Entry.Key->GetAsJson();
+		JsonVar->SetStringField("Value", Entry.Value);
+		IndependentArray.Add(MakeShared<FJsonValueObject>(JsonVar));
+	}
+	Json->SetArrayField("Independent Variables", IndependentArray);
+
 	FSFUtils::WriteJsonToFile(Json, "StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
 }
 
-TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
+void USFParticipant::ReadExecutionJsonFile(int ParticipantID, TArray<USFCondition*>& Conditions_Out, TMap<USFIndependentVariable*, FString>& IndependentVariablesValues_Out)
 {
 	if(ParticipantID==-1)
 	{
 		FSFLoggingUtils::Log(
 			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
 			FString::FromInt(ParticipantID) + " is not to be read, probably called on init so everything is fine!", false);
-		return {};
+		return;
 	}
 	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(
 		"StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
@@ -72,7 +80,7 @@ TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 		FSFLoggingUtils::Log(
 			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
 			FString::FromInt(ParticipantID) + " cannot be read!", true);
-		return {};
+		return;
 	}
 
 	TArray<TSharedPtr<FJsonValue>> ConditionsArray = Json->GetArrayField("Conditions");
@@ -82,7 +90,17 @@ TArray<USFCondition*> USFParticipant::ReadExecutionJsonFile(int ParticipantID)
 		Condition->FromJson(ConditionJson->AsObject());
 		LoadedConditions.Add(Condition);
 	}
-	return LoadedConditions;
+	Conditions_Out = LoadedConditions;
+
+	IndependentVariablesValues_Out.Empty();
+	TArray<TSharedPtr<FJsonValue>> IndependentArray = Json->GetArrayField("Independent Variables");
+	for (TSharedPtr<FJsonValue> VarJson : IndependentArray) {
+		USFIndependentVariable* Var = NewObject<USFIndependentVariable>();
+		Var->FromJson(VarJson->AsObject());
+		FString Val = VarJson->AsObject()->GetStringField("Value");
+		IndependentVariablesValues_Out.Add(Var, Val);
+	}
+
 }
 
 FString USFParticipant::GetCurrentTimeAsString() const
@@ -185,7 +203,10 @@ int USFParticipant::GetID() const
 
 TArray<USFCondition*> USFParticipant::GetLastParticipantsConditions()
 {
-	return ReadExecutionJsonFile(GetLastParticipantId());
+	TArray<USFCondition*> LoadedConditions;
+	TMap<USFIndependentVariable*, FString> LoadedIndependentVariablesValues;
+	ReadExecutionJsonFile(GetLastParticipantId(), LoadedConditions, LoadedIndependentVariablesValues);
+	return LoadedConditions;
 }
 
 int USFParticipant::GetLastParticipantId()
@@ -237,9 +258,66 @@ ASFStudySetup* USFParticipant::GetLastParticipantSetup()
 	return Setup;
 }
 
+void USFParticipant::LoadLastParticipantsIndependentVariables()
+{
+	TArray<USFCondition*> LoadedConditions;
+	TMap<USFIndependentVariable*, FString> LoadedIndependentVariablesValues;
+	ReadExecutionJsonFile(GetLastParticipantId(), LoadedConditions, LoadedIndependentVariablesValues);
+	IndependentVariablesValues = LoadedIndependentVariablesValues;
+}
+
 const FString& USFParticipant::GetParticipantLoggingInfix() const
 {
 	return ParticipantLoggingInfix;
+}
+
+const TPair<USFIndependentVariable*, FString> USFParticipant::GetIndependentVariable(const FString& VarName)
+{
+	for (auto Elem : IndependentVariablesValues) {
+		if (Elem.Key->Name == VarName) {
+			return Elem;
+		}
+	}
+	return TPair<USFIndependentVariable*, FString>(nullptr, "");
+}
+
+void USFParticipant::SetIndependentVariablesFromStudySetup(ASFStudySetup* Setup)
+{
+	IndependentVariablesValues.Empty();
+	for (auto Var : Setup->IndependentVariables) {
+		FString Value = "";
+		if (Var->bAskedAtBeginning) {
+			switch (Var->ValueType) {
+
+			case EValType::TEXT:
+			{
+				FString Answer;
+				int Result = FSFUtils::OpenCustomDialogText(Var->Name, Var->Prompt, "", Answer);
+				if (Result < 0) {
+					FSFLoggingUtils::Log("[USFParticipant::SetIndependentVariablesFromStudySetup] The window for the variable was closed without giving an answer!", false);
+				}
+				else {
+					Value = Answer;
+				}
+			}
+			break;
+
+			case EValType::MULTIPLECHOICE:
+			{
+				int Answer = FSFUtils::OpenCustomDialog(Var->Name, Var->Prompt, Var->Options);
+				if (Answer < 0) {
+					FSFLoggingUtils::Log("[USFParticipant::SetIndependentVariablesFromStudySetup] The window for the variable was closed without selecting anything!", false);
+				}
+				else {
+					Value = Var->Options[Answer];
+				}
+			}
+			break;
+
+			}
+		}
+		IndependentVariablesValues.Add(DuplicateObject(Var, this), Value);
+	}
 }
 
 bool USFParticipant::LoadConditionsFromJson()
@@ -250,7 +328,10 @@ bool USFParticipant::LoadConditionsFromJson()
 		return false;
 	}
 
-	Conditions = ReadExecutionJsonFile(ParticipantID);
+	TArray<USFCondition*> LoadedConditions;
+	TMap<USFIndependentVariable*, FString> LoadedIndependentVariablesValues;
+	ReadExecutionJsonFile(GetLastParticipantId(), LoadedConditions, LoadedIndependentVariablesValues);
+	Conditions = LoadedConditions;
 
 	if (Conditions.Num() == 0)
 	{

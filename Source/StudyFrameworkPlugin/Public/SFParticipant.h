@@ -47,8 +47,12 @@ public:
 	static int GetLastParticipantLastConditionStarted();
 	static bool GetLastParticipantFinished();
 	static ASFStudySetup* GetLastParticipantSetup();
+	void LoadLastParticipantsIndependentVariables();
 
 	const FString& GetParticipantLoggingInfix() const;
+
+	const TPair<USFIndependentVariable*, FString> GetIndependentVariable(const FString& VarName);
+	void SetIndependentVariablesFromStudySetup(ASFStudySetup* Setup);
 
 	FString GetCurrentTimeAsString() const;
 	float GetCurrentTime() const;
@@ -71,7 +75,7 @@ protected:
 	void LogCurrentParticipant() const;
 
 	void GenerateExecutionJsonFile() const;
-	static TArray<USFCondition*> ReadExecutionJsonFile(int ParticipantID);
+	static void ReadExecutionJsonFile(int ParticipantID, TArray<USFCondition*>& Conditions_Out, TMap<USFIndependentVariable*, FString>& IndependentVariablesValues_Out);
 
 	void StoreInPhaseLongTable() const;
 
@@ -80,6 +84,9 @@ protected:
 
 	UPROPERTY()
 	TArray<USFCondition*> Conditions;
+
+	UPROPERTY(BlueprintReadOnly)
+	TMap<USFIndependentVariable*, FString> IndependentVariablesValues;
 
 	UPROPERTY()
 	int CurrentConditionIdx;

@@ -29,6 +29,52 @@ void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Text), &Title);
 }
 
+int FSFUtils::OpenCustomDialog(const FString& Title, const FString& Content, const TArray<FString>& Buttons)
+{
+
+	TArray<SCustomDialog::FButton> Buttons_Text;
+	for (const FString& Btn : Buttons) {
+		Buttons_Text.Add(SCustomDialog::FButton(FText::FromString(Btn)));
+	}
+
+	TSharedRef<SCustomDialog> Dialog = SNew(SCustomDialog)
+		.Title(FText(FText::FromString(Title)))
+		.DialogContent(SNew(STextBlock).Text(FText::FromString(Content)))
+		.Buttons(Buttons_Text);
+
+	return Dialog->ShowModal();
+
+}
+
+int FSFUtils::OpenCustomDialogText(const FString& Title, const FString& Content, const FString& DefaultText, FString& OutText)
+{
+	auto VBox = SNew(SVerticalBox);
+	auto Border = SNew(SBorder);
+	auto ContentWidget = SNew(STextBlock).Text(FText::FromString(Content));
+	auto InputWidget = SNew(SEditableText).Text(FText::FromString(DefaultText));
+	InputWidget->SetColorAndOpacity(FSlateColor(FLinearColor::White));
+	Border->SetContent(InputWidget);
+	VBox->AddSlot().AttachWidget(ContentWidget);
+	VBox->AddSlot().AttachWidget(Border);
+
+	TSharedRef<SCustomDialog> Dialog = SNew(SCustomDialog)
+		.Title(FText(FText::FromString(Title)))
+		.DialogContent(VBox)
+		.Buttons({
+			SCustomDialog::FButton(FText::FromString("Submit"))
+		});
+
+	int Result = Dialog->ShowModal();
+	
+	if (Result < 0) {
+		return -1;
+	}
+
+	OutText = InputWidget->GetText().ToString();
+	return 0;
+
+}
+
 FString FSFUtils::JsonToString(TSharedPtr<FJsonObject> Json)
 {
 	FString OutputString;

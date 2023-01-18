@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 
 #include "SFStudyPhase.h"
+#include "SFIndependentVariable.h"
 #include "HUD/SFFadeHandler.h"
 #include "HUD/SFExperimenterWindow.h"
 #include "Logging/SFLogObject.h"
@@ -74,6 +75,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	EGazeTrackerMode UseGazeTracker = EGazeTrackerMode::NotTracking;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "Name", Category = "Study Setup"))
+	TArray<USFIndependentVariable*> IndependentVariables;
 
 	//give names of phases wich should be randomized in their order between participants
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))

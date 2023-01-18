@@ -205,15 +205,15 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	{
 
 		const FString MessageText = FString("The last participant did not finish the study run. Would you like to:") +
-			"\n[Retry Participant] Retry last participant (Participant ID: " +
+			"\n[Continue Participant] Continue last participant (Participant ID: " +
 			FString::FromInt(ParticipantID) + ") where he/she left off in condition # " +
 			FString::FromInt(USFParticipant::GetLastParticipantLastConditionStarted()) +
-			"\n[Continue Participant] Continue with the next participant (Participant ID: " + FString::FromInt(ParticipantID + 1) +
+			"\n[Next Participant] Continue with the next participant (Participant ID: " + FString::FromInt(ParticipantID + 1) +
 			")\n[Restart Study] Restart the entire study anew (Participant ID: 0)";
 		const FString MessageTitle = "WARNING: Unfinished study run detected";
 		TArray<FString> Buttons = {
 			"Continue Participant",
-			"Retry Participant",
+			"Next Participant",
 			"Restart Study"
 		};
 		int Answer = FSFUtils::OpenCustomDialog(MessageTitle, MessageText, Buttons);
@@ -227,13 +227,13 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 			//clear data
 			USFParticipant::ClearPhaseLongtables(Setup);
 			break;
-		case 1:
-			FSFLoggingUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Retry last participant");
+		case 0:
+			FSFLoggingUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Continue last participant");
 			Conditions = USFParticipant::GetLastParticipantsConditions();
 			StartCondition = Conditions[USFParticipant::GetLastParticipantLastConditionStarted()];
 			bRecoverParticipantData = true;
 			break;
-		case 0:
+		case 1:
 			FSFLoggingUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Continue with the next participant");
 			ParticipantID++;
 			Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);

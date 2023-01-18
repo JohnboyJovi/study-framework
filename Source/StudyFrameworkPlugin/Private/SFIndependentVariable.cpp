@@ -62,3 +62,13 @@ void USFIndependentVariable::SetValTypeFromString(const FString& Str)
 	}
 }
 
+#if WITH_EDITOR
+bool USFIndependentVariable::CanEditChange(const FProperty* InProperty) const
+{
+	if (InProperty->GetFName() == "Options" && ValueType == EValType::TEXT)
+	{
+		return false;
+	}
+	return true;
+}
+#endif

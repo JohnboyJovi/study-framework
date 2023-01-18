@@ -24,6 +24,11 @@ public:
 	FString GetValTypeAsString() const;
 	void SetValTypeFromString(const FString& Str);
 
+#if WITH_EDITOR
+	//check what properties can be changed/used dependent on other properties
+	virtual bool CanEditChange(const FProperty* InProperty) const;
+#endif
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString Name = "undefined";
 

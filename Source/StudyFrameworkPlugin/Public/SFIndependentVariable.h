@@ -35,12 +35,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	EValType ValueType = EValType::TEXT;
 
+	//If true, a popup window will appear at the beginning of the study asking the user for the variable value
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bAskedAtBeginning = true;
 
+	//The Prompt asked in the popup window if bAskedAtBeggining is true
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString Prompt = "";
 
+	//The Button Texts appearing in the popup window if bAskedAtBeggining is true
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<FString> Options;
 

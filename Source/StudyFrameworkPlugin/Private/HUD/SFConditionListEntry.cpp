@@ -52,6 +52,8 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 	Phase->SetText(FText::FromString(Data[0]));
 	Time->SetText(FText::FromString(Data[1]));
 
+	EceteraText->SetVisibility(ESlateVisibility::Collapsed);
+
 	int UsedTexts = 0;
 	TArray<UTextBlock*> Texts = {Text0, Text1, Text2, Text3, Text4, Text5, Text6, Text7};
 
@@ -59,10 +61,17 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 	{
 		if (UsedTexts >= Texts.Num())
 		{
+			FString MissingTexts = "{ ";
+			for(int j=i; j < Data.Num(); ++j)
+			{
+				MissingTexts += Data[j] + " ";
+			}
+			MissingTexts += "}";
 			FSFLoggingUtils::Log(
-				"[USFConditionListEntry::FillWithCondition] to few text fields to show everything, " + FString::FromInt(
+				"[USFConditionListEntry::FillTextsHelper] to few text fields to show everything, " + FString::FromInt(
 					Condition->FactorLevels.Num() + Condition->DependentVariablesValues.Num()) +
-				" text fields would be needed.", true);
+				" text fields would be needed. Not showing: " + MissingTexts, false);
+			EceteraText->SetVisibility(ESlateVisibility::Visible);
 			return;
 		}
 		Texts[UsedTexts++]->SetText(FText::FromString(Data[i]));

@@ -56,6 +56,8 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TMap<USFDependentVariable*,FString> DependentVariablesValues;
 
+	FString CreateIdentifiableName();
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
@@ -70,7 +72,6 @@ protected:
 	void Begin();
 	bool End();
 
-	FString CreateIdentifiableName();
 
 private:
 

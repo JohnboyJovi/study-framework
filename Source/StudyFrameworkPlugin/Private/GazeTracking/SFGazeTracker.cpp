@@ -82,7 +82,6 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 
 	FGazeRay GazeRay = GetWorldGazeDirection();
 
-
 	const FVector RayCastOrigin = GazeRay.Origin;
 	const FVector RayCastEnd = (GazeRay.Direction * Distance) + RayCastOrigin;
 
@@ -93,6 +92,7 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(World->GetFirstPlayerController()->AcknowledgedPawn);
 	QueryParams.AddIgnoredActor(USFGameInstance::Get()->GetHUD()->GetHUDHelper());
+	ActorsToIgnore.Remove(nullptr);//remove all invalid actors first
 	QueryParams.AddIgnoredActors(ActorsToIgnore);
 
 	if (bDebugRenderRayTraces)

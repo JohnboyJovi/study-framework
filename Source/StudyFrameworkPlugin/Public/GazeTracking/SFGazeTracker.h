@@ -57,5 +57,6 @@ private:
 	bool bEyeTrackingStarted = false;
 
 	bool bIgnoreNonGazeTargetActors = false;
+	UPROPERTY()
 	TArray<AActor*> ActorsToIgnore;
 };

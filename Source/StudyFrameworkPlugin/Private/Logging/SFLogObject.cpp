@@ -138,7 +138,7 @@ void USFLogObject::CreateGazeTrackingLogFile() {
 }
 
 void USFLogObject::WriteGazeTrackingLogToFile() {
-	if (!USFGameInstance::Get() || !USFGameInstance::Get()->GetGazeTracker())
+	if (!USFGameInstance::Get())
 	{
 		return;
 	}
@@ -154,8 +154,8 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 		USFGameInstance::Get()->GetLogObject()->CreateGazeTrackingLogFile();
 	}
 
-	
-	FString GazeTarget = GazeTracker->GetCurrentGazeTarget() == "" ? "-" : GazeTracker->GetCurrentGazeTarget();
+	FString GazeTarget = GazeTracker->GetCurrentGazeTarget();
+	GazeTarget = (GazeTarget == "" ? "-" : GazeTarget);
 	//When starting in Debug-Mode (i.e. not through the HUD) no condition is defined. 
 	FString CurrentCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition() ?
 								USFGameInstance::Get()->GetParticipant()->GetCurrentCondition()->UniqueName :

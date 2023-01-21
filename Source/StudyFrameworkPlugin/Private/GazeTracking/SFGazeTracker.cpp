@@ -93,13 +93,13 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 	QueryParams.AddIgnoredActor(World->GetFirstPlayerController()->AcknowledgedPawn);
 	QueryParams.AddIgnoredActor(USFGameInstance::Get()->GetHUD()->GetHUDHelper());
 
-	World->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, EYE_TRACKING_TRACE_CHANNEL, QueryParams);
+	World->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, ECC_Visibility, QueryParams);
 
 	if (bDebugRenderRayTraces)
 	{
 		//this line trace is more comfortable for debug drawing, however has problems with channel tracing, so we use LineTraceSingleByChannel() above
 		FHitResult TmpHitRes;
-		UKismetSystemLibrary::LineTraceSingle(World, RayCastOrigin, RayCastEnd, ETraceTypeQuery::TraceTypeQuery4, false, {}, EDrawDebugTrace::ForDuration, TmpHitRes, true);
+		UKismetSystemLibrary::LineTraceSingle(World, RayCastOrigin, RayCastEnd, ETraceTypeQuery::TraceTypeQuery1, false, {}, EDrawDebugTrace::ForDuration, TmpHitRes, true);
 	}
 
 

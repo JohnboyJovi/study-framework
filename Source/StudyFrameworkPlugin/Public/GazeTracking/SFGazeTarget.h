@@ -5,8 +5,6 @@
 
 #include "SFGazeTarget.generated.h"
 
-#define EYE_TRACKING_TRACE_CHANNEL ECC_GameTraceChannel4
-
 /*
  * This makes the region covered by the sphere component a gaze target
  */

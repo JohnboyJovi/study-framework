@@ -29,6 +29,7 @@ ASFHMDSpectatorHUDHelp::ASFHMDSpectatorHUDHelp()
 	//InteractionComponent->bShowDebug = true;
 	InteractionComponent->InteractionDistance = 10.0f; //only 10 cm, because the interaction component is 1cm away from the widget
 	InteractionComponent->SetRelativeRotation(FRotator(0, 180, 0));
+	InteractionComponent->InteractionSource = EWidgetInteractionSource::Custom;
 
 	
 }
@@ -69,6 +70,8 @@ void ASFHMDSpectatorHUDHelp::Tick(float DeltaSeconds)
 	//Set widget interaction to the right spot
 	FVector2D RelativePos = OffsetCursorWidgetFromMouseLocationForMiddlePivot(CursorPos, DrawSize);
 	InteractionComponent->SetRelativeLocation(FVector(1, RelativePos.X, RelativePos.Y));
+
+	PerformCustomTrace();
 }
 
 UUserWidget* ASFHMDSpectatorHUDHelp::CreateWidget(TSubclassOf<UUserWidget> WidgetClass)
@@ -133,6 +136,45 @@ FSceneViewport* ASFHMDSpectatorHUDHelp::GetSceneViewport(bool bRequireStereo /*=
 	}
 #endif
 	return nullptr;
+}
+
+void ASFHMDSpectatorHUDHelp::PerformCustomTrace()
+{
+	//trace copied from WidgetInteractionComponent::PerformTrace
+	FHitResult Hit;
+	const FVector WorldLocation = InteractionComponent->GetComponentLocation();
+	const FTransform WorldTransform = InteractionComponent->GetComponentTransform();
+	FVector WorldDirection = WorldTransform.GetUnitAxis(EAxis::X);
+
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(WidgetInteractionComponentTrace));
+	Params.AddIgnoredActors(ActorsToIgnoreInTrace);
+
+	FVector LineStartLocation = WorldLocation;
+	FVector LineEndLocation = WorldLocation + (WorldDirection * InteractionComponent->InteractionDistance);
+		
+	while (true) {
+
+		GetWorld()->LineTraceSingleByChannel(Hit, LineStartLocation, LineEndLocation, InteractionComponent->TraceChannel, Params);
+	
+		if (!Hit.bBlockingHit) {
+			break;
+		}
+		
+		if (UWidgetComponent* HitWidgetComponent = Cast<UWidgetComponent>(Hit.GetComponent()))
+		{
+			if (HitWidgetComponent->IsVisible())
+			{
+				InteractionComponent->SetCustomHitResult(Hit);
+				break;
+			}
+		}
+		else {
+			Params.AddIgnoredActor(Hit.Actor.Get());
+			ActorsToIgnoreInTrace.Add(Hit.Actor.Get());
+		}
+	}
+
+	//do nothing otherwise, should not be reached
 }
 
 const FVector2D ASFHMDSpectatorHUDHelp::GetSpectatorDisplayResolution()

@@ -60,6 +60,10 @@ public:
 	static FSceneViewport* GetSceneViewport(bool bRequireStereo = false);
 
 protected:
+
+	void PerformCustomTrace();
+	TArray<AActor*>ActorsToIgnoreInTrace;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UWidgetComponent* WidgetComponent;
 

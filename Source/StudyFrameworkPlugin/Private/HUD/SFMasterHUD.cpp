@@ -173,10 +173,9 @@ void ASFMasterHUD::AddLogMessage(const FString& Text)
 	HUDWidget->AddLogMessage(Text);
 }
 
-
-void ASFMasterHUD::SetBackgroundColor(FLinearColor Color)
+void ASFMasterHUD::SetBackgroundAlpha(float Alpha)
 {
-	BackgroundColor = Color;
+	BackgroundAlpha = Alpha;
 }
 
 void ASFMasterHUD::SetStartStudyButtonVisibility(ESlateVisibility Visibility)
@@ -195,6 +194,8 @@ void ASFMasterHUD::SetNextConditionButtonVisibility(ESlateVisibility Visibility)
 
 void ASFMasterHUD::DrawBackground()
 {
+	FLinearColor BackgroundColor = USFGameInstance::Get()->GetFadeHandler()->GetFadeConfig().FadeColor;
+	BackgroundColor.A = BackgroundAlpha;
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	DrawRect(BackgroundColor, 0.0f, 0.0f, ViewportSize.X, ViewportSize.Y);
 }

@@ -42,7 +42,7 @@ public:
 	void AddLogMessage(const FString& Text);
 
 	UFUNCTION()
-	void SetBackgroundColor(FLinearColor Color);
+	void SetBackgroundAlpha(float Alpha);
 
 	UFUNCTION()
 	void SetStartStudyButtonVisibility(ESlateVisibility Visibility);
@@ -67,11 +67,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	USFHUDWidget* HUDWidget;
 
-	UPROPERTY(VisibleAnywhere)
-	FLinearColor BackgroundColor = FLinearColor::Black;
 
 private:
 	void DrawBackground();
+	float BackgroundAlpha = 1.0f;
 
 	ASFHMDSpectatorHUDHelp* HMDHUDHelper;
 	bool bHMDHUDHelperTextureSet= false;

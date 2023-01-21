@@ -80,7 +80,7 @@ void USFGlobalFadeGameViewportClient::DrawScreenFade(UCanvas* Canvas)
 			if (MasterHUD && UVirtualRealityUtilities::IsMaster())
 			{
 				//if we use the HUD let it do the fading, so it can still be seen when faded out
-				MasterHUD->SetBackgroundColor(FadeColorTmp);
+				MasterHUD->SetBackgroundAlpha(FadeColorTmp.A);
 			}
 			else
 			{

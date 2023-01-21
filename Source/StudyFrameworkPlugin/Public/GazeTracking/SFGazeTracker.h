@@ -28,7 +28,7 @@ class STUDYFRAMEWORKPLUGIN_API USFGazeTracker : public UObject
 	GENERATED_BODY()
 
 public:
-	void Init(EGazeTrackerMode Mode);
+	void Init(EGazeTrackerMode Mode, bool IgnoreNonGazeTargetActors);
 
 	//returns pair of Origin and Direction, in world coordinates
 	UFUNCTION(BlueprintCallable)
@@ -55,4 +55,7 @@ public:
 private:
 
 	bool bEyeTrackingStarted = false;
+
+	bool bIgnoreNonGazeTargetActors = false;
+	TArray<AActor*> ActorsToIgnore;
 };

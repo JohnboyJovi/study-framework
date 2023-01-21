@@ -12,8 +12,9 @@
 #endif
 
 
-void USFGazeTracker::Init(EGazeTrackerMode Mode)
+void USFGazeTracker::Init(EGazeTrackerMode Mode, bool IgnoreNonGazeTargetActors)
 {
+	bIgnoreNonGazeTargetActors = IgnoreNonGazeTargetActors;
 	bEyeTrackingStarted = false;
 	//FSFUtils::OpenMessageBox("SRanipal Plugin found!", false);
 	if(Mode == EGazeTrackerMode::EyeTracking)
@@ -92,8 +93,7 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(World->GetFirstPlayerController()->AcknowledgedPawn);
 	QueryParams.AddIgnoredActor(USFGameInstance::Get()->GetHUD()->GetHUDHelper());
-
-	World->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, ECC_Visibility, QueryParams);
+	QueryParams.AddIgnoredActors(ActorsToIgnore);
 
 	if (bDebugRenderRayTraces)
 	{
@@ -102,26 +102,38 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 		UKismetSystemLibrary::LineTraceSingle(World, RayCastOrigin, RayCastEnd, ETraceTypeQuery::TraceTypeQuery1, false, {}, EDrawDebugTrace::ForDuration, TmpHitRes, true);
 	}
 
+	while (true) {
+		World->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, ECC_Visibility, QueryParams);
 
-	if (HitResult.bBlockingHit)
-	{
-		//we hit something check whether the hit component is one of our SFGazeTarget components
-		USFGazeTarget* GazeTarget = Cast<USFGazeTarget>(HitResult.GetComponent());
-		if (GazeTarget)
+		if (HitResult.bBlockingHit)
 		{
-			return GazeTarget->GetTargetName();
-		}
-
-		//otherwise the whole actor might be a target:
-		if(HitResult.GetActor())
-		{
-			USFGazeTargetActor* GazeTargetActor = Cast<USFGazeTargetActor>(HitResult.GetActor()->GetComponentByClass(USFGazeTargetActor::StaticClass()));
-			if (GazeTargetActor)
+			//we hit something check whether the hit component is one of our SFGazeTarget components
+			USFGazeTarget* GazeTarget = Cast<USFGazeTarget>(HitResult.GetComponent());
+			if (GazeTarget)
 			{
-				return GazeTargetActor->GetTargetName();
+				return GazeTarget->GetTargetName();
 			}
+
+			//otherwise the whole actor might be a target:
+			if (HitResult.GetActor())
+			{
+				USFGazeTargetActor* GazeTargetActor = Cast<USFGazeTargetActor>(HitResult.GetActor()->GetComponentByClass(USFGazeTargetActor::StaticClass()));
+				if (GazeTargetActor)
+				{
+					return GazeTargetActor->GetTargetName();
+				}
+			}
+			ActorsToIgnore.Add(HitResult.GetActor());
+			QueryParams.AddIgnoredActor(HitResult.GetActor());
+		}
+		else
+		{
+			break;
 		}
 	}
+
+
+
 	return "";
 }
 

@@ -313,7 +313,7 @@ bool USFGameInstance::StartStudy()
 	if(StudySetup && StudySetup->UseGazeTracker != EGazeTrackerMode::NotTracking)
 	{
 		GazeTracker = NewObject<USFGazeTracker>(this, TEXT("GazeTracker"));
-		GazeTracker->Init(StudySetup->UseGazeTracker);
+		GazeTracker->Init(StudySetup->UseGazeTracker, StudySetup->bIgnoreNonGazeTargetActors );
 	}
 
 

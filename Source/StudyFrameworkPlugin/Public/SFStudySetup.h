@@ -73,8 +73,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Experimenter View"))
 	FExperimenterViewConfig ExperimenterViewConfig;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Gaze Tracking"))
 	EGazeTrackerMode UseGazeTracker = EGazeTrackerMode::NotTracking;
+
+	// whether to ignore actors during line of sight trace which are not gaze targets
+	// this can be a very helpful setting if you are using, e.g. a indoor scene and have collision
+	// volumes of many unrelated actors invisibly blocking the gaze trace
+	// CAREFUL: this might also allow gaze tracing through object, which actually should block the view
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Gaze Tracking"))
+	bool bIgnoreNonGazeTargetActors = false;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "Name", Category = "Study Setup"))
 	TArray<USFIndependentVariable*> IndependentVariables;

@@ -77,4 +77,7 @@ private:
 	bool bHMDHUDHelperTextureSet= false;
 
 	bool bShowConditionList = false;
+
+	USFParticipant* UnForwardedParticipant = nullptr;
+	FString UnforwardedStatus;
 };

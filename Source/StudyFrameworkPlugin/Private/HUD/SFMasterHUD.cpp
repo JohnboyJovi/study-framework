@@ -85,6 +85,12 @@ void ASFMasterHUD::BeginPlay()
 
 	HUDWidget->SetData(Data);
 
+	if(UnForwardedParticipant)
+	{
+		//UpdateHUD was called before BeginPlay()
+		UpdateHUD(UnForwardedParticipant, UnforwardedStatus);
+	}
+
 
 	if (USFGameInstance::Get()->IsStarted())
 	{
@@ -132,8 +138,12 @@ bool ASFMasterHUD::IsWidgetPresent() const
 
 void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, const FString& Status)
 {
-	if (HUDWidget == nullptr)
+	if (HUDWidget == nullptr) {
+		//store it and set it later on
+		UnForwardedParticipant = Participant;
+		UnforwardedStatus = Status;
 		return;
+	}
 
 	HUDWidget->SetStatus(Status);
 

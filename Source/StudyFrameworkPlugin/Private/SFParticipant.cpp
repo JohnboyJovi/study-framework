@@ -352,7 +352,7 @@ void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 		TArray<FString> Lines;
 		if (!FFileHelper::LoadANSITextFileToStrings(*Filename, nullptr, Lines))
 		{
-			FSFLoggingUtils::Log("[USFParticipant::RecoverStudyResultsOfFinishedConditions] Cannot read file: " + Filename, true);
+			FSFLoggingUtils::Log("[USFParticipant::RecoverStudyResultsOfFinishedConditions] Cannot read file: " + Filename, false);
 		}
 
 		TArray<FString> HeaderEntries;

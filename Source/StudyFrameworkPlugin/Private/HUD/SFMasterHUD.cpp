@@ -233,6 +233,7 @@ void ASFMasterHUD::OnShowConditionsButtonPressed()
 		ConditionList->SetVisibility(ESlateVisibility::Visible);
 
 		FString LastPhase = "";
+		bool bFirstUnfinishedConditionFound = false;
 
 		const TArray<USFCondition*> Conditions = USFGameInstance::Get()->GetParticipant()->GetAllConditions();
 
@@ -251,6 +252,11 @@ void ASFMasterHUD::OnShowConditionsButtonPressed()
 				GetWorld()->GetFirstPlayerController(), SFConditionListEntryBP_Class);
 			Entry->FillWithCondition(Condition);
 			ConditionList->AddChild(Entry);
+			if (!Condition->IsFinished() && !bFirstUnfinishedConditionFound)
+			{
+				bFirstUnfinishedConditionFound = true;
+				ConditionList->ScrollWidgetIntoView(Entry, false, EDescendantScrollDestination::Center);
+			}
 		}
 	}
 }

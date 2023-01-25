@@ -262,6 +262,11 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 
 	ExperimenterViewConfig = StudySetup->ExperimenterViewConfig;
 
+	if(StudySetup->bPreloadAllMapsOnStart)
+	{
+		PreloadAllMaps(Conditions);
+	}
+
 	if (IsInitialized())
 	{
 		InitFadeHandler(Setup->FadeConfig);
@@ -269,6 +274,23 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	UpdateHUD("Wait for Start");
 }
 
+void USFGameInstance::PreloadAllMaps(const TArray<USFCondition*>& Conditions)
+{
+	TArray<FString> Maps;
+	for(const USFCondition* Condition : Conditions)
+	{
+		if(!Maps.Contains(Condition->Map))
+		{
+			Maps.Add(Condition->Map);
+		}
+	}
+
+	for(FString Map : Maps)
+	{
+		LoadPackage(nullptr, *Map, ELoadFlags::LOAD_None);
+	}
+	FSFLoggingUtils::Log("Sucessfully preloaded all maps.");
+}
 
 
 // ****************************************************************** // 

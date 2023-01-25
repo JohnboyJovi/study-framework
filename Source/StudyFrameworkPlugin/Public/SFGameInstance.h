@@ -157,6 +157,8 @@ protected:
 
 	void PrepareWithStudySetup(ASFStudySetup* Setup);
 
+	void PreloadAllMaps(const TArray<USFCondition*> &Conditions);
+
 	UFUNCTION(BlueprintCallable)
 	void OnWorldStart();
 

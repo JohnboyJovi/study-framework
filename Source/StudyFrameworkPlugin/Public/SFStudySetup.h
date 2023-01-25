@@ -90,6 +90,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	TArray<FString> PhasesToOrderRandomize;
 
+	//whether all maps should be loaded on starting (this increases faded-out waiting during execution)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	bool bPreloadAllMapsOnStart = true;
+
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //

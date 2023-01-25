@@ -212,19 +212,24 @@ void USFCondition::Begin()
 	//TODO: anything else to setup?
 }
 
-bool USFCondition::End()
+TArray<FString> USFCondition::End()
 {
 	const double EndTime = FPlatformTime::Seconds();
 
+	TArray<FString> UnfinishedVars;
 	for (auto Vars : DependentVariablesValues)
 	{
 		if (Vars.Key->bRequired && Vars.Value == "")
 		{
-			return false;
+			UnfinishedVars.Add(Vars.Key->Name);
 		}
+	}
+	if(UnfinishedVars.Num() != 0)
+	{
+		return UnfinishedVars;
 	}
 
 	TimeTaken = EndTime - StartTime;
 	bConditionFinished = true;
-	return true;
+	return {};
 }

@@ -34,6 +34,16 @@ void USFParticipant::SetStudyConditions(TArray<USFCondition*> NewConditions)
 {
 	Conditions = NewConditions;
 
+	TArray<FString> UniqueNames;
+	for(USFCondition* Condition : Conditions)
+	{
+		if(UniqueNames.Contains(Condition->UniqueName))
+		{
+			FSFLoggingUtils::Log("Conditions array contain at least twice a condition with unique name: " + Condition->UniqueName + " Doubling Unique names is problematic!!!", true);
+		}
+		UniqueNames.Add(Condition->UniqueName);
+	}
+
 	// Create initial Json file
 	GenerateExecutionJsonFile();
 }

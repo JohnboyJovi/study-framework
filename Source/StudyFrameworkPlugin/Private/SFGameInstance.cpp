@@ -412,18 +412,25 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced)
 	USFCondition* LastCondition = Participant->GetCurrentCondition();
 	if (LastCondition && LastCondition->WasStarted())
 	{
-		if (!LastCondition->End())
+		TArray<FString> UnfinishedVars = LastCondition->End();
+		if (UnfinishedVars.Num() != 0)
 		{
+			FString Missing = "Missing data for: {";
+			for(FString UnfinishedVar : UnfinishedVars)
+			{
+				Missing += UnfinishedVar + " ";
+			}
+			Missing += "}";
 			if (bForced)
 			{
 				FSFLoggingUtils::Log(
-					"[USFGameInstance::GoToCondition()]: Forced to go to next condition, but current one is not finished!",
+					"[USFGameInstance::GoToCondition()]: Forced to go to next condition, but current one is not finished! " + Missing,
 					true);
 			}
 			else
 			{
 				FSFLoggingUtils::Log(
-					"[USFGameInstance::GoToCondition()]: Cannot go to next condition, since current one is not finished!",
+					"[USFGameInstance::GoToCondition()]: Cannot go to next condition, since current one is not finished! " + Missing,
 					true);
 				return;
 			}

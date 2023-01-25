@@ -70,7 +70,10 @@ protected:
 	bool bConditionFinished=false;
 
 	void Begin();
-	bool End();
+
+	//returns an array of names of required dependent variables that have no data logged yet
+	//if it is empty, everything is fine
+	TArray<FString> End();
 
 
 private:

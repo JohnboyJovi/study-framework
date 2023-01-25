@@ -148,6 +148,7 @@ bool USFGazeTracker::LaunchCalibration()
 	USFLoggingBPLibrary::LogComment("Eye Tracking Calibration failed with error code: " + FString::FromInt(Result) + " (see ViveSR::Error for coding).");
 	return false;
 #endif
+	return false;
 }
 
 bool USFGazeTracker::IsTrackingEyes()

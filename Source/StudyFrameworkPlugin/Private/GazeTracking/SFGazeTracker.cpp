@@ -137,10 +137,16 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 	return "";
 }
 
-void USFGazeTracker::LaunchCalibration()
+bool USFGazeTracker::LaunchCalibration()
 {
 #ifdef WITH_SRANIPAL
-	ViveSR::anipal::Eye::LaunchEyeCalibration(nullptr);
+	int Result = ViveSR::anipal::Eye::LaunchEyeCalibration(nullptr);
+	if(Result == ViveSR::Error::WORK)
+	{
+		return true;
+	}
+	USFLoggingBPLibrary::LogComment("Eye Tracking Calibration failed with error code: " + FString::FromInt(Result) + " (see ViveSR::Error for coding).");
+	return false;
 #endif
 }
 

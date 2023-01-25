@@ -42,8 +42,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FGazeRay GetLocalGazeDirection();
 
+	//return whether calibraction was successful
 	UFUNCTION(BlueprintCallable)
-	void LaunchCalibration();
+	bool LaunchCalibration();
 
 	//whether currently the eyes are tracked, otherwise head-forward is used (this can change during execution if the HMD is taken off etc.)
 	UFUNCTION(BlueprintCallable)

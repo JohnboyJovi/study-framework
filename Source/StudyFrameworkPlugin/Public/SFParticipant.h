@@ -52,6 +52,7 @@ public:
 	const FString& GetParticipantLoggingInfix() const;
 
 	const TPair<USFIndependentVariable*, FString> GetIndependentVariable(const FString& VarName);
+	void SetIndependentVariableValue(const FString& VarName, const FString& Value);
 	void SetIndependentVariablesFromStudySetup(ASFStudySetup* Setup);
 
 	FString GetCurrentTimeAsString() const;
@@ -75,9 +76,11 @@ protected:
 	void LogCurrentParticipant() const;
 
 	void GenerateExecutionJsonFile() const;
+	void UpdateIndependentVarsExecutionJsonFile() const;
 	static void ReadExecutionJsonFile(int ParticipantID, TArray<USFCondition*>& Conditions_Out, TMap<USFIndependentVariable*, FString>& IndependentVariablesValues_Out);
 
 	void StoreInPhaseLongTable() const;
+	void StoreInIndependentVarLongTable() const;
 
 	UPROPERTY()
 	int ParticipantID;

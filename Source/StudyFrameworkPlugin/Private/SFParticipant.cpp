@@ -63,6 +63,38 @@ void USFParticipant::GenerateExecutionJsonFile() const
 	FSFUtils::WriteJsonToFile(Json, "StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
 }
 
+void USFParticipant::UpdateIndependentVarsExecutionJsonFile() const
+{
+	if (ParticipantID == -1)
+	{
+		FSFLoggingUtils::Log(
+			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
+			FString::FromInt(ParticipantID) + " is not to be read, probably called on init so everything is fine!", false);
+		return;
+	}
+	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(
+		"StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
+	if (Json == nullptr)
+	{
+		FSFLoggingUtils::Log(
+			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
+			FString::FromInt(ParticipantID) + " cannot be read!", true);
+		return;
+	}
+
+	TArray<TSharedPtr<FJsonValue>> IndependentArray;
+	for (auto Entry : IndependentVariablesValues) {
+		TSharedPtr<FJsonObject> JsonVar = Entry.Key->GetAsJson();
+		JsonVar->SetStringField("Value", Entry.Value);
+		IndependentArray.Add(MakeShared<FJsonValueObject>(JsonVar));
+	}
+	Json->RemoveField("Independent Variables");
+	Json->SetArrayField("Independent Variables", IndependentArray);
+
+	FSFUtils::WriteJsonToFile(Json, "StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
+
+}
+
 void USFParticipant::ReadExecutionJsonFile(int ParticipantID, TArray<USFCondition*>& Conditions_Out, TMap<USFIndependentVariable*, FString>& IndependentVariablesValues_Out)
 {
 	if(ParticipantID==-1)
@@ -150,6 +182,28 @@ void USFParticipant::StoreInPhaseLongTable() const
 	                              &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 
+void USFParticipant::StoreInIndependentVarLongTable() const
+{
+	FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/IndependentVariables.csv";
+	
+	if (!FPaths::FileExists(Filename)) {
+		FString Header = "ParticipantID";
+		for (auto Var : IndependentVariablesValues) {
+			Header += "," + Var.Key->Name;
+		}
+		Header += "\n";
+		FFileHelper::SaveStringToFile(*Header, *Filename);
+	}
+
+	FString VarValues = FString::FromInt(ParticipantID);
+	for (auto Var : IndependentVariablesValues) {
+		VarValues += "," + Var.Value;
+	}
+	VarValues += "\n";
+	FFileHelper::SaveStringToFile(*VarValues, *Filename, FFileHelper::EEncodingOptions::AutoDetect,
+								  &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
+}
+
 bool USFParticipant::StartStudy()
 {
 	// Set first condition
@@ -165,6 +219,8 @@ void USFParticipant::EndStudy()
 	USFLoggingBPLibrary::LogComment("EndStudy");
 	LogCurrentParticipant();
 	StoreInPhaseLongTable();
+	//save also inpdependent variables if something is configured during the study
+	StoreInIndependentVarLongTable();
 }
 
 USFCondition* USFParticipant::GetCurrentCondition() const
@@ -279,6 +335,19 @@ const TPair<USFIndependentVariable*, FString> USFParticipant::GetIndependentVari
 		}
 	}
 	return TPair<USFIndependentVariable*, FString>(nullptr, "");
+}
+
+void USFParticipant::SetIndependentVariableValue(const FString& VarName, const FString& Value) {
+	bool updated = false;
+	for (auto Elem : IndependentVariablesValues) {
+		if (Elem.Key->Name == VarName) {
+			Elem.Value = Value;
+			updated = true;
+		}
+	}
+	if (updated) {
+		UpdateIndependentVarsExecutionJsonFile();
+	}
 }
 
 void USFParticipant::SetIndependentVariablesFromStudySetup(ASFStudySetup* Setup)

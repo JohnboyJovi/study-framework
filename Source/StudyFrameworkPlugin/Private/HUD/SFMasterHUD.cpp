@@ -194,7 +194,11 @@ void ASFMasterHUD::SetNextConditionButtonVisibility(ESlateVisibility Visibility)
 
 void ASFMasterHUD::DrawBackground()
 {
-	FLinearColor BackgroundColor = USFGameInstance::Get()->GetFadeHandler()->GetFadeConfig().FadeColor;
+	FLinearColor BackgroundColor = FLinearColor::Black;
+	if(USFGameInstance::Get() && USFGameInstance::Get()->GetFadeHandler())
+	{
+		BackgroundColor = USFGameInstance::Get()->GetFadeHandler()->GetFadeConfig().FadeColor;
+	}
 	BackgroundColor.A = BackgroundAlpha;
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	DrawRect(BackgroundColor, 0.0f, 0.0f, ViewportSize.X, ViewportSize.Y);

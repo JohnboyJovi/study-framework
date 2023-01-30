@@ -10,6 +10,10 @@
 
  void USFLoggingBPLibrary::LogData(const FString& DependentVariableName, const FString& Value)
  {
+		if(!USFGameInstance::Get()->GetParticipant())
+		{
+      return;
+		}
      USFCondition* CurrCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition();
      if (!CurrCondition->StoreDependentVariableData(DependentVariableName, Value))
      {

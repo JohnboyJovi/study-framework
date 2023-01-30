@@ -77,7 +77,7 @@ void USFLogObject::CreatePositionLogFile() {
 }
 
 void USFLogObject::WritePositionLogToFile() {
-	if (!USFGameInstance::Get() || !USFGameInstance::Get()->GetLogObject())
+	if (!USFGameInstance::Get() || !USFGameInstance::Get()->GetLogObject() || !USFGameInstance::Get()->GetParticipant())
 	{
 		return;
 	}

@@ -2,6 +2,7 @@
 #include "Engine.h"
 #include "IUniversalLogging.h"
 #include "SFGameInstance.h"
+#include "Logging/SFLogCustomDataComponent.h"
 #include "Logging/SFLoggingUtils.h"
 
 USFLogObject::USFLogObject() {
@@ -70,7 +71,8 @@ void USFLogObject::CreatePositionLogFile() {
 		"\t" + FString("Location-Z") +
 		"\t" + FString("Rotation-Pitch") +
 		"\t" + FString("Rotation-Yaw") +
-		"\t" + FString("Rotation-Roll");
+		"\t" + FString("Rotation-Roll") +
+		"\t" + FString("Optional-Custom-Data");
 	UniLog.Log(PositionLogHeader, "PositionLog");
 
 	bPositionLoggingFileCreated = true;
@@ -107,6 +109,11 @@ void USFLogObject::WritePositionLogToFile() {
 				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentRotation().Pitch) +
 				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentRotation().Yaw) +
 				"\t" + FString::Printf(TEXT("%.3f"), ComponentLoggingInfo.ComponentToLog->GetComponentRotation().Roll);
+			USFLogCustomDataComponent* CustomDataComp = Cast<USFLogCustomDataComponent>(ComponentLoggingInfo.ComponentToLog);
+			if(CustomDataComp)
+			{
+				out += "\t" + CustomDataComp->CustomData;
+			}
 			if (UniLog.GetLogStream("PositionLog"))
 			{
 				UniLog.Log(out, "PositionLog");

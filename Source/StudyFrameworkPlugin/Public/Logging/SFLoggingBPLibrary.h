@@ -23,6 +23,13 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Add Component to Logging", Keywords = "SFLogging"), Category = "SFLogging")
 		static void AddComponent(USceneComponent* Component, int32 LogTimer, FString LogName);
 
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Remove Actor from Logging", Keywords = "SFLogging"), Category = "SFLogging")
+		static void RemoveActor(AActor* Actor);
+
+	//Add component to position logging
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Remove Component from Logging", Keywords = "SFLogging"), Category = "SFLogging")
+		static void RemoveComponent(USceneComponent* Component);
+
 	//Log Data collected for a DependentVariable in this condition
 	UFUNCTION(BlueprintCallable)
 		static void LogData(const FString& DependentVariableName, const FString& Value);

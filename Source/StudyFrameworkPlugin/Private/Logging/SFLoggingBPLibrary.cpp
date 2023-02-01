@@ -54,3 +54,19 @@ void USFLoggingBPLibrary::AddActor(AActor* Actor, int32 LogTimer, FString LogNam
          USFGameInstance::Get()->GetLogObject()->AddComponentWithName(Component, LogTimer, LogName);
      }
  }
+
+void USFLoggingBPLibrary::RemoveActor(AActor* Actor)
+{
+  if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
+  {
+    USFGameInstance::Get()->GetLogObject()->RemoveEntryByComponent(Actor->GetRootComponent());
+  }
+}
+
+void USFLoggingBPLibrary::RemoveComponent(USceneComponent* Component)
+{
+  if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
+  {
+    USFGameInstance::Get()->GetLogObject()->RemoveEntryByComponent(Component);
+  }
+}

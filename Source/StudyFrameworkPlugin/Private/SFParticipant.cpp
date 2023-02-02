@@ -199,9 +199,30 @@ void USFParticipant::StoreInIndependentVarLongTable() const
 	for (auto Var : IndependentVariablesValues) {
 		VarValues += "," + Var.Value;
 	}
-	VarValues += "\n";
-	FFileHelper::SaveStringToFile(*VarValues, *Filename, FFileHelper::EEncodingOptions::AutoDetect,
-								  &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
+
+	FString StartStringSearch = FString::FromInt(ParticipantID) + ",";
+	TArray<FString> ExistingLines;
+	FFileHelper::LoadFileToStringArray(ExistingLines, *Filename);
+	int found = -1;
+	for (int i = 0; i < ExistingLines.Num(); i++) {
+		if (ExistingLines[i].StartsWith(StartStringSearch)) {
+			found = i;
+			break;
+		}
+	}
+	if (found != -1) {
+		ExistingLines[found] = VarValues;
+		FString ToSave = "";
+		for (int i = 0; i < ExistingLines.Num(); i++) {
+			ToSave += ExistingLines[i] + "\n";
+		}
+		FFileHelper::SaveStringToFile(ToSave, *Filename);
+	}
+	else {
+		VarValues += "\n";
+		FFileHelper::SaveStringToFile(*VarValues, *Filename, FFileHelper::EEncodingOptions::AutoDetect,
+			&IFileManager::Get(), EFileWrite::FILEWRITE_Append);
+	}
 }
 
 bool USFParticipant::StartStudy()
@@ -347,6 +368,7 @@ void USFParticipant::SetIndependentVariableValue(const FString& VarName, const F
 	}
 	if (updated) {
 		UpdateIndependentVarsExecutionJsonFile();
+		StoreInIndependentVarLongTable();
 	}
 }
 

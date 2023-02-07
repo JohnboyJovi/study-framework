@@ -123,6 +123,11 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 					return GazeTargetActor->GetTargetName();
 				}
 			}
+			if(!bIgnoreNonGazeTargetActors)
+			{
+				//if we do not want to ignore non-gazetarget actors we are done here after running this loop once
+				return "";
+			}
 			ActorsToIgnore.Add(HitResult.GetActor());
 			QueryParams.AddIgnoredActor(HitResult.GetActor());
 		}

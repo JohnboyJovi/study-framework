@@ -105,7 +105,7 @@ FString USFGazeTracker::GetCurrentGazeTarget()
 	while (true) {
 		World->LineTraceSingleByChannel(HitResult, RayCastOrigin, RayCastEnd, ECC_Visibility, QueryParams);
 
-		if (HitResult.bBlockingHit)
+		if (HitResult.bBlockingHit && HitResult.GetActor())
 		{
 			//we hit something check whether the hit component is one of our SFGazeTarget components
 			USFGazeTarget* GazeTarget = Cast<USFGazeTarget>(HitResult.GetComponent());

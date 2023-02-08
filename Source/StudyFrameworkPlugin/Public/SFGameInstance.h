@@ -127,7 +127,7 @@ public:
 
 	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
 	UFUNCTION(BlueprintCallable, meta=(DeprecatedFunction, DeprecationMessage="Please use SFLoggingBPLibrary::LogComment instead"))
-	void LogComment(const FString& Comment);
+	void LogComment(const FString& Comment, bool bAlsoLogToHUD = true);
 
 	//Log Data collected for a DependentVariable in this condition
 	UFUNCTION(BlueprintCallable, meta = (DeprecatedFunction, DeprecationMessage = "Please use SFLoggingBPLibrary::LogData instead"))

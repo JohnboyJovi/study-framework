@@ -610,9 +610,9 @@ USFLogObject* USFGameInstance::GetLogObject()
 }
 
 //deprecated
-void USFGameInstance::LogComment(const FString& Comment)
+void USFGameInstance::LogComment(const FString& Comment, bool bAlsoLogToHUD /*= true*/)
 {
-	USFLoggingBPLibrary::LogComment(Comment, true);
+	USFLoggingBPLibrary::LogComment(Comment, bAlsoLogToHUD);
 }
 //deprecated
 void USFGameInstance::LogData(const FString& DependenVariableName, const FString& Value)

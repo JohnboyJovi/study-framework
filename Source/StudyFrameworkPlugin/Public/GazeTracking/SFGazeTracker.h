@@ -50,6 +50,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsTrackingEyes();
 
+	// a value (mean of both eyes), how open the eyes are from 0.0 (fully closed), to 1.0 (fully opened), extreme values might not be reached
+	// returns -1.0 if the eyes are not tracked or not value can be estimated
+	UFUNCTION(BlueprintCallable)
+	float GetEyesOpenness();
+
+	// pupil diameter in mm averaged over both eyes
+	// returns 0.0 if the eyes are not tracked or not value can be estimated
+	UFUNCTION(BlueprintCallable)
+	float GetPupilDiameter();
+
 	UPROPERTY(BlueprintReadWrite)
 	bool bDebugRenderRayTraces = false;
 

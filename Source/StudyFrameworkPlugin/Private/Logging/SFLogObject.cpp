@@ -138,7 +138,9 @@ void USFLogObject::CreateGazeTrackingLogFile() {
 		"\t" + FString("TrackingEyes") +
 		"\t" + FString("GazeTarget") +
 		"\t" + FString("Gaze-Origin-X-Y-Z") +
-		"\t" + FString("Gaze-Direction-X-Y-Z");
+		"\t" + FString("Gaze-Direction-X-Y-Z") +
+		"\t" + FString("EyeOpenness") +
+		"\t" + FString("PupilDiameterInMm");
 	UniLog.Log(GazeTrackingLogHeader, "GazeTrackingLog");
 
 	bGazingLoggingFileCreated = true;
@@ -168,6 +170,8 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 								USFGameInstance::Get()->GetParticipant()->GetCurrentCondition()->UniqueName :
 								FString("Debug");
 	FString isTrackingEyes = USFGameInstance::Get()->GetGazeTracker()->IsTrackingEyes() ? "1" : "0";
+	const float EyeOpenness = USFGameInstance::Get()->GetGazeTracker()->GetEyesOpenness();
+	const float PupilDiameter = USFGameInstance::Get()->GetGazeTracker()->GetPupilDiameter();
 	// NOTE: When changing output, update header row (see above)
 	FString out = USFGameInstance::Get()->GetParticipant()->GetCurrentTimeAsString() +
 		"\t" + CurrentCondition +
@@ -178,7 +182,9 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Origin.Z) +
 		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Direction.X) +
 		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Direction.Y) +
-		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Direction.Z);
+		"\t" + FString::Printf(TEXT("%.3f"), GazeTracker->GetWorldGazeDirection().Direction.Z) +
+		"\t" + (EyeOpenness < 0.0f ? "-" : FString::SanitizeFloat(EyeOpenness)) +
+		"\t" + (PupilDiameter <= 0.0f ? "-" : FString::SanitizeFloat(PupilDiameter));
 	if (UniLog.GetLogStream("GazeTrackingLog"))
 	{
 		UniLog.Log(out, "GazeTrackingLog");

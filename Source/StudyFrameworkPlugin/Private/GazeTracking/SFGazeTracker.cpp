@@ -153,6 +153,7 @@ bool USFGazeTracker::LaunchCalibration()
 	USFLoggingBPLibrary::LogComment("Eye Tracking Calibration failed with error code: " + FString::FromInt(Result) + " (see ViveSR::Error for coding).");
 	return false;
 #endif
+	USFLoggingBPLibrary::LogComment("Eye Tracking Calibration cannot be performed, SRAnipalPlugin not present.");
 	return false;
 }
 
@@ -169,5 +170,37 @@ bool USFGazeTracker::IsTrackingEyes()
 	return Data.no_user;
 #endif
 
-	return true;
+	return false;
+}
+
+float USFGazeTracker::GetEyesOpenness()
+{
+	if(!IsTrackingEyes())
+	{
+		return -1.0f;
+	}
+
+#ifdef WITH_SRANIPAL
+	ViveSR::anipal::Eye::EyeData_v2 Data;
+	ViveSR::anipal::Eye::GetEyeData_v2(&Data);
+	return 0.5f * (Data.verbose_data.left.eye_openness + Data.verbose_data.right.eye_openness);
+#endif
+
+	return -1.0f;
+}
+
+float USFGazeTracker::GetPupilDiameter()
+{
+	if (!IsTrackingEyes())
+	{
+		return 0.0f;
+	}
+
+#ifdef WITH_SRANIPAL
+	ViveSR::anipal::Eye::EyeData_v2 Data;
+	ViveSR::anipal::Eye::GetEyeData_v2(&Data);
+	return 0.5f * (Data.verbose_data.left.pupil_diameter_mm + Data.verbose_data.right.pupil_diameter_mm);
+#endif
+
+	return 0.0f;
 }

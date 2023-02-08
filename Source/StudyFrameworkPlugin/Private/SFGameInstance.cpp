@@ -252,6 +252,7 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	}
 	else {
 		Participant->SetIndependentVariablesFromStudySetup(Setup);
+		Participant->StoreInIndependentVarLongTable();
 	}
 	Participant->SetStudyConditions(Conditions);
 

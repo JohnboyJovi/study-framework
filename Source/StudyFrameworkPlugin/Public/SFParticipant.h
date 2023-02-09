@@ -52,6 +52,8 @@ public:
 	const FString& GetParticipantLoggingInfix() const;
 
 	const TPair<USFIndependentVariable*, FString> GetIndependentVariable(const FString& VarName);
+
+	UFUNCTION(BlueprintCallable)
 	void SetIndependentVariableValue(const FString& VarName, const FString& Value);
 	void SetIndependentVariablesFromStudySetup(ASFStudySetup* Setup);
 

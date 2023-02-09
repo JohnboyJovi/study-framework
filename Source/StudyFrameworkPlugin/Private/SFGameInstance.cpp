@@ -484,6 +484,15 @@ FString USFGameInstance::GetFactorLevel(FString FactorName) const
 	return "FactorNotPresent";
 }
 
+FString USFGameInstance::GetIndependentVariableValue(FString VariableName) const
+{
+	if(!GetParticipant())
+	{
+		return "";
+	}
+	return GetParticipant()->GetIndependentVariable(VariableName).Value;
+}
+
 FString USFGameInstance::GetCurrentPhase() const
 {
 	if (!Participant)

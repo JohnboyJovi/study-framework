@@ -72,6 +72,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetFactorLevel(FString FactorName) const;
 
+	//Get value reported for an independet variable or "" if none was recorded
+	UFUNCTION(BlueprintCallable)
+	FString GetIndependentVariableValue(FString VariableName) const;
+
 	UFUNCTION(BlueprintCallable)
 	FString GetCurrentPhase() const;
 
@@ -91,7 +95,7 @@ public:
 	void OnLevelLoaded();
 	UFUNCTION()
 	void OnFadedIn();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	USFParticipant* GetParticipant() const;
 
 

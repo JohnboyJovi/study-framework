@@ -370,13 +370,14 @@ const TPair<USFIndependentVariable*, FString> USFParticipant::GetIndependentVari
 
 void USFParticipant::SetIndependentVariableValue(const FString& VarName, const FString& Value) {
 	bool updated = false;
-	for (auto Elem : IndependentVariablesValues) {
+	for (auto& Elem : IndependentVariablesValues) {
 		if (Elem.Key->Name == VarName) {
 			Elem.Value = Value;
 			updated = true;
 		}
 	}
 	if (updated) {
+		USFLoggingBPLibrary::LogComment("Recorded new value for independent variable " + VarName + ": " + Value);
 		UpdateIndependentVarsExecutionJsonFile();
 		StoreInIndependentVarLongTable();
 	}
@@ -418,6 +419,7 @@ void USFParticipant::SetIndependentVariablesFromStudySetup(ASFStudySetup* Setup)
 			}
 		}
 		IndependentVariablesValues.Add(DuplicateObject(Var, this), Value);
+		USFLoggingBPLibrary::LogComment("Recorded value for independent variable " + Var->Name + ": " + Value);
 	}
 }
 

@@ -242,10 +242,14 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 		}
 	}
 
+	if (StudySetup->bPreloadAllMapsOnStart)
+	{
+		PreloadAllMaps(Conditions);
+	}
+
 
 	// Participant
-	Participant = NewObject<USFParticipant>(this,
-	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
+	Participant = NewObject<USFParticipant>(this, FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
 	Participant->Initialize(ParticipantID);
 	if (bRecoverParticipantData) {
 		Participant->LoadLastParticipantsIndependentVariables();
@@ -263,10 +267,6 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 
 	ExperimenterViewConfig = StudySetup->ExperimenterViewConfig;
 
-	if(StudySetup->bPreloadAllMapsOnStart)
-	{
-		PreloadAllMaps(Conditions);
-	}
 
 	if (IsInitialized())
 	{

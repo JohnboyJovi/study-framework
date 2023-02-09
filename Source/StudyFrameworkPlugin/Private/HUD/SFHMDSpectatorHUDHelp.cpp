@@ -147,6 +147,7 @@ void ASFHMDSpectatorHUDHelp::PerformCustomTrace()
 	FVector WorldDirection = WorldTransform.GetUnitAxis(EAxis::X);
 
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(WidgetInteractionComponentTrace));
+	ActorsToIgnoreInTrace.Remove(nullptr);//remove all invalid actors first
 	Params.AddIgnoredActors(ActorsToIgnoreInTrace);
 
 	FVector LineStartLocation = WorldLocation;
@@ -156,7 +157,7 @@ void ASFHMDSpectatorHUDHelp::PerformCustomTrace()
 
 		GetWorld()->LineTraceSingleByChannel(Hit, LineStartLocation, LineEndLocation, InteractionComponent->TraceChannel, Params);
 	
-		if (!Hit.bBlockingHit) {
+		if (!Hit.bBlockingHit || !Hit.GetActor()) {
 			break;
 		}
 		
@@ -173,8 +174,6 @@ void ASFHMDSpectatorHUDHelp::PerformCustomTrace()
 			ActorsToIgnoreInTrace.Add(Hit.Actor.Get());
 		}
 	}
-
-	//do nothing otherwise, should not be reached
 }
 
 const FVector2D ASFHMDSpectatorHUDHelp::GetSpectatorDisplayResolution()

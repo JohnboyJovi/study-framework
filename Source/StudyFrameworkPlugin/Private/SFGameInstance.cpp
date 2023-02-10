@@ -507,6 +507,12 @@ FString USFGameInstance::GetCurrentPhase() const
 	return Participant->GetCurrentCondition()->PhaseName;
 }
 
+int USFGameInstance::GetCurrentConditionsRunningNumber() const
+{
+	if (!Participant) return -1;
+	return Participant->GetCurrentConditionNumber() + 1;
+}
+
 void USFGameInstance::LogToHUD(FString Text)
 {
 	if (GetWorld()->GetFirstPlayerController() && Cast<ASFMasterHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()) &&
@@ -593,7 +599,7 @@ void USFGameInstance::OnFadedIn()
 	Participant->GetCurrentCondition()->Begin();
 	USFLoggingBPLibrary::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
 
-	UpdateHUD("Condition "+FString::FromInt(Participant->GetCurrentConditionNumber()+1)+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
+	UpdateHUD("Condition "+FString::FromInt(GetCurrentConditionsRunningNumber())+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
 }
 
 USFParticipant* USFGameInstance::GetParticipant() const

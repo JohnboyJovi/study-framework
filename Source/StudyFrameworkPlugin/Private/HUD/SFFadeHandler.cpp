@@ -56,6 +56,11 @@ void USFFadeHandler::Tick()
 			SetTimerForNextTick();
 			FadeState = EFadeState::WaitForLevelLoaded;
 		}
+		else if(USFGameInstance::Get()->HasEnded())
+		{
+			//we quit the game
+			UKismetSystemLibrary::QuitGame(USFGameInstance::Get()->GetWorld(), nullptr, EQuitPreference::Quit, false);
+		}
 		//else just do nothing so we stay faded out NewLevelName=="" is the case for a simple FadeOut()
 		break;
 

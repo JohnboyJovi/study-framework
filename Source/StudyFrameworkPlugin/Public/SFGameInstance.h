@@ -62,6 +62,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsStarted() const;
 
+	//Whether the study is done (this is actually only true for a short duration), as once faded out Unreal is quit
+	UFUNCTION(BlueprintCallable)
+	bool HasEnded() const;
+
+	
+
 	//the time that passed since the start of the study in seconds
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentTime() const;
@@ -190,8 +196,11 @@ protected:
 	USFCondition* StartCondition;
 
 	// State of Study / GameInstance
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	bool bStudyStarted = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bStudyEnded = false;
 
 	//singleton object of this class, to easier access it
 	static USFGameInstance* Instance;

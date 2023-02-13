@@ -45,6 +45,9 @@ void USFGameInstance::Init()
 	// Register delegate for ticker callback
 	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateUObject(this, &USFGameInstance::LogTick));
 	LogObject->Initialize();
+
+	bStudyStarted = false;
+	bStudyEnded = false;
 }
 
 void USFGameInstance::Shutdown()
@@ -358,6 +361,7 @@ void USFGameInstance::EndStudy()
 		GetHUD()->SetNextConditionButtonVisibility(ESlateVisibility::Collapsed);
 	}
 
+	bStudyEnded = true;
 	FadeHandler->FadeOut();
 }
 
@@ -458,6 +462,11 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced)
 bool USFGameInstance::IsStarted() const
 {
 	return bStudyStarted;
+}
+
+bool USFGameInstance::HasEnded() const
+{
+	return bStudyEnded;
 }
 
 float USFGameInstance::GetCurrentTime() const

@@ -3,6 +3,7 @@
 #include "UObject/UObjectGlobals.h"
 
 #include "SFMapFactor.h"
+#include "Logging/SFLoggingBPLibrary.h"
 #include "Logging/SFLoggingUtils.h"
 
 USFCondition::USFCondition()
@@ -231,5 +232,8 @@ TArray<FString> USFCondition::End()
 
 	TimeTaken = EndTime - StartTime;
 	bConditionFinished = true;
+
+	USFLoggingBPLibrary::LogComment("EndCondition");
+
 	return {};
 }

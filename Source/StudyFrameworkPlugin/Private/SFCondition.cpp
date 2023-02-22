@@ -203,12 +203,13 @@ void USFCondition::Begin()
 {
 	StartTime = FPlatformTime::Seconds();
 
-	for (auto Vars : DependentVariablesValues)
+	for (auto& Vars : DependentVariablesValues)
 	{
 		Vars.Value = "";
 	}
 
 	bStarted = true;
+	bConditionFinished = false;
 
 	//TODO: anything else to setup?
 }

@@ -6,6 +6,7 @@
 
 #include "IUniversalLogging.h"
 #include "SFGameInstance.h"
+#include "HAL/FileManagerGeneric.h"
 #include "Help/SFUtils.h"
 #include "Logging/SFLoggingBPLibrary.h"
 #include "Logging/SFLoggingUtils.h"
@@ -479,15 +480,16 @@ void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 
 void USFParticipant::ClearPhaseLongtables(ASFStudySetup* StudySetup)
 {
-	for (int i = 0; i < StudySetup->GetNumberOfPhases(); ++i)
+	const FString LongTableFolder = FPaths::ProjectDir() + "StudyFramework/StudyLogs/";
+	const FString Extension = "*.csv";
+	const FString SearchPattern = LongTableFolder + Extension;
+	TArray<FString> FileNames;
+	IFileManager& FileManager = IFileManager::Get();
+	FileManager.FindFiles(FileNames, *SearchPattern, true, false);
+	for (FString Filename : FileNames)
 	{
-		const FString PhaseName = StudySetup->GetPhase(i)->PhaseName;
-		const FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + PhaseName + ".csv";
-		if (FPaths::FileExists(Filename))
-		{
-			IFileManager& FileManager = IFileManager::Get();
-			FileManager.Delete(*Filename);
-		}
+		const FString FullName = LongTableFolder + Filename;
+		FileManager.Delete(*FullName);
 	}
 }
 

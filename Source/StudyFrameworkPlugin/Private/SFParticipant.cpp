@@ -165,6 +165,11 @@ void USFParticipant::StoreInPhaseLongTable() const
 	if (!FPaths::FileExists(Filename))
 	{
 		FString Header = "ParticipantID";
+		for(auto IV : IndependentVariablesValues)
+		{
+			Header += "," + IV.Key->Name;
+		}
+		Header += ",Phase";
 		for (auto Factor : CurrCondition->FactorLevels)
 		{
 			Header += "," + Factor.Key;
@@ -178,6 +183,11 @@ void USFParticipant::StoreInPhaseLongTable() const
 	}
 
 	FString ConditionResults = FString::FromInt(ParticipantID);
+	for (auto IV : IndependentVariablesValues)
+	{
+		ConditionResults += "," + IV.Value;
+	}
+	ConditionResults += "," + CurrCondition->PhaseName;
 	for (auto Factor : CurrCondition->FactorLevels)
 	{
 		ConditionResults += "," + Factor.Value;

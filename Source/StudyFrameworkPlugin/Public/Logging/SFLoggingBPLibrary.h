@@ -30,14 +30,14 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Remove Component from Logging", Keywords = "SFLogging"), Category = "SFLogging")
 		static void RemoveComponent(USceneComponent* Component);
 
-	//Log Data collected for a DependentVariable in this condition
+	//Log Data collected for a SFDependentVariable in this condition
 	UFUNCTION(BlueprintCallable)
 		static void LogData(const FString& DependentVariableName, const FString& Value);
 
 	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
 	//and optionally log to HUD (default=false)
 	UFUNCTION(BlueprintCallable)
-		static void LogComment(const FString& Comment, bool AlsoLogToHUD = false);
+		static void LogComment(const FString& Comment, bool bAlsoLogToHUD = false);
 
 	//Log something to the HUD, for debugging or giving information to the experimentator
 	UFUNCTION(BlueprintCallable)

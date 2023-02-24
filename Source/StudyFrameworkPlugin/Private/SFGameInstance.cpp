@@ -660,4 +660,24 @@ void USFGameInstance::LogData(const FString& DependentVariableName, const FStrin
 
 	//the data is stored in the phase long table on SetCondition() or EndStudy()
 }
+
+void USFGameInstance::LogTrialData(const FString& DependentVariableName, const TArray<FString>& Values)
+{
+	if (!GetParticipant())
+	{
+		return;
+	}
+	USFCondition* CurrCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition();
+	if (!CurrCondition->StoreMultipleTrialDependentVariableData(DependentVariableName, Values))
+	{
+		return;
+	}
+
+	FString Data = "";
+	for (const FString& Value : Values)
+	{
+		Data += (Data.IsEmpty() ? "{" : ",") + Value;
+	}
+	Data += "}";
+	LogComment("Recorded " + DependentVariableName + ": " + Data);
 }

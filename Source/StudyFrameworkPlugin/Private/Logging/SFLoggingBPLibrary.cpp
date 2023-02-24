@@ -13,6 +13,10 @@ void USFLoggingBPLibrary::LogData(const FString& DependentVariableName, const FS
   USFGameInstance::Get()->LogData(DependentVariableName, Value);
 }
 
+void USFLoggingBPLibrary::LogTrialData(const FString& DependentVariableName, const TArray<FString>& Values)
+{
+  USFGameInstance::Get()->LogTrialData(DependentVariableName, Values);
+}
 
 void USFLoggingBPLibrary::LogComment(const FString& Comment, bool bAlsoLogToHUD /*=false*/)
 {

@@ -8,6 +8,7 @@
 #include "SFStudySetup.h"
 #include "SFStudyPhase.h"
 #include "SFCondition.h"
+#include "SFMultipleTrialDependentVariable.h"
 
 
 #include "SFParticipant.generated.h"
@@ -69,6 +70,8 @@ public:
 	// of that data (e.g. if study is entirely restarted)
 	// So: USE WITH CARE!
 	static void ClearPhaseLongtables(ASFStudySetup* StudySetup);
+
+	void StoreTrialInPhaseLongTable(USFMultipleTrialDependentVariable* DependentVariable, TArray<FString> Values) const;
 
 
 protected:

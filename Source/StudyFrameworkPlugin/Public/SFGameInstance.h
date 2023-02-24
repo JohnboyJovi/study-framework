@@ -148,6 +148,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LogData(const FString& DependentVariableName, const FString& Value);
 
+	//Log Data collected for a SFMultipleTrialDependentVariable in this condition
+	UFUNCTION(BlueprintCallable)
+	void LogTrialData(const FString& DependentVariableName, const TArray<FString>& Values);
+
 	//Is called once per tick, calls appropriate logging functions
 	bool LogTick(float DeltaSeconds);
 

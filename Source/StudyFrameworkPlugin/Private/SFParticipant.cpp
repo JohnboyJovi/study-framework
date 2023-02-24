@@ -174,9 +174,14 @@ void USFParticipant::StoreInPhaseLongTable() const
 		{
 			Header += "," + Factor.Key;
 		}
-		for (auto Var : CurrCondition->DependentVariablesValues)
+		for (auto Var : CurrCondition->DependentVariables)
 		{
-			Header += "," + Var.Key->Name;
+			if(Cast<USFMultipleTrialDependentVariable>(Var))
+			{
+				//those are stored in their own files
+				continue;
+			}
+			Header += "," + Var->Name;
 		}
 		Header += ",Time\n";
 		FFileHelper::SaveStringToFile(*Header, *Filename);
@@ -192,15 +197,68 @@ void USFParticipant::StoreInPhaseLongTable() const
 	{
 		ConditionResults += "," + Factor.Value;
 	}
-	for (auto Var : CurrCondition->DependentVariablesValues)
+	for (auto Var : CurrCondition->DependentVariables)
 	{
-		ConditionResults += "," + Var.Value;
+		if (Cast<USFMultipleTrialDependentVariable>(Var))
+		{
+			//those are stored in their own files
+			continue;
+		}
+		ConditionResults += "," + Var->Value;
 	}
 	ConditionResults += "," + FString::Printf(TEXT("%.2f"), CurrCondition->GetTimeTaken());
 	//append this
 	ConditionResults += "\n";
 	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::AutoDetect,
 	                              &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
+}
+
+void USFParticipant::StoreTrialInPhaseLongTable(USFMultipleTrialDependentVariable* DependentVariable, TArray<FString> Values) const
+{
+	USFCondition* CurrCondition = GetCurrentCondition();
+	FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + CurrCondition->PhaseName + "_" + DependentVariable->Name + ".csv";
+
+	if (!FPaths::FileExists(Filename))
+	{
+		FString Header = "ParticipantID";
+		for (auto IV : IndependentVariablesValues)
+		{
+			Header += "," + IV.Key->Name;
+		}
+		Header += ",Phase";
+		for (auto Factor : CurrCondition->FactorLevels)
+		{
+			Header += "," + Factor.Key;
+		}
+		Header += ",Trial";
+		for (const FString& SubName : DependentVariable->SubVariableNames)
+		{
+			Header += "," + SubName;
+		}
+		Header += "\n";
+		FFileHelper::SaveStringToFile(*Header, *Filename);
+	}
+
+	FString TrialResult = FString::FromInt(ParticipantID);
+	for (auto IV : IndependentVariablesValues)
+	{
+		TrialResult += "," + IV.Value;
+	}
+	TrialResult += "," + CurrCondition->PhaseName;
+	for (auto Factor : CurrCondition->FactorLevels)
+	{
+		TrialResult += "," + Factor.Value;
+	}
+	TrialResult += "," + FString::FromInt(DependentVariable->Values.size());
+	for (const FString& Value : Values)
+	{
+		TrialResult += "," + Value;
+	}
+
+	//append this
+	TrialResult += "\n";
+	FFileHelper::SaveStringToFile(*TrialResult, *Filename, FFileHelper::EEncodingOptions::AutoDetect,
+		&IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 
 void USFParticipant::StoreInIndependentVarLongTable() const
@@ -466,7 +524,7 @@ void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 		TArray<FString> Lines;
 		if (!FFileHelper::LoadANSITextFileToStrings(*Filename, nullptr, Lines))
 		{
-			FSFLoggingUtils::Log("[USFParticipant::RecoverStudyResultsOfFinishedConditions] Cannot read file: " + Filename, false);
+			FSFLoggingUtils::Log("[USFParticipant::RecoverStudyResultsOfFinishedConditions] Cannot read file: " + Filename + " (probably there was no data recorded yet).", false);
 		}
 
 		TArray<FString> HeaderEntries;
@@ -483,6 +541,15 @@ void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 			if(Entries.Num()>0 && FCString::Atoi(*Entries[0]) == ParticipantID)
 			{
 				Condition->RecoverStudyResults(HeaderEntries, Entries);
+			}
+		}
+
+		//now also recover SFMultipleTrialDependentVariable data:
+		for(USFDependentVariable* Var : Condition->DependentVariables)
+		{
+			if(auto MultiTrialVar = Cast<USFMultipleTrialDependentVariable>(Var))
+			{
+				MultiTrialVar->RecoverStudyResults(Condition, ParticipantID);
 			}
 		}
 	}

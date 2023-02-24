@@ -34,6 +34,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		static void LogData(const FString& DependentVariableName, const FString& Value);
 
+	//Log Data collected for a SFMultipleTrialDependentVariable in this condition
+	UFUNCTION(BlueprintCallable)
+		static void LogTrialData(const FString& DependentVariableName, const TArray<FString>& Values);
+
 	//Log a comment (with a timestamp) to store events or user action etc. in the participant's log file
 	//and optionally log to HUD (default=false)
 	UFUNCTION(BlueprintCallable)

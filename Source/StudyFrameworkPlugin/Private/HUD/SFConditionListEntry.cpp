@@ -18,11 +18,11 @@ void USFConditionListEntry::FillWithCondition(const USFCondition* InCondition)
 		Data.Add(Factor.Value);
 	}
 	TextBlockIdToDependentVar.Empty();
-	for (auto DependentVar : Condition->DependentVariablesValues)
+	for (auto DependentVar : Condition->DependentVariables)
 	{
-		TextBlockIdToDependentVar.Add(Data.Num() - 2, DependentVar.Key);
+		TextBlockIdToDependentVar.Add(Data.Num() - 2, DependentVar);
 		//-2 since the first two elements of Data or not mapped to the text fields
-		Data.Add(DependentVar.Value == "" ? "-" : DependentVar.Value);
+		Data.Add(DependentVar->Value == "" ? "-" : DependentVar->Value);
 	}
 	FillTextsHelper(Data);
 	IsHeader = false;
@@ -38,9 +38,9 @@ void USFConditionListEntry::FillAsPhaseHeader(const USFCondition* InCondition)
 	{
 		Data.Add(Factor.Key);
 	}
-	for (auto DependentVar : Condition->DependentVariablesValues)
+	for (auto DependentVar : Condition->DependentVariables)
 	{
-		Data.Add(DependentVar.Key->Name);
+		Data.Add(DependentVar->Name);
 	}
 	FillTextsHelper(Data);
 	GoToButton->SetVisibility(ESlateVisibility::Hidden);
@@ -69,7 +69,7 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 			MissingTexts += "}";
 			FSFLoggingUtils::Log(
 				"[USFConditionListEntry::FillTextsHelper] to few text fields to show everything, " + FString::FromInt(
-					Condition->FactorLevels.Num() + Condition->DependentVariablesValues.Num()) +
+					Condition->FactorLevels.Num() + Condition->DependentVariables.Num()) +
 				" text fields would be needed. Not showing: " + MissingTexts, false);
 			EceteraText->SetVisibility(ESlateVisibility::Visible);
 			return;
@@ -132,7 +132,7 @@ void USFConditionListEntry::UpdateData()
 		}
 		else
 		{
-			FString Value = Condition->DependentVariablesValues[TextBlockIdToDependentVar[i]];
+			FString Value = TextBlockIdToDependentVar[i]->Value;
 			if (Value == "")
 			{
 				continue;

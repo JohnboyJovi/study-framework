@@ -12,12 +12,18 @@ class STUDYFRAMEWORKPLUGIN_API USFDependentVariable : public UObject
 public:
 	USFDependentVariable();
 
-	TSharedPtr<FJsonObject> GetAsJson() const;
-	void FromJson(TSharedPtr<FJsonObject> Json);
+	virtual TSharedPtr<FJsonObject> GetAsJson() const;
+	static USFDependentVariable* FromJson(TSharedPtr<FJsonObject> Json, UObject* Outer);
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString Name = "undefined";
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bRequired = true; //potentially there are variables that are not required in every execution
+
+	FString Value = "";
+
+protected:
+
+	virtual void FromJsonInternal(TSharedPtr<FJsonObject> Json);
 };

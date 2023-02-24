@@ -302,8 +302,7 @@ void USFStudyPhase::FromJson(TSharedPtr<FJsonObject> Json)
 	TArray<TSharedPtr<FJsonValue>> DependentVarsArray = Json->GetArrayField("Dependent Variables");;
 	for (auto Var : DependentVarsArray)
 	{
-		USFDependentVariable* DependentVariable = NewObject<USFDependentVariable>(this);
-		DependentVariable->FromJson(Var->AsObject());
+		USFDependentVariable* DependentVariable = USFDependentVariable::FromJson(Var->AsObject(), this);
 		DependentVariables.Add(DependentVariable);
 	}
 }

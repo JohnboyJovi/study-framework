@@ -17,5 +17,14 @@ class STUDYFRAMEWORKPLUGIN_API USFMapFactor : public USFStudyFactor
 public:
 	USFMapFactor();
 
-	TSharedPtr<FJsonObject> GetAsJson() const override;
+	virtual TSharedPtr<FJsonObject> GetAsJson() const override;
+	virtual void FromJson(TSharedPtr<FJsonObject> Json) override;
+
+#if WITH_EDITOR
+	virtual bool CanEditChange(const FProperty* InProperty) const override;
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TArray<TAssetPtr<UWorld>> Maps;
 };

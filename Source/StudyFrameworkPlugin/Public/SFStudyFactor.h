@@ -30,7 +30,7 @@ public:
 	USFStudyFactor();
 
 	virtual TSharedPtr<FJsonObject> GetAsJson() const;
-	void FromJson(TSharedPtr<FJsonObject> Json);
+	virtual void FromJson(TSharedPtr<FJsonObject> Json);
 
 #if WITH_EDITOR
 	//check what properties can be changed/used dependent on other properties

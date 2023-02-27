@@ -18,11 +18,17 @@ void USFConditionListEntry::FillWithCondition(const USFCondition* InCondition)
 		Data.Add(Factor.Value);
 	}
 	TextBlockIdToDependentVar.Empty();
-	for (auto DependentVar : Condition->DependentVariablesValues)
+	for (auto DependentVar : Condition->DependentVariables)
 	{
-		TextBlockIdToDependentVar.Add(Data.Num() - 2, DependentVar.Key);
+		TextBlockIdToDependentVar.Add(Data.Num() - 2, DependentVar);
 		//-2 since the first two elements of Data or not mapped to the text fields
-		Data.Add(DependentVar.Value == "" ? "-" : DependentVar.Value);
+		if(auto MultiTrialVar = Cast<USFMultipleTrialDependentVariable>(DependentVar))
+		{
+			Data.Add("# Trials: " + FString::FromInt(MultiTrialVar->Values.size()));
+		}
+		else {
+			Data.Add(DependentVar->Value == "" ? "-" : DependentVar->Value);
+		}
 	}
 	FillTextsHelper(Data);
 	IsHeader = false;
@@ -38,9 +44,9 @@ void USFConditionListEntry::FillAsPhaseHeader(const USFCondition* InCondition)
 	{
 		Data.Add(Factor.Key);
 	}
-	for (auto DependentVar : Condition->DependentVariablesValues)
+	for (auto DependentVar : Condition->DependentVariables)
 	{
-		Data.Add(DependentVar.Key->Name);
+		Data.Add(DependentVar->Name);
 	}
 	FillTextsHelper(Data);
 	GoToButton->SetVisibility(ESlateVisibility::Hidden);
@@ -69,7 +75,7 @@ void USFConditionListEntry::FillTextsHelper(const TArray<FString>& Data)
 			MissingTexts += "}";
 			FSFLoggingUtils::Log(
 				"[USFConditionListEntry::FillTextsHelper] to few text fields to show everything, " + FString::FromInt(
-					Condition->FactorLevels.Num() + Condition->DependentVariablesValues.Num()) +
+					Condition->FactorLevels.Num() + Condition->DependentVariables.Num()) +
 				" text fields would be needed. Not showing: " + MissingTexts, false);
 			EceteraText->SetVisibility(ESlateVisibility::Visible);
 			return;
@@ -116,10 +122,6 @@ void USFConditionListEntry::UpdateData()
 	TArray<UTextBlock*> Texts = {Text0, Text1, Text2, Text3, Text4, Text5, Text6, Text7, Time};
 	for (int i = 0; i < Texts.Num(); ++i)
 	{
-		if (Texts[i]->Text.ToString() != "-")
-		{
-			continue;
-		}
 		FString NewValue = "";
 		//if it is "-" check whether we have new data?
 		if (i == Texts.Num() - 1) //Time
@@ -132,12 +134,24 @@ void USFConditionListEntry::UpdateData()
 		}
 		else
 		{
-			FString Value = Condition->DependentVariablesValues[TextBlockIdToDependentVar[i]];
-			if (Value == "")
+			if(!TextBlockIdToDependentVar.Contains(i))
 			{
 				continue;
 			}
-			NewValue = Value;
+
+			USFDependentVariable* DependentVar = TextBlockIdToDependentVar[i];
+			if (auto MultiTrialVar = Cast<USFMultipleTrialDependentVariable>(DependentVar))
+			{
+				NewValue = "# Trials: " + FString::FromInt(MultiTrialVar->Values.size());
+			}
+			else {
+				FString Value = TextBlockIdToDependentVar[i]->Value;
+				if (Value == "")
+				{
+					continue;
+				}
+				NewValue = Value;
+			}
 		}
 		Texts[i]->SetText(FText::FromString(NewValue));
 	}

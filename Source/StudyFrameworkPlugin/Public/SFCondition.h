@@ -31,6 +31,7 @@ public:
 
 	//returns false if a variable with that name does not exist
 	bool StoreDependentVariableData(const FString& VarName, const FString& Value);
+	bool StoreMultipleTrialDependentVariableData(const FString& VarName, const TArray<FString>& Values);
 
 	float GetTimeTaken() const;
 	bool IsFinished() const;
@@ -54,7 +55,7 @@ public:
 	TMap<FString,FString> FactorLevels;
 
 	UPROPERTY(BlueprintReadOnly)
-	TMap<USFDependentVariable*,FString> DependentVariablesValues;
+	TArray<USFDependentVariable*> DependentVariables;
 
 	FString CreateIdentifiableName();
 
@@ -75,6 +76,7 @@ protected:
 	//if it is empty, everything is fine
 	TArray<FString> End();
 
+	USFDependentVariable* GetDependentVarForDataStoring(const FString& VarName, const FString& Data);
 
 private:
 

@@ -1,8 +1,10 @@
 #include "SFCondition.h"
 
+#include "SFGameInstance.h"
 #include "UObject/UObjectGlobals.h"
 
 #include "SFMapFactor.h"
+#include "SFMultipleTrialDependentVariable.h"
 #include "Logging/SFLoggingBPLibrary.h"
 #include "Logging/SFLoggingUtils.h"
 
@@ -32,7 +34,7 @@ void USFCondition::Generate(const FString& InPhaseName, const TArray<int>& Condi
 
 	for (USFDependentVariable* Var : DependentVars)
 	{
-		DependentVariablesValues.Add(DuplicateObject(Var, this), "");
+		DependentVariables.Add(DuplicateObject(Var, this));
 	}
 	UniqueName = CreateIdentifiableName();
 }
@@ -53,9 +55,9 @@ TSharedPtr<FJsonObject> USFCondition::GetAsJson() const
 	Json->SetObjectField("FactorLevels", FactorLevelsJson);
 
 	TArray<TSharedPtr<FJsonValue>> DependentVariablesArray;
-	for (auto Var : DependentVariablesValues)
+	for (auto Var : DependentVariables)
 	{
-		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(Var.Key->GetAsJson());
+		TSharedRef<FJsonValueObject> JsonValue = MakeShared<FJsonValueObject>(Var->GetAsJson());
 		DependentVariablesArray.Add(JsonValue);
 	}
 	Json->SetArrayField("DependentVariables", DependentVariablesArray);
@@ -77,9 +79,8 @@ void USFCondition::FromJson(TSharedPtr<FJsonObject> Json)
 	TArray<TSharedPtr<FJsonValue>> DependentVariablesArray = Json->GetArrayField("DependentVariables");
 	for (auto Var : DependentVariablesArray)
 	{
-		USFDependentVariable* DependentVariable = NewObject<USFDependentVariable>();
-		DependentVariable->FromJson(Var->AsObject());
-		DependentVariablesValues.Add(DependentVariable, "");
+		USFDependentVariable* DependentVariable = USFDependentVariable::FromJson(Var->AsObject(), this);
+		DependentVariables.Add(DependentVariable);
 	}
 }
 
@@ -106,35 +107,90 @@ bool USFCondition::operator==(USFCondition& Other)
 
 bool USFCondition::StoreDependentVariableData(const FString& VarName, const FString& Value)
 {
-	if(!WasStarted())
+	USFDependentVariable* DependentVariable = GetDependentVarForDataStoring(VarName, Value);
+	if(!DependentVariable)
+	{
+		return false;
+	}
+
+	DependentVariable->Value = Value;
+	return true;
+}
+
+bool USFCondition::StoreMultipleTrialDependentVariableData(const FString& VarName, const TArray<FString>& Values)
+{
+	//construct a string representation of the data for error logging
+	FString Data = "";
+	for(const FString& Value : Values)
+	{
+		Data += (Data.IsEmpty() ? "{" : ",") + Value;
+	}
+	Data += "}";
+
+	USFDependentVariable* DependentVariable = GetDependentVarForDataStoring(VarName, Data);
+	if(!DependentVariable)
+	{
+		return false;
+	}
+	USFMultipleTrialDependentVariable* TrialDependentVar = Cast<USFMultipleTrialDependentVariable>(DependentVariable);
+	if (DependentVariable && !TrialDependentVar)
 	{
 		FSFLoggingUtils::Log(
-			"Cannot log data '" + Value + "' for dependent variable '" + VarName +
-			"' since condition was not started yet, probably still fading!", true);
+			"Cannot log data '" + Data + "' for multiple trial dependent variable '" + VarName +
+			"' since it is not a USFMultipleTrialDependentVariable but just USFDependentVariable!", true);
 		return false;
+	}
+	if (TrialDependentVar->SubVariableNames.Num() != Values.Num())
+	{
+		FSFLoggingUtils::Log(
+			"Cannot log data '" + Data + "' for multiple trial dependent variable '" + VarName +
+			"' since it has a wrong amount of entries, " + FString::FromInt(TrialDependentVar->SubVariableNames.Num()) +
+			" were expected!", true);
+		return false;
+	}
+
+	USFGameInstance::Get()->GetParticipant()->StoreTrialInPhaseLongTable(TrialDependentVar, Values);
+
+	std::vector<FString> ValuesVector;
+	for(const FString& Value : Values)
+	{
+		ValuesVector.push_back(Value);
+	}
+	TrialDependentVar->Values.push_back(ValuesVector);
+	
+	return true;
+}
+
+USFDependentVariable* USFCondition::GetDependentVarForDataStoring(const FString& VarName, const FString& Data)
+{
+	if (!WasStarted())
+	{
+		FSFLoggingUtils::Log(
+			"Cannot log data '" + Data + "' for dependent variable '" + VarName +
+			"' since condition was not started yet, probably still fading!", true);
+		return nullptr;
 	}
 
 	if (IsFinished())
 	{
 		FSFLoggingUtils::Log(
-			"Cannot log data '" + Value + "' for dependent variable '" + VarName +
+			"Cannot log data '" + Data + "' for dependent variable '" + VarName +
 			"' since condition was has finished, probably already fading!", true);
-		return false;
+		return nullptr;
 	}
 
-	for (auto& Var : DependentVariablesValues)
+	for (auto& Var : DependentVariables)
 	{
-		if (Var.Key->Name == VarName)
+		if (Var->Name == VarName)
 		{
-			Var.Value = Value;
-			return true;
+			return Var;
 		}
 	}
 
 	FSFLoggingUtils::Log(
-		"Cannot log data '" + Value + "' for dependent variable '" + VarName +
+		"Cannot log data '" + Data + "' for dependent variable '" + VarName +
 		"' since it does not exist for this condition!", true);
-	return false;
+	return nullptr;
 }
 
 float USFCondition::GetTimeTaken() const
@@ -149,9 +205,9 @@ bool USFCondition::IsFinished() const
 
 bool USFCondition::HasRequiredVariables() const
 {
-	for (auto Var : DependentVariablesValues)
+	for (auto Var : DependentVariables)
 	{
-		if (Var.Key->bRequired)
+		if (Var->bRequired)
 		{
 			return true;
 		}
@@ -177,9 +233,14 @@ bool USFCondition::RecoverStudyResults(TArray<FString>& Header, TArray<FString>&
 	}
 
 	//so this is the right condition
-	for (auto& DepVar : DependentVariablesValues)
+	for (auto& DepVar : DependentVariables)
 	{
-		DepVar.Value = Entries[Header.Find(DepVar.Key->Name)];
+		if(Cast<USFMultipleTrialDependentVariable>(DepVar))
+		{
+			//this is done in USFMultipleTrialDependetVariable::RecoverStudyResults()
+			continue;
+		}
+		DepVar->Value = Entries[Header.Find(DepVar->Name)];
 	}
 	TimeTaken = FCString::Atof(*Entries[Entries.Num()-1]);
 	bConditionFinished = true;
@@ -203,15 +264,17 @@ void USFCondition::Begin()
 {
 	StartTime = FPlatformTime::Seconds();
 
-	for (auto& Vars : DependentVariablesValues)
+	for (auto& Var : DependentVariables)
 	{
-		Vars.Value = "";
+		if(auto MultiTrialVar = Cast<USFMultipleTrialDependentVariable>(Var))
+		{
+			MultiTrialVar->Values.clear();
+		}
+		Var->Value = "";
 	}
 
 	bStarted = true;
 	bConditionFinished = false;
-
-	//TODO: anything else to setup?
 }
 
 TArray<FString> USFCondition::End()
@@ -219,11 +282,18 @@ TArray<FString> USFCondition::End()
 	const double EndTime = FPlatformTime::Seconds();
 
 	TArray<FString> UnfinishedVars;
-	for (auto Vars : DependentVariablesValues)
+	for (auto Var : DependentVariables)
 	{
-		if (Vars.Key->bRequired && Vars.Value == "")
+		if(auto MultiTrial = Cast<USFMultipleTrialDependentVariable>(Var))
 		{
-			UnfinishedVars.Add(Vars.Key->Name);
+			if(MultiTrial->bRequired && MultiTrial->Values.size()==0)
+			{
+				UnfinishedVars.Add(Var->Name);
+			}
+		}
+		else if (Var->bRequired && Var->Value == "")
+		{
+			UnfinishedVars.Add(Var->Name);
 		}
 	}
 	if(UnfinishedVars.Num() != 0)
@@ -238,3 +308,5 @@ TArray<FString> USFCondition::End()
 
 	return {};
 }
+
+

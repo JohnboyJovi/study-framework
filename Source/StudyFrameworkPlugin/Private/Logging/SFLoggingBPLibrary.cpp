@@ -8,31 +8,20 @@
 #include "Logging/SFLoggingUtils.h"
 #include "Logging/SFLogObject.h"
 
- void USFLoggingBPLibrary::LogData(const FString& DependentVariableName, const FString& Value)
- {
-		if(!USFGameInstance::Get()->GetParticipant())
-		{
-      return;
-		}
-     USFCondition* CurrCondition = USFGameInstance::Get()->GetParticipant()->GetCurrentCondition();
-     if (!CurrCondition->StoreDependentVariableData(DependentVariableName, Value))
-     {
-         return;
-     }
-     LogComment("Recorded " + DependentVariableName + ": " + Value);
+void USFLoggingBPLibrary::LogData(const FString& DependentVariableName, const FString& Value)
+{
+  USFGameInstance::Get()->LogData(DependentVariableName, Value);
+}
 
-     //the data is stored in the phase long table on SetCondition() or EndStudy()
- }
+void USFLoggingBPLibrary::LogTrialData(const FString& DependentVariableName, const TArray<FString>& Values)
+{
+  USFGameInstance::Get()->LogTrialData(DependentVariableName, Values);
+}
 
- void USFLoggingBPLibrary::LogComment(const FString& Comment, bool AlsoLogToHUD /*=false*/)
- {
-     UniLog.Log("#" + USFGameInstance::Get()->GetParticipant()->GetCurrentTimeAsString() + ": " + Comment, "ParticipantLog");
-     FSFLoggingUtils::Log("Logged Comment: " + Comment);
-     if (AlsoLogToHUD)
-     {
-         USFGameInstance::Get()->LogToHUD(Comment);
-     }
- }
+void USFLoggingBPLibrary::LogComment(const FString& Comment, bool bAlsoLogToHUD /*=false*/)
+{
+	USFGameInstance::Get()->LogComment(Comment, bAlsoLogToHUD);
+}
 
 void USFLoggingBPLibrary::LogToHUD(const FString& String)
 {
@@ -40,24 +29,24 @@ void USFLoggingBPLibrary::LogToHUD(const FString& String)
 }
 
 void USFLoggingBPLibrary::AddActor(AActor* Actor, int32 LogTimer, FString LogName)
- {
-     if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
-     {
-         USFGameInstance::Get()->GetLogObject()->AddComponentWithName(Actor->GetRootComponent(), LogTimer, LogName);
-     }
- }
+{
+	if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
+	{
+		USFGameInstance::Get()->GetLogObject()->AddComponentWithName(Actor->GetRootComponent(), LogTimer, LogName);
+	}
+}
 
- void USFLoggingBPLibrary::AddComponent(USceneComponent* Component, int32 LogTimer, FString LogName)
- {
-     if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
-     {
-         USFGameInstance::Get()->GetLogObject()->AddComponentWithName(Component, LogTimer, LogName);
-     }
- }
+void USFLoggingBPLibrary::AddComponent(USceneComponent* Component, int32 LogTimer, FString LogName)
+{
+	if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
+	{
+		USFGameInstance::Get()->GetLogObject()->AddComponentWithName(Component, LogTimer, LogName);
+	}
+}
 
 void USFLoggingBPLibrary::RemoveActor(AActor* Actor)
 {
-  if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
+	if (USFGameInstance::Get() && USFGameInstance::Get()->GetLogObject())
   {
     USFGameInstance::Get()->GetLogObject()->RemoveEntryByComponent(Actor->GetRootComponent());
   }

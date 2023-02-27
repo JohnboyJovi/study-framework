@@ -184,7 +184,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 			Header += "," + Var->Name;
 		}
 		Header += ",Time\n";
-		FFileHelper::SaveStringToFile(*Header, *Filename);
+		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
 	}
 
 	FString ConditionResults = FString::FromInt(ParticipantID);
@@ -236,7 +236,7 @@ void USFParticipant::StoreTrialInPhaseLongTable(USFMultipleTrialDependentVariabl
 			Header += "," + SubName;
 		}
 		Header += "\n";
-		FFileHelper::SaveStringToFile(*Header, *Filename);
+		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
 	}
 
 	FString TrialResult = FString::FromInt(ParticipantID);
@@ -257,7 +257,7 @@ void USFParticipant::StoreTrialInPhaseLongTable(USFMultipleTrialDependentVariabl
 
 	//append this
 	TrialResult += "\n";
-	FFileHelper::SaveStringToFile(*TrialResult, *Filename, FFileHelper::EEncodingOptions::AutoDetect,
+	FFileHelper::SaveStringToFile(*TrialResult, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
 		&IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 
@@ -271,7 +271,7 @@ void USFParticipant::StoreInIndependentVarLongTable() const
 			Header += "," + Var.Key->Name;
 		}
 		Header += "\n";
-		FFileHelper::SaveStringToFile(*Header, *Filename);
+		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
 	}
 
 	FString VarValues = FString::FromInt(ParticipantID);

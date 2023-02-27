@@ -112,8 +112,9 @@ bool USFCondition::StoreDependentVariableData(const FString& VarName, const FStr
 	{
 		return false;
 	}
-
-	DependentVariable->Value = Value;
+	FString SanitizedValue = Value;
+	SanitizeValueForCSV(SanitizedValue);
+	DependentVariable->Value = SanitizedValue;
 	return true;
 }
 
@@ -149,10 +150,15 @@ bool USFCondition::StoreMultipleTrialDependentVariableData(const FString& VarNam
 		return false;
 	}
 
-	USFGameInstance::Get()->GetParticipant()->StoreTrialInPhaseLongTable(TrialDependentVar, Values);
+	TArray<FString> SanitizedValues = Values;
+	for(FString& Value : SanitizedValues)
+	{
+		SanitizeValueForCSV(Value);
+	}
+	USFGameInstance::Get()->GetParticipant()->StoreTrialInPhaseLongTable(TrialDependentVar, SanitizedValues);
 
 	std::vector<FString> ValuesVector;
-	for(const FString& Value : Values)
+	for(const FString& Value : SanitizedValues)
 	{
 		ValuesVector.push_back(Value);
 	}
@@ -191,6 +197,17 @@ USFDependentVariable* USFCondition::GetDependentVarForDataStoring(const FString&
 		"Cannot log data '" + Data + "' for dependent variable '" + VarName +
 		"' since it does not exist for this condition!", true);
 	return nullptr;
+}
+
+bool USFCondition::SanitizeValueForCSV(FString& Value)
+{
+	if(Value.Contains(","))
+	{
+		FSFLoggingUtils::Log("Cannot log data containing a ',' into a csv file, replacing ',' with [Komma]", true);
+		Value.ReplaceInline(TEXT(","), TEXT("[Komma]"));
+		return false;
+	}
+	return true;
 }
 
 float USFCondition::GetTimeTaken() const

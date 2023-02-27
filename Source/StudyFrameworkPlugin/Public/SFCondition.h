@@ -78,6 +78,8 @@ protected:
 
 	USFDependentVariable* GetDependentVarForDataStoring(const FString& VarName, const FString& Data);
 
+	bool SanitizeValueForCSV(FString& Value);
+
 private:
 
 	bool bStarted=false;

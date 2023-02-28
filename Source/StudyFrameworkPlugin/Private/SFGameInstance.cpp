@@ -215,7 +215,7 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 			LastParticipantID + ", RunningNumber: " + FString::FromInt(ParticipantRunningNumber) + ") where he/she left off in condition # " +
 			FString::FromInt(USFParticipant::GetLastParticipantLastConditionStarted()) +
 			"\n[Next Participant] Continue with the next participant (ParticipantRunningNumber: " + FString::FromInt(ParticipantRunningNumber + 1) +
-			")\n[Restart Study] Restart the entire study anew (Participant ID: 0)";
+			")\n[Restart Study] Restart the entire study anew (ParticipantRunningNumber: 0)";
 		const FString MessageTitle = "WARNING: Unfinished study run detected";
 		TArray<FString> Buttons = {
 			"Continue Participant",
@@ -271,7 +271,7 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 			//check whether it was used before
 			if(USFParticipant::WasParticipantIdAlreadyUsed(IDGiven))
 			{
-				FSFUtils::OpenMessageBox("Participant ID was already used, you have to choose another one!");
+				FSFUtils::OpenMessageBox("Participant ID \"" + IDGiven + "\"was already used, you have to choose another one!");
 			}
 			else
 			{

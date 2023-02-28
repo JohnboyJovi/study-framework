@@ -1,11 +1,11 @@
 {
   "FileVersion": 3,
   "Version": 1,
-  "VersionName": "1.0",
+  "VersionName": "1.1",
   "FriendlyName": "StudyFrameworkPlugin",
   "Description": "A plugin to easily set up a study",
   "Category": "Other",
-  "CreatedBy": "Marius Schmeling, Jonathan Ehret",
+  "CreatedBy": "Jonathan Ehret, Marius Schmeling, Patrick Nossol, Malte Kögel",
   "CreatedByURL": "",
   "DocsURL": "",
   "MarketplaceURL": "",

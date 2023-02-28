@@ -211,7 +211,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 	ConditionResults += "," + FString::Printf(TEXT("%.2f"), CurrCondition->GetTimeTaken());
 	//append this
 	ConditionResults += "\n";
-	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::AutoDetect,
+	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
 	                              &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 
@@ -297,11 +297,11 @@ void USFParticipant::StoreInIndependentVarLongTable() const
 		for (int i = 0; i < ExistingLines.Num(); i++) {
 			ToSave += ExistingLines[i] + "\n";
 		}
-		FFileHelper::SaveStringToFile(ToSave, *Filename);
+		FFileHelper::SaveStringToFile(ToSave, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
 	}
 	else {
 		VarValues += "\n";
-		FFileHelper::SaveStringToFile(*VarValues, *Filename, FFileHelper::EEncodingOptions::AutoDetect,
+		FFileHelper::SaveStringToFile(*VarValues, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
 			&IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 	}
 }

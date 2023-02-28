@@ -145,14 +145,14 @@ bool ASFStudySetup::CheckPhases() const
 void ASFStudySetup::GenerateTestStudyRuns() const
 {
 	TArray<FString> RunStrings;
-	for (int ParticipantID = 0; ParticipantID < NrOfRunsToGenerate; ++ParticipantID)
+	for (int ParticipantRunningNumber = 0; ParticipantRunningNumber < NrOfRunsToGenerate; ++ParticipantRunningNumber)
 	{
-		const TArray<USFCondition*> Conditions = GetAllConditionsForRun(ParticipantID);
+		const TArray<USFCondition*> Conditions = GetAllConditionsForRun(ParticipantRunningNumber);
 		USFParticipant* TmpParticipant = NewObject<USFParticipant>();
-		TmpParticipant->Initialize(ParticipantID);
+		TmpParticipant->Initialize(ParticipantRunningNumber, FString::FromInt(ParticipantRunningNumber));
 		TmpParticipant->SetStudyConditions(Conditions); //this also saves it to json
 
-		FString RunString = FString::FromInt(ParticipantID);
+		FString RunString = FString::FromInt(ParticipantRunningNumber);
 		for(USFCondition* Condition : Conditions)
 		{
 			FString ConditionStr = Condition->PhaseName;

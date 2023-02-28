@@ -94,6 +94,11 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	bool bPreloadAllMapsOnStart = true;
 
+	//whether to use custom participants which are asked for a startup (alternative is to simply use running order
+	//as participant ID starting at 0.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	bool bUseCustomParticipantIDs = false;
+
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //

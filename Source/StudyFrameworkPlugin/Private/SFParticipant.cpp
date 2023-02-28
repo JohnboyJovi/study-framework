@@ -19,13 +19,14 @@ USFParticipant::~USFParticipant()
 {
 }
 
-bool USFParticipant::Initialize(int Participant)
+bool USFParticipant::Initialize(int RunningNumber, FString ID)
 {
-	ParticipantID = Participant;
+	ParticipantRunningNumber = RunningNumber;
+	ParticipantID = ID;
 
 	StartTime = FPlatformTime::Seconds();
 
-	ParticipantLoggingInfix = "LogParticipant-" + FString::FromInt(ParticipantID) + "_" + FDateTime::Now().ToString();
+	ParticipantLoggingInfix = "LogParticipant-" + ParticipantID + "_" + FDateTime::Now().ToString();
 	FSFLoggingUtils::SetupParticipantLoggingStream(ParticipantLoggingInfix);
 
 	return true;
@@ -53,7 +54,8 @@ void USFParticipant::GenerateExecutionJsonFile() const
 {
 	TSharedPtr<FJsonObject> Json = MakeShared<FJsonObject>();
 
-	Json->SetNumberField("ParticipantID", ParticipantID);
+	Json->SetStringField("ParticipantID", ParticipantID);
+	Json->SetNumberField("ParticipantRunningNumber", ParticipantRunningNumber);
 
 	TArray<TSharedPtr<FJsonValue>> ConditionsArray;
 	for (auto Condition : Conditions)
@@ -71,25 +73,25 @@ void USFParticipant::GenerateExecutionJsonFile() const
 	}
 	Json->SetArrayField("Independent Variables", IndependentArray);
 
-	FSFUtils::WriteJsonToFile(Json, "StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
+	FSFUtils::WriteJsonToFile(Json, "StudyRuns/Participant_" + ParticipantID + ".txt");
 }
 
 void USFParticipant::UpdateIndependentVarsExecutionJsonFile() const
 {
-	if (ParticipantID == -1)
+	if (ParticipantRunningNumber == -1)
 	{
 		FSFLoggingUtils::Log(
-			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
-			FString::FromInt(ParticipantID) + " is not to be read, probably called on init so everything is fine!", false);
+			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant with running number " +
+			FString::FromInt(ParticipantRunningNumber) + " is not to be read, probably called on init so everything is fine!", false);
 		return;
 	}
 	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(
-		"StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
+		"StudyRuns/Participant_" + ParticipantID + ".txt");
 	if (Json == nullptr)
 	{
 		FSFLoggingUtils::Log(
 			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
-			FString::FromInt(ParticipantID) + " cannot be read!", true);
+			ParticipantID + " cannot be read!", true);
 		return;
 	}
 
@@ -102,27 +104,27 @@ void USFParticipant::UpdateIndependentVarsExecutionJsonFile() const
 	Json->RemoveField("Independent Variables");
 	Json->SetArrayField("Independent Variables", IndependentArray);
 
-	FSFUtils::WriteJsonToFile(Json, "StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
+	FSFUtils::WriteJsonToFile(Json, "StudyRuns/Participant_" + ParticipantID + ".txt");
 
 }
 
-void USFParticipant::ReadExecutionJsonFile(int ParticipantID, TArray<USFCondition*>& Conditions_Out, TMap<USFIndependentVariable*, FString>& IndependentVariablesValues_Out)
+void USFParticipant::ReadExecutionJsonFile(FString ParticipantID, TArray<USFCondition*>& Conditions_Out, TMap<USFIndependentVariable*, FString>& IndependentVariablesValues_Out)
 {
-	if(ParticipantID==-1)
+	if(ParticipantID.IsEmpty())
 	{
 		FSFLoggingUtils::Log(
 			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
-			FString::FromInt(ParticipantID) + " is not to be read, probably called on init so everything is fine!", false);
+			ParticipantID + " is not to be read, probably called on init so everything is fine!", false);
 		return;
 	}
 	TSharedPtr<FJsonObject> Json = FSFUtils::ReadJsonFromFile(
-		"StudyRuns/Participant_" + FString::FromInt(ParticipantID) + ".txt");
+		"StudyRuns/Participant_" + ParticipantID + ".txt");
 	TArray<USFCondition*> LoadedConditions;
 	if (Json == nullptr)
 	{
 		FSFLoggingUtils::Log(
 			"[USFParticipant::ReadExecutionJsonFile] participant json file for participant " +
-			FString::FromInt(ParticipantID) + " cannot be read!", true);
+			ParticipantID + " cannot be read!", true);
 		return;
 	}
 
@@ -187,7 +189,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
 	}
 
-	FString ConditionResults = FString::FromInt(ParticipantID);
+	FString ConditionResults = ParticipantID; 
 	for (auto IV : IndependentVariablesValues)
 	{
 		ConditionResults += "," + IV.Value;
@@ -239,7 +241,7 @@ void USFParticipant::StoreTrialInPhaseLongTable(USFMultipleTrialDependentVariabl
 		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
 	}
 
-	FString TrialResult = FString::FromInt(ParticipantID);
+	FString TrialResult = ParticipantID;
 	for (auto IV : IndependentVariablesValues)
 	{
 		TrialResult += "," + IV.Value;
@@ -274,12 +276,12 @@ void USFParticipant::StoreInIndependentVarLongTable() const
 		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
 	}
 
-	FString VarValues = FString::FromInt(ParticipantID);
+	FString VarValues = ParticipantID;
 	for (auto Var : IndependentVariablesValues) {
 		VarValues += "," + Var.Value;
 	}
 
-	FString StartStringSearch = FString::FromInt(ParticipantID) + ",";
+	FString StartStringSearch = ParticipantID + ",";
 	TArray<FString> ExistingLines;
 	FFileHelper::LoadFileToStringArray(ExistingLines, *Filename);
 	int found = -1;
@@ -309,7 +311,7 @@ bool USFParticipant::StartStudy()
 	// Set first condition
 	CurrentConditionIdx = -1;
 
-	USFLoggingBPLibrary::LogComment("Start Study for ParticipantID: " + FString::FromInt(ParticipantID));
+	USFLoggingBPLibrary::LogComment("Start Study for ParticipantID: " + ParticipantID);
 
 	return true;
 }
@@ -352,20 +354,46 @@ int USFParticipant::GetCurrentConditionNumber() const
 	return CurrentConditionIdx;
 }
 
-int USFParticipant::GetID() const
+int USFParticipant::GetRunningNumber() const
+{
+	return ParticipantRunningNumber;
+}
+
+FString USFParticipant::GetID() const
 {
 	return ParticipantID;
+}
+
+bool USFParticipant::WasParticipantIdAlreadyUsed(FString NewParticipantID)
+{
+	//we highjack the independent variable file for this, since each participant adds entries to it
+	FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/IndependentVariables.csv";
+
+	if (!FPaths::FileExists(Filename)) {
+		FSFLoggingUtils::Log("[USFParticipant::WasParticipantIdAlreadyUsed] IndependentVariables.csv does not exist (yet?)", false);
+		return false;
+	}
+
+	FString StartStringSearch = NewParticipantID + ",";
+	TArray<FString> ExistingLines;
+	FFileHelper::LoadFileToStringArray(ExistingLines, *Filename);
+	for (const FString& Line : ExistingLines) {
+		if (Line.StartsWith(StartStringSearch)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 TArray<USFCondition*> USFParticipant::GetLastParticipantsConditions()
 {
 	TArray<USFCondition*> LoadedConditions;
 	TMap<USFIndependentVariable*, FString> LoadedIndependentVariablesValues;
-	ReadExecutionJsonFile(GetLastParticipantId(), LoadedConditions, LoadedIndependentVariablesValues);
+	ReadExecutionJsonFile(GetLastParticipantID(), LoadedConditions, LoadedIndependentVariablesValues);
 	return LoadedConditions;
 }
 
-int USFParticipant::GetLastParticipantId()
+int USFParticipant::GetLastParticipantRunningNumber()
 {
 	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
 	if (ParticipantJson == nullptr)
@@ -373,7 +401,18 @@ int USFParticipant::GetLastParticipantId()
 		//file does not exist or something else went wrong
 		return -1;
 	}
-	return ParticipantJson->GetNumberField("ParticipantID");
+	return ParticipantJson->GetNumberField("ParticipantRunningNumber");
+}
+
+FString USFParticipant::GetLastParticipantID()
+{
+	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticipantJson == nullptr)
+	{
+		//file does not exist or something else went wrong
+		return "";
+	}
+	return ParticipantJson->GetStringField("ParticipantID");
 }
 
 int USFParticipant::GetLastParticipantLastConditionStarted()
@@ -418,7 +457,7 @@ void USFParticipant::LoadLastParticipantsIndependentVariables()
 {
 	TArray<USFCondition*> LoadedConditions;
 	TMap<USFIndependentVariable*, FString> LoadedIndependentVariablesValues;
-	ReadExecutionJsonFile(GetLastParticipantId(), LoadedConditions, LoadedIndependentVariablesValues);
+	ReadExecutionJsonFile(GetLastParticipantID(), LoadedConditions, LoadedIndependentVariablesValues);
 	IndependentVariablesValues = LoadedIndependentVariablesValues;
 }
 
@@ -494,7 +533,7 @@ void USFParticipant::SetIndependentVariablesFromStudySetup(ASFStudySetup* Setup)
 
 bool USFParticipant::LoadConditionsFromJson()
 {
-	if (ParticipantID == -1)
+	if (ParticipantRunningNumber == -1)
 	{
 		FSFLoggingUtils::Log("[USFParticipant::LoadConditionsFromJson] ParticipantID == -1, maybe nothing stored?", true);
 		return false;
@@ -502,14 +541,14 @@ bool USFParticipant::LoadConditionsFromJson()
 
 	TArray<USFCondition*> LoadedConditions;
 	TMap<USFIndependentVariable*, FString> LoadedIndependentVariablesValues;
-	ReadExecutionJsonFile(GetLastParticipantId(), LoadedConditions, LoadedIndependentVariablesValues);
+	ReadExecutionJsonFile(GetLastParticipantID(), LoadedConditions, LoadedIndependentVariablesValues);
 	Conditions = LoadedConditions;
 
 	if (Conditions.Num() == 0)
 	{
 		FSFLoggingUtils::Log(
 			"[USFParticipant::LoadContitionsFromJson] No Conditions could be loaded for Participant " +
-			FString::FromInt(ParticipantID), true);
+			ParticipantID, true);
 		return false;
 	}
 	return true;
@@ -538,7 +577,7 @@ void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 			TArray<FString> Entries;
 			Lines[i].ParseIntoArray(Entries,TEXT(","), false);
 
-			if(Entries.Num()>0 && FCString::Atoi(*Entries[0]) == ParticipantID)
+			if(Entries.Num()>0 && Entries[0] == ParticipantID)
 			{
 				Condition->RecoverStudyResults(HeaderEntries, Entries);
 			}
@@ -607,7 +646,8 @@ void USFParticipant::LogCurrentParticipant() const
 {
 	TSharedPtr<FJsonObject> Json = MakeShared<FJsonObject>();
 
-	Json->SetNumberField("ParticipantID", ParticipantID);
+	Json->SetNumberField("ParticipantRunningNumber", ParticipantRunningNumber);
+	Json->SetStringField("ParticipantID", ParticipantID);
 	bool bFinished = true;
 	for (USFCondition* Condition : Conditions)
 	{

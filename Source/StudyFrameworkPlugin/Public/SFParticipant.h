@@ -29,7 +29,7 @@ public:
 	USFParticipant();
 	~USFParticipant();
 
-	bool Initialize(int Participant);
+	bool Initialize(int ParticipantRunningNumber, FString ParticipantID);
 	void SetStudyConditions(TArray<USFCondition*> NewConditions);
 
 	bool StartStudy();
@@ -39,12 +39,16 @@ public:
 	USFCondition* GetNextCondition() const;
 	const TArray<USFCondition*> GetAllConditions() const;
 	int GetCurrentConditionNumber() const;
-	int GetID() const;
+	int GetRunningNumber() const;
+	FString GetID() const;
+
+	static bool WasParticipantIdAlreadyUsed(FString NewParticipantID);
 
 	// this method can be used to recover from a crash during the study
 	// (or when directly starting an intermediate map for testing)
 	static TArray<USFCondition*> GetLastParticipantsConditions();
-	static int GetLastParticipantId();
+	static int GetLastParticipantRunningNumber();
+	static FString GetLastParticipantID();
 	static int GetLastParticipantLastConditionStarted();
 	static bool GetLastParticipantFinished();
 	static ASFStudySetup* GetLastParticipantSetup();
@@ -82,13 +86,14 @@ protected:
 
 	void GenerateExecutionJsonFile() const;
 	void UpdateIndependentVarsExecutionJsonFile() const;
-	static void ReadExecutionJsonFile(int ParticipantID, TArray<USFCondition*>& Conditions_Out, TMap<USFIndependentVariable*, FString>& IndependentVariablesValues_Out);
+	static void ReadExecutionJsonFile(FString ParticipantID, TArray<USFCondition*>& Conditions_Out, TMap<USFIndependentVariable*, FString>& IndependentVariablesValues_Out);
 
 	void StoreInPhaseLongTable() const;
 	void StoreInIndependentVarLongTable() const;
 
-	UPROPERTY()
-	int ParticipantID;
+	FString ParticipantID;
+	//running number is used for randomization etc. it is also unique per participant and starts at 0
+	int ParticipantRunningNumber; 
 
 	UPROPERTY()
 	TArray<USFCondition*> Conditions;

@@ -34,7 +34,7 @@ void USFMultipleTrialDependentVariable::FromJsonInternal(TSharedPtr<FJsonObject>
 	}
 }
 
-void USFMultipleTrialDependentVariable::RecoverStudyResults(USFCondition* Condition, int ParticipantID)
+void USFMultipleTrialDependentVariable::RecoverStudyResults(USFCondition* Condition, FString ParticipantID)
 {
 	const FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + Condition->PhaseName + "_" + Name + ".csv";
 	TArray<FString> Lines;
@@ -54,7 +54,7 @@ void USFMultipleTrialDependentVariable::RecoverStudyResults(USFCondition* Condit
 		TArray<FString> Entries;
 		Lines[i].ParseIntoArray(Entries, TEXT(","), false);
 
-		if (Entries.Num() > 0 && FCString::Atoi(*Entries[0]) == ParticipantID)
+		if (Entries.Num() > 0 && Entries[0] == ParticipantID)
 		{
 			RecoverStudyResultsOfLine(HeaderEntries, Entries, Condition);
 		}

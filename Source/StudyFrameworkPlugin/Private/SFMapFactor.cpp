@@ -19,8 +19,17 @@ void USFMapFactor::FromJson(TSharedPtr<FJsonObject> Json)
 
 	for(FString LevelName : Levels)
 	{
-		TAssetPtr<UWorld> LevelObj = LoadObject<UWorld>(nullptr, *LevelName, nullptr, LOAD_None);
-		Maps.Add(LevelObj.Get());
+		//we had issues with maps being loaded once in the editor and then on starting the study this method
+		//was called again in PostLoad() and tried to reload an already loaded map which caused crashes
+		//with the if-clause below we do not load the maps when starting the study, where we don't need the
+		//asset pointer anyways since the study itself only uses the Levels strings directly
+		UWorld* World = GetWorld();
+		if(World && World->WorldType != EWorldType::PIE && World->WorldType != EWorldType::Game)
+		{
+			TAssetPtr<UWorld> LevelObj = StaticLoadObject(UWorld::StaticClass(), nullptr, *LevelName, nullptr, LOAD_Verify | LOAD_Quiet);
+			Maps.Add(LevelObj.Get());
+			
+		}
 	}
 }
 

@@ -101,6 +101,12 @@ void ASFMasterHUD::BeginPlay()
 		SetNextConditionButtonVisibility(ESlateVisibility::Collapsed);
 	}
 
+	if (USFGameInstance::Get()->GetParticipant() && USFGameInstance::Get()->GetParticipant()->GetAllConditions()[0]->IsFinished())
+	{
+		Cast<UTextBlock>(HUDWidget->GetStartButton()->GetAllChildren()[0])->SetText(
+			FText::FromString("Continue Study"));
+	}
+
 	if(USFGameInstance::Get()->GetParticipant() && !USFGameInstance::Get()->GetParticipant()->GetNextCondition())
 	{
 		Cast<UTextBlock>(HUDWidget->GetNextButton()->GetAllChildren()[0])->SetText(

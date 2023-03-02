@@ -555,7 +555,7 @@ void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 	{
 		const FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + Condition->PhaseName + ".csv";
 		TArray<FString> Lines;
-		if (!FFileHelper::LoadANSITextFileToStrings(*Filename, nullptr, Lines))
+		if (!FFileHelper::LoadFileToStringArray(Lines, *Filename))
 		{
 			FSFLoggingUtils::Log("[USFParticipant::RecoverStudyResultsOfFinishedConditions] Cannot read file: " + Filename + " (probably there was no data recorded yet).", false);
 		}

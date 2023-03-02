@@ -145,14 +145,14 @@ bool ASFStudySetup::CheckPhases() const
 void ASFStudySetup::GenerateTestStudyRuns() const
 {
 	TArray<FString> RunStrings;
-	for (int ParticipantID = 0; ParticipantID < NrOfRunsToGenerate; ++ParticipantID)
+	for (int ParticipantSequenceNumber = 0; ParticipantSequenceNumber < NrOfRunsToGenerate; ++ParticipantSequenceNumber)
 	{
-		const TArray<USFCondition*> Conditions = GetAllConditionsForRun(ParticipantID);
+		const TArray<USFCondition*> Conditions = GetAllConditionsForRun(ParticipantSequenceNumber);
 		USFParticipant* TmpParticipant = NewObject<USFParticipant>();
-		TmpParticipant->Initialize(ParticipantID);
+		TmpParticipant->Initialize(ParticipantSequenceNumber, FString::FromInt(ParticipantSequenceNumber));
 		TmpParticipant->SetStudyConditions(Conditions); //this also saves it to json
 
-		FString RunString = FString::FromInt(ParticipantID);
+		FString RunString = FString::FromInt(ParticipantSequenceNumber);
 		for(USFCondition* Condition : Conditions)
 		{
 			FString ConditionStr = Condition->PhaseName;
@@ -196,13 +196,13 @@ void ASFStudySetup::ClearStudyResults() const
 	DeleteFolder("StudyLogs");
 }
 
-TArray<USFCondition*> ASFStudySetup::ConditionSortingCallback(const TArray<USFCondition*>& Conditions, int ParticipantRunningNumber) const
+TArray<USFCondition*> ASFStudySetup::ConditionSortingCallback(const TArray<USFCondition*>& Conditions, int ParticipantSequenceNumber) const
 {
 	//in this default implementation we don't do anything here
 	return Conditions;
 }
 
-TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipantNumber) const
+TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int ParticipantSequenceNumber) const
 {
 	if (!CheckPhases())
 	{
@@ -219,7 +219,7 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 			PhasesToShuffleIndices.Add(i);
 		}
 	}
-	TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(RunningParticipantNumber, PhasesToShuffleIndices.Num());
+	TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(ParticipantSequenceNumber, PhasesToShuffleIndices.Num());
 
 	TArray<USFCondition*> Conditions;
 	for (int i=0; i<Phases.Num(); ++i)
@@ -231,10 +231,10 @@ TArray<USFCondition*> ASFStudySetup::GetAllConditionsForRun(int RunningParticipa
 			const int IndexInShuffleArray = PhasesToShuffleIndices.Find(i);
 			ActualIndex = PhasesToShuffleIndices[LatinSquare[IndexInShuffleArray]];
 		}
-		Conditions.Append(Phases[ActualIndex]->GenerateConditions(RunningParticipantNumber, ActualIndex));
+		Conditions.Append(Phases[ActualIndex]->GenerateConditions(ParticipantSequenceNumber, ActualIndex));
 	}
 
-	Conditions = ConditionSortingCallback(Conditions, RunningParticipantNumber);
+	Conditions = ConditionSortingCallback(Conditions, ParticipantSequenceNumber);
 
 	return Conditions;
 }

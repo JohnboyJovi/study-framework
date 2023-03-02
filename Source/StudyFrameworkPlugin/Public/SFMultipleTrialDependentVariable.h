@@ -20,7 +20,7 @@ public:
 
 	virtual TSharedPtr<FJsonObject> GetAsJson() const override;
 
-	void RecoverStudyResults(USFCondition* Condition, int ParticipantID);
+	void RecoverStudyResults(USFCondition* Condition, FString ParticipantID);
 
 	//these are all the values that should be recorded for one trial
 	UPROPERTY(EditAnywhere)

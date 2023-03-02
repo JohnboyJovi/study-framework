@@ -110,7 +110,7 @@ bool USFStudyPhase::PhaseValid() const
 	return true;
 }
 
-TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int PhaseIndex)
+TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantSequenceNr, int PhaseIndex)
 {
 	//we need the phase index, because we additionally use this to seed the Latin Square randomization so two identical phases would have different orders
 
@@ -142,7 +142,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int P
 	//create an array holding for each condition an array of each factors' level index
 	TArray<TArray<int>> ConditionsIndices;
 	ConditionsIndices.Reserve(NumberOfConditions);
-	CreateAllConditionsRecursively(0, {}, SortedFactors, ParticipantNr, ConditionsIndices);
+	CreateAllConditionsRecursively(0, {}, SortedFactors, ParticipantSequenceNr, ConditionsIndices);
 
 
 	// ****************************
@@ -170,14 +170,14 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int P
 
 	//create shuffling of enBlock factor, trivial case ({0}) if we do not have an enBlock factor
 	const TArray<int> EnBlockLatinSquare = USFStudyFactor::GenerateLatinSquareOrder(
-		ParticipantNr + PhaseIndex, NumEnBlockLevels);
+		ParticipantSequenceNr + PhaseIndex, NumEnBlockLevels);
 
 	for (int EnBlockLevel = 0; EnBlockLevel < NumEnBlockLevels; EnBlockLevel++)
 	{
 		for (int InOrderLevel = 0; InOrderLevel < NumInOrderLevels; InOrderLevel++)
 		{
 			const TArray<int> FullyRandomLatinSquare = USFStudyFactor::GenerateLatinSquareOrder(
-				ParticipantNr + PhaseIndex + EnBlockLevel + InOrderLevel, NumFullyRandomConditions);
+				ParticipantSequenceNr + PhaseIndex + EnBlockLevel + InOrderLevel, NumFullyRandomConditions);
 			//we use all EnBlockLevel + InOrderLevel also for "seeding" so it is not repetitive
 			for (int FullyRandomCondition = 0; FullyRandomCondition < FullyRandomLatinSquare.Num(); FullyRandomCondition++)
 			{
@@ -204,7 +204,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantNr, int P
 			continue;
 		}
 
-		TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(ParticipantNr + PhaseIndex, Factor->Levels.Num());
+		TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(ParticipantSequenceNr + PhaseIndex, Factor->Levels.Num());
 		if (LatinSquare.Num() < ConditionsIndices.Num())
 		{
 			FSFLoggingUtils::Log(
@@ -394,7 +394,7 @@ TArray<USFStudyFactor*> USFStudyPhase::SortFactors() const
 }
 
 void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> TmpOrderPart,
-                                                   TArray<USFStudyFactor*>& InSortedFactors, int ParticipantID,
+                                                   TArray<USFStudyFactor*>& InSortedFactors, int ParticipantSequenceNumber,
                                                    TArray<TArray<int>>& OutOrdersIndices) const
 {
 	if (Index >= InSortedFactors.Num())
@@ -407,15 +407,15 @@ void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> TmpOrd
 	{
 		//simply go on with next factor and add a placeholder "-1"
 		TmpOrderPart.Add(-1);
-		CreateAllConditionsRecursively(Index + 1, TmpOrderPart, InSortedFactors, ParticipantID, OutOrdersIndices);
+		CreateAllConditionsRecursively(Index + 1, TmpOrderPart, InSortedFactors, ParticipantSequenceNumber, OutOrdersIndices);
 		return;
 	}
 
 	if (InSortedFactors[Index]->Type == EFactorType::Between)
 	{
 		//participants only see one level of this factor, set it, and go on
-		TmpOrderPart.Add(ParticipantID % InSortedFactors[Index]->Levels.Num());
-		CreateAllConditionsRecursively(Index + 1, TmpOrderPart, InSortedFactors, ParticipantID, OutOrdersIndices);
+		TmpOrderPart.Add(ParticipantSequenceNumber % InSortedFactors[Index]->Levels.Num());
+		CreateAllConditionsRecursively(Index + 1, TmpOrderPart, InSortedFactors, ParticipantSequenceNumber, OutOrdersIndices);
 		return;
 	}
 
@@ -423,6 +423,6 @@ void USFStudyPhase::CreateAllConditionsRecursively(int Index, TArray<int> TmpOrd
 	{
 		TArray<int> Order = TmpOrderPart;
 		Order.Add(i);
-		CreateAllConditionsRecursively(Index + 1, Order, InSortedFactors, ParticipantID, OutOrdersIndices);
+		CreateAllConditionsRecursively(Index + 1, Order, InSortedFactors, ParticipantSequenceNumber, OutOrdersIndices);
 	}
 }

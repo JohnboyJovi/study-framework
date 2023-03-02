@@ -62,10 +62,10 @@ public:
 
 	//This method can be overriden if you want to manually change the order of the conditions after they were created from the phases (with their factors)
 	// Conditions:								holds those created conditions in the order defined by phases/factors
-	// ParticipantRunningNumber:	is the running number of the participant starting at 0 an then up to the number of participants
+	// ParticipantSequenceNumber:	is the sequence number of the participant starting at 0 an then up to the number of participants
 	//														it can be useful if you want to implement some counterbalancing yourself
 	// return:										the updated order of the condition. CAUTION: deleting or creating new ones gives undefined behavior!
-	virtual TArray<USFCondition*> ConditionSortingCallback(const TArray<USFCondition*>& Conditions, int ParticipantRunningNumber) const;
+	virtual TArray<USFCondition*> ConditionSortingCallback(const TArray<USFCondition*>& Conditions, int ParticipantSequenceNumber) const;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Fading"))
 	FFadeConfig FadeConfig;
@@ -94,12 +94,17 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	bool bPreloadAllMapsOnStart = true;
 
+	//whether to use custom participants which are asked for a startup (alternative is to simply use sequence number
+	//as participant ID starting at 0 and counting up for each participant.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	bool bUseCustomParticipantIDs = false;
+
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //
 
 	UFUNCTION()
-	TArray<USFCondition*> GetAllConditionsForRun(int RunningParticipantNumber) const;
+	TArray<USFCondition*> GetAllConditionsForRun(int ParticipantSequenceNumber) const;
 	
 	UFUNCTION()
 	int GetNumberOfPhases();

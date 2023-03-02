@@ -132,13 +132,14 @@ void USFGameInstance::OnWorldStart()
 
 void USFGameInstance::RestoreLastParticipantForDebugStart(USFCondition* InStartCondition)
 {
-	const int ParticipantID = USFParticipant::GetLastParticipantId();
+	const int ParticipantSequenceNumber = USFParticipant::GetLastParticipantSequenceNumber();
+	const FString ParticipantID = USFParticipant::GetLastParticipantID();
 	Participant = NewObject<USFParticipant>(this,
-	                                        FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
+	                                        FName(TEXT("Participant_") + ParticipantID));
 	
 	StudySetup = USFParticipant::GetLastParticipantSetup();
 
-	Participant->Initialize(ParticipantID);
+	Participant->Initialize(ParticipantSequenceNumber, ParticipantID);
 	Participant->LoadConditionsFromJson();
 
 	
@@ -197,23 +198,24 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 {
 	StudySetup = DuplicateObject(Setup, this);
 
-	int ParticipantID = USFParticipant::GetLastParticipantId();
+	int ParticipantSequenceNumber = USFParticipant::GetLastParticipantSequenceNumber();
+	FString LastParticipantID = USFParticipant::GetLastParticipantID();
 	TArray<USFCondition*> Conditions;
 	bool bRecoverParticipantData = false;
 	if (USFParticipant::GetLastParticipantFinished())
 	{
-		ParticipantID++;
-		Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
+		ParticipantSequenceNumber++;
+		Conditions = StudySetup->GetAllConditionsForRun(ParticipantSequenceNumber);
 	}
 	else
 	{
 
 		const FString MessageText = FString("The last participant did not finish the study run. Would you like to:") +
 			"\n[Continue Participant] Continue last participant (Participant ID: " +
-			FString::FromInt(ParticipantID) + ") where he/she left off in condition # " +
+			LastParticipantID + ", SequenceNumber: " + FString::FromInt(ParticipantSequenceNumber) + ") where he/she left off in condition # " +
 			FString::FromInt(USFParticipant::GetLastParticipantLastConditionStarted()) +
-			"\n[Next Participant] Continue with the next participant (Participant ID: " + FString::FromInt(ParticipantID + 1) +
-			")\n[Restart Study] Restart the entire study anew (Participant ID: 0)";
+			"\n[Next Participant] Continue with the next participant (ParticipantSequenceNumber: " + FString::FromInt(ParticipantSequenceNumber + 1) +
+			")\n[Restart Study] Restart the entire study anew (ParticipantSequenceNumber: 0)";
 		const FString MessageTitle = "WARNING: Unfinished study run detected";
 		TArray<FString> Buttons = {
 			"Continue Participant",
@@ -226,8 +228,8 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 		{
 		case 2:
 			FSFLoggingUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Restart entire study");
-			ParticipantID = 0;
-			Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
+			ParticipantSequenceNumber = 0;
+			Conditions = StudySetup->GetAllConditionsForRun(ParticipantSequenceNumber);
 			//clear data
 			USFParticipant::ClearPhaseLongtables(Setup);
 			break;
@@ -239,8 +241,8 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 			break;
 		case 1:
 			FSFLoggingUtils::Log("[USFGameInstance::PrepareWithStudySetup]: Continue with the next participant");
-			ParticipantID++;
-			Conditions = StudySetup->GetAllConditionsForRun(ParticipantID);
+			ParticipantSequenceNumber++;
+			Conditions = StudySetup->GetAllConditionsForRun(ParticipantSequenceNumber);
 			break;
 		default: ;
 		}
@@ -253,8 +255,39 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 
 
 	// Participant
-	Participant = NewObject<USFParticipant>(this, FName(TEXT("Participant_") + FString::FromInt(ParticipantID)));
-	Participant->Initialize(ParticipantID);
+	FString ParticipantID = "";
+	if(Setup->bUseCustomParticipantIDs)
+	{
+		//ask for it:
+		bool bValidIDEntered = false;
+		while(!bValidIDEntered)
+		{
+			FString IDGiven;
+			int Result = FSFUtils::OpenCustomDialogText("Participant ID", "Please type in your ID:", "", IDGiven);
+			if (Result < 0) {
+				FSFLoggingUtils::Log("[USFGameInstance::PrepareWithStudySetup] The window for entering the participant ID was closed without giving an answer, repeat question!", false);
+				continue;
+			}
+			//check whether it was used before
+			if(USFParticipant::WasParticipantIdAlreadyUsed(IDGiven))
+			{
+				FSFUtils::OpenMessageBox("Participant ID \"" + IDGiven + "\"was already used, you have to choose another one!");
+			}
+			else
+			{
+				ParticipantID = IDGiven;
+				bValidIDEntered = true;
+			}
+		}
+	}
+	else
+	{
+		//otherwise just use sequence number:
+		ParticipantID = FString::FromInt(ParticipantSequenceNumber);
+	}
+
+	Participant = NewObject<USFParticipant>(this, FName(TEXT("Participant_") + ParticipantID));
+	Participant->Initialize(ParticipantSequenceNumber, ParticipantID);
 	if (bRecoverParticipantData) {
 		Participant->LoadLastParticipantsIndependentVariables();
 	}
@@ -517,7 +550,7 @@ FString USFGameInstance::GetCurrentPhase() const
 	return Participant->GetCurrentCondition()->PhaseName;
 }
 
-int USFGameInstance::GetCurrentConditionsRunningNumber() const
+int USFGameInstance::GetCurrentConditionsSequenceNumber() const
 {
 	if (!Participant) return -1;
 	return Participant->GetCurrentConditionNumber() + 1;
@@ -548,7 +581,7 @@ void USFGameInstance::UpdateHUD(FString Status)
 	{
 		HUDSavedData.Status = Status;
 		if (Participant)
-			HUDSavedData.Participant = FString::FromInt(Participant->GetID());
+			HUDSavedData.Participant = Participant->GetID();
 	}
 }
 
@@ -609,7 +642,7 @@ void USFGameInstance::OnFadedIn()
 	Participant->GetCurrentCondition()->Begin();
 	USFLoggingBPLibrary::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
 
-	UpdateHUD("Condition "+FString::FromInt(GetCurrentConditionsRunningNumber())+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
+	UpdateHUD("Condition "+FString::FromInt(GetCurrentConditionsSequenceNumber())+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
 }
 
 USFParticipant* USFGameInstance::GetParticipant() const

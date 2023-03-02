@@ -88,7 +88,7 @@ public:
 	//returns the number of this condition (which is also shown in the HUD), starting from 1 going to # of Conditions
 	//returns -1 if something goes wrong (e.g., participant is not initialized)
 	UFUNCTION(BlueprintCallable)
-	int GetCurrentConditionsRunningNumber() const;
+	int GetCurrentConditionsSequenceNumber() const;
 
 	UFUNCTION(BlueprintCallable)
 	USFGazeTracker* GetGazeTracker() const;

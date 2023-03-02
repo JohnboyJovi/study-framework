@@ -152,7 +152,7 @@ void ASFMasterHUD::UpdateHUD(USFParticipant* Participant, const FString& Status)
 		return;
 	}
 
-	HUDWidget->SetParticipant(FString::FromInt(Participant->GetID()));
+	HUDWidget->SetParticipant(Participant->GetID());
 
 	USFCondition* Condition = Participant->GetCurrentCondition();
 

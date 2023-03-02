@@ -36,7 +36,7 @@ public:
 	bool PhaseValid() const;
 
 	UFUNCTION()
-	TArray<USFCondition*> GenerateConditions(int ParticipantNr, int PhaseIndex);
+	TArray<USFCondition*> GenerateConditions(int ParticipantSequenceNr, int PhaseIndex);
 
 
 	// ****************************************************************** // 
@@ -69,7 +69,7 @@ protected:
 
 private:
 	void CreateAllConditionsRecursively(int Index, TArray<int> TmpOrderPart, TArray<USFStudyFactor*>& InSortedFactors,
-	                                    int ParticipantID, TArray<TArray<int>>& OutOrdersIndices) const;
+	                                    int ParticipantSequenceNumber, TArray<TArray<int>>& OutOrdersIndices) const;
 
 	bool ContainsAMapFactor() const;
 	USFMapFactor* GetMapFactor() const;

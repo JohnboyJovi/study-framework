@@ -29,7 +29,7 @@ public:
 	USFParticipant();
 	~USFParticipant();
 
-	bool Initialize(int ParticipantRunningNumber, FString ParticipantID);
+	bool Initialize(int ParticipantSequenceNumber, FString ParticipantID);
 	void SetStudyConditions(TArray<USFCondition*> NewConditions);
 
 	bool StartStudy();
@@ -39,7 +39,7 @@ public:
 	USFCondition* GetNextCondition() const;
 	const TArray<USFCondition*> GetAllConditions() const;
 	int GetCurrentConditionNumber() const;
-	int GetRunningNumber() const;
+	int GetSequenceNumber() const;
 	FString GetID() const;
 
 	static bool WasParticipantIdAlreadyUsed(FString NewParticipantID);
@@ -47,7 +47,7 @@ public:
 	// this method can be used to recover from a crash during the study
 	// (or when directly starting an intermediate map for testing)
 	static TArray<USFCondition*> GetLastParticipantsConditions();
-	static int GetLastParticipantRunningNumber();
+	static int GetLastParticipantSequenceNumber();
 	static FString GetLastParticipantID();
 	static int GetLastParticipantLastConditionStarted();
 	static bool GetLastParticipantFinished();
@@ -92,8 +92,8 @@ protected:
 	void StoreInIndependentVarLongTable() const;
 
 	FString ParticipantID;
-	//running number is used for randomization etc. it is also unique per participant and starts at 0
-	int ParticipantRunningNumber; 
+	//sequence number is used for randomization etc. it is also unique per participant and starts at 0
+	int ParticipantSequenceNumber; 
 
 	UPROPERTY()
 	TArray<USFCondition*> Conditions;

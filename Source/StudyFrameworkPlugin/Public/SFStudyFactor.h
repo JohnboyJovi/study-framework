@@ -66,5 +66,5 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bNonCombined = false;
 
-	static TArray<int> GenerateLatinSquareOrder(int ParticipantId, int NrConditions);
+	static TArray<int> GenerateLatinSquareOrder(int OrderNr, int NrConditions);
 };

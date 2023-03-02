@@ -128,7 +128,7 @@ void USFStudyFactor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChang
 }
 #endif
 
-TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int ParticipantId, int NrConditions)
+TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int OrderNr, int NrConditions)
 {
 	// Balanced Latin Square Generator
 	// Based on "Bradley, J. V. Complete counterbalancing of immediate sequential effects in a Latin square design. J. Amer. Statist. Ass.,.1958, 53, 525-528. "
@@ -148,11 +148,11 @@ TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int ParticipantId, int NrCo
 			++h;
 		}
 
-		int idx = (val + ParticipantId) % NrConditions;
+		int idx = (val + OrderNr) % NrConditions;
 		Result.Add(idx);
 	}
 
-	if (NrConditions % 2 != 0 && ParticipantId % 2 != 0)
+	if (NrConditions % 2 != 0 && OrderNr % 2 != 0)
 	{
 		//reverse Result
 		TArray<int> TmpResult = Result;

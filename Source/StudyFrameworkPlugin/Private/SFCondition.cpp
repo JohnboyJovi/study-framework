@@ -203,7 +203,7 @@ bool USFCondition::SanitizeValueForCSV(FString& Value)
 {
 	if(Value.Contains(","))
 	{
-		FSFLoggingUtils::Log("Cannot log data containing a ',' into a csv file, replacing ',' with [Komma]", true);
+		FSFLoggingUtils::Log("Cannot log data containing a ',' into a csv file, replacing ',' with [Komma] in \"" + Value + "\"", false);
 		Value.ReplaceInline(TEXT(","), TEXT("[Komma]"));
 		return false;
 	}

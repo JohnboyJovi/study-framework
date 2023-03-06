@@ -192,7 +192,6 @@ protected:
 
 	UPROPERTY()
 	USFExperimenterWindow* ExperimenterWindow = nullptr;
-	FExperimenterViewConfig ExperimenterViewConfig;
 
 	// this is used if the study should not be started from the beginning
 	// e.g., when starting a map directly for debugging in the editor

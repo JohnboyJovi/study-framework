@@ -184,12 +184,12 @@ void USFGameInstance::InitFadeHandler(FFadeConfig FadeConfig)
 
 	if(bStartedOnUnrelatedMap)
 	{
-		ExperimenterViewConfig.bShowHUD=false;
+		StudySetup->ExperimenterViewConfig.bShowHUD=false;
 	}
-	if(ExperimenterViewConfig.bShowExperimenterViewInSecondWindow)
+	if(StudySetup->ExperimenterViewConfig.bShowExperimenterViewInSecondWindow)
 	{
 		ExperimenterWindow = NewObject<USFExperimenterWindow>(GetTransientPackage(), "ExperimenterWindow");
-		ExperimenterWindow->CreateWindow(ExperimenterViewConfig);
+		ExperimenterWindow->CreateWindow(StudySetup->ExperimenterViewConfig);
 	}
 	
 }
@@ -301,8 +301,6 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	{
 		Participant->RecoverStudyResultsOfFinishedConditions();
 	}
-
-	ExperimenterViewConfig = StudySetup->ExperimenterViewConfig;
 
 
 	if (IsInitialized())
@@ -601,7 +599,7 @@ USFGazeTracker* USFGameInstance::GetGazeTracker() const
 
 FExperimenterViewConfig USFGameInstance::GetExperimenterViewConfig() const
 {
-	return ExperimenterViewConfig;
+	return StudySetup->ExperimenterViewConfig;
 }
 
 USFExperimenterWindow* USFGameInstance::GetExperimenterWindow() const

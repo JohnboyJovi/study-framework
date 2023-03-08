@@ -4,7 +4,7 @@
 
 #include "Core.h"
 #include "SFParticipant.h"
-#include "Dialogs/CustomDialog.h"
+#include "SFCustomDialog.h"
 
 class FJsonObject;
 

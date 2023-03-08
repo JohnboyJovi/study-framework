@@ -45,19 +45,22 @@ class STUDYFRAMEWORKPLUGIN_API USFFadeHandler : public UObject
 public:
 	void Tick();
 
-	void FadeToLevel(FString LevelName, bool bStartFadedOut = false);
+	void FadeToLevel(const FString& LevelName, bool bStartFadedOut = false);
 	void FadeIn();
 	void FadeOut();
 	float FadeTimeRemaining() const;
 
 
 	bool GetIsFading() const;
+	bool GetIsFadedOutWaitingForLevel() const;
 	APlayerCameraManager* GetCameraManager() const;
 
 	void SetFadeDuration(float FadeDurationN);
 	void SetFadedOutDuration(float FadeOutWaitN);
 	void SetFadeColor(FLinearColor Color);
 	void SetInitialFadedOut(bool bFadedOut);
+
+	void SetLevelToLoad(const FString& LevelName);
 
 	FFadeConfig GetFadeConfig() const;
 	void SetFadeConfig(FFadeConfig InFadeConfig);
@@ -89,3 +92,4 @@ private:
 	UPROPERTY()
 	FTimerHandle TimerHandle;
 };
+

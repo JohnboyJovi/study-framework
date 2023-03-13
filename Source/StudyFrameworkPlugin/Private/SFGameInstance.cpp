@@ -401,7 +401,7 @@ void USFGameInstance::EndStudy()
 bool USFGameInstance::NextCondition(bool bForced /*=false*/)
 {
 	// Check if is already fading
-	if (FadeHandler->GetIsFading())
+	if (FadeHandler->GetIsFading() && !FadeHandler->GetIsFadedOutWaitingForLevel())
 	{
 		FSFLoggingUtils::Log("[USFGameInstance::NextCondition()]: Already Fading between levels", true);
 		return false;
@@ -420,7 +420,7 @@ bool USFGameInstance::NextCondition(bool bForced /*=false*/)
 bool USFGameInstance::GoToCondition(const USFCondition* Condition, bool bForced /*=false*/)
 {
 	// Check if is already fading
-	if (FadeHandler->GetIsFading())
+	if (FadeHandler->GetIsFading() && !FadeHandler->GetIsFadedOutWaitingForLevel())
 	{
 		FSFLoggingUtils::Log("[USFGameInstance::GoToCondition()]: Already Fading between levels", true);
 		return false;
@@ -484,7 +484,14 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced)
 	// Fade to next Level
 	if (IsInitialized())
 	{
-		FadeHandler->FadeToLevel(NextCondition->Map);
+		if(FadeHandler->GetIsFadedOutWaitingForLevel())
+		{
+			FadeHandler->SetLevelToLoad(NextCondition->Map);
+		}
+		else
+		{
+			FadeHandler->FadeToLevel(NextCondition->Map);
+		}
 		UpdateHUD("Fading out");
 	}
 

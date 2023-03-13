@@ -95,7 +95,7 @@ void USFFadeHandler::Tick()
 	}
 }
 
-void USFFadeHandler::FadeToLevel(const FString LevelName, const bool bStartFadeFadedOut)
+void USFFadeHandler::FadeToLevel(const FString& LevelName, const bool bStartFadeFadedOut)
 {
 	if (GetCameraManager() == nullptr)
 	{
@@ -197,6 +197,11 @@ bool USFFadeHandler::GetIsFading() const
 	return FadeState != EFadeState::NotFading;
 }
 
+bool USFFadeHandler::GetIsFadedOutWaitingForLevel() const
+{
+	return FadeTimeRemaining() == 0.0f && FadeState == EFadeState::FadingOut;
+}
+
 APlayerCameraManager* USFFadeHandler::GetCameraManager() const
 {
 	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(USFGameInstance::Get()->GetWorld(), 0);
@@ -251,4 +256,10 @@ void USFFadeHandler::SetTimerForNextTick(const float TimeToWait)
 	//	" seconds", false);
 	USFGameInstance::Get()->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &USFFadeHandler::Tick, 0.1f, true,
 	                                                     TimeToWait);
+}
+
+void USFFadeHandler::SetLevelToLoad(const FString& LevelName)
+{
+	if (!GetIsFadedOutWaitingForLevel()) return;
+	NewLevelName = LevelName;
 }

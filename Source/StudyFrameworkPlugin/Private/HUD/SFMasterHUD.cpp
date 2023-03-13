@@ -38,7 +38,7 @@ void ASFMasterHUD::BeginPlay()
 	//is called also every time the map is changed (a new condition is loaded)
 	Super::BeginPlay();
 
-	if(!USFGameInstance::Get()->GetExperimenterViewConfig().bShowHUD)
+	if (USFGameInstance::Get()->GetStudySetup() && !USFGameInstance::Get()->GetExperimenterViewConfig().bShowHUD)
 	{
 		return;
 	}
@@ -78,7 +78,7 @@ void ASFMasterHUD::BeginPlay()
 			HUDWidget->AddToViewport();
 		}
 	}
-	
+
 
 
 	FHUDSavedData& Data = USFGameInstance::Get()->HUDSavedData;
@@ -119,7 +119,7 @@ void ASFMasterHUD::BeginPlay()
 	HUDWidget->GetNextButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnNextButtonPressed);
 	HUDWidget->GetShowConditionsButton()->OnClicked.AddDynamic(this, &ASFMasterHUD::OnShowConditionsButtonPressed);
 
-	if(USFGameInstance::Get()->GetExperimenterViewConfig().bShowConditionsPanelByDefault)
+	if (USFGameInstance::Get()->GetStudySetup() && USFGameInstance::Get()->GetExperimenterViewConfig().bShowConditionsPanelByDefault)
 	{
 		OnShowConditionsButtonPressed();
 	}

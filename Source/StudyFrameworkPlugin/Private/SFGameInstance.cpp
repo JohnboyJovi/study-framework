@@ -123,6 +123,7 @@ void USFGameInstance::OnWorldStart()
 
 	// else we started on an unrelated map and just disable the HUD, so people can test their stuff
 	bStartedOnUnrelatedMap = true;
+	StudySetup = NewObject<ASFStudySetup>(this, TEXT("DefaultStudySetupForUnrelatedMap"));
 	InitFadeHandler(FFadeConfig());
 	FadeHandler->FadeIn();
 	FSFLoggingUtils::Log(

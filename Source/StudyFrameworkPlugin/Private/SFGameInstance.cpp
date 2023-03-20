@@ -606,7 +606,10 @@ USFGazeTracker* USFGameInstance::GetGazeTracker() const
 
 FExperimenterViewConfig USFGameInstance::GetExperimenterViewConfig() const
 {
-	return StudySetup->ExperimenterViewConfig;
+	if(StudySetup)
+		return StudySetup->ExperimenterViewConfig;
+	FSFLoggingUtils::Log("[USFGameInstance::GetExperimenterViewConfig] No StudySetup present, returning default ExperimenterViewConfig.", true);
+	return FExperimenterViewConfig();
 }
 
 USFExperimenterWindow* USFGameInstance::GetExperimenterWindow() const

@@ -525,9 +525,9 @@ void USFParticipant::SetIndependentVariablesFromStudySetup(ASFStudySetup* Setup)
 			break;
 
 			}
+			USFLoggingBPLibrary::LogComment("Recorded value for independent variable " + Var->Name + ": " + Value);
 		}
 		IndependentVariablesValues.Add(DuplicateObject(Var, this), Value);
-		USFLoggingBPLibrary::LogComment("Recorded value for independent variable " + Var->Name + ": " + Value);
 	}
 }
 

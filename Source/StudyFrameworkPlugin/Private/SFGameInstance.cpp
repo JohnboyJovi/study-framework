@@ -637,6 +637,12 @@ void USFGameInstance::OnLevelLoaded()
 
 void USFGameInstance::OnFadedIn()
 {
+	if(Participant && Participant->GetCurrentCondition())
+	{
+		//this should be logged first
+		USFLoggingBPLibrary::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
+	}
+
 	OnFadedInDelegate.Broadcast();
 
 	if(bStartedOnUnrelatedMap)
@@ -645,7 +651,6 @@ void USFGameInstance::OnFadedIn()
 	}
 
 	Participant->GetCurrentCondition()->Begin();
-	USFLoggingBPLibrary::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
 
 	UpdateHUD("Condition "+FString::FromInt(GetCurrentConditionsSequenceNumber())+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
 }

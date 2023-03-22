@@ -153,7 +153,7 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 	}
 
 	USFGazeTracker* GazeTracker = USFGameInstance::Get()->GetGazeTracker();
-	if(!GazeTracker)
+	if(!GazeTracker || GazeTracker->DataAlreadyLogged())
 	{
 		return;
 	}
@@ -189,6 +189,7 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 	{
 		UniLog.Log(out, "GazeTrackingLog");
 	}
+	GazeTracker->SetDataLogged();
 }
 
 void USFLogObject::SetLoggingLoopsActive(bool LoggingLoopsActive) {

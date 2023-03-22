@@ -2,6 +2,11 @@
 
 #include "CoreMinimal.h"
 
+
+#ifdef WITH_SRANIPAL
+#include "Eye/SRanipal_API_Eye.h"
+#endif
+
 #include "SFGazeTracker.generated.h"
 
 UENUM()
@@ -17,9 +22,9 @@ struct FGazeRay
 {
 	GENERATED_BODY()
 	UPROPERTY(BlueprintReadOnly)
-	FVector Origin;
+	FVector Origin = FVector::ZeroVector;
 	UPROPERTY(BlueprintReadOnly)
-	FVector Direction;
+	FVector Direction = FVector::ForwardVector;
 };
 
 UCLASS()
@@ -28,7 +33,11 @@ class STUDYFRAMEWORKPLUGIN_API USFGazeTracker : public UObject
 	GENERATED_BODY()
 
 public:
-	void Init(EGazeTrackerMode Mode, bool IgnoreNonGazeTargetActors);
+
+	bool Tick(float DeltaTime);
+
+
+	void Init(EGazeTrackerMode Mode, bool IgnoreNonGazeTargetActors, float DataGatheringsPerSecond);
 
 	//returns pair of Origin and Direction, in world coordinates
 	UFUNCTION(BlueprintCallable)
@@ -55,6 +64,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetEyesOpenness();
 
+	bool DataAlreadyLogged();
+	void SetDataLogged();
+
 	// pupil diameter in mm averaged over both eyes
 	// returns 0.0 if the eyes are not tracked or not value can be estimated
 	UFUNCTION(BlueprintCallable)
@@ -63,11 +75,28 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bDebugRenderRayTraces = false;
 
+
+
 private:
+
+	FGazeRay GetSranipalGazeRayFromData();
 
 	bool bEyeTrackingStarted = false;
 
 	bool bIgnoreNonGazeTargetActors = false;
 	UPROPERTY()
 	TArray<AActor*> ActorsToIgnore;
+
+	bool bDataLogged = false;
+	float EyeDataGatheringDelay;
+	float TimeSinceLastEyeDataGather = 0.0f;
+#ifdef WITH_SRANIPAL
+	ViveSR::anipal::Eye::EyeData_v2 SranipalEyeData;
+#endif
+
+	/** Delegate for callbacks to Tick */
+	FTickerDelegate TickDelegate;
+
+	/** Handle to various registered delegates */
+	FDelegateHandle TickDelegateHandle;
 };

@@ -12,7 +12,30 @@
 #endif
 
 
-void USFGazeTracker::Init(EGazeTrackerMode Mode, bool IgnoreNonGazeTargetActors)
+bool USFGazeTracker::Tick(float DeltaTime)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Tick ds: %f"), DeltaTime)
+
+	TimeSinceLastEyeDataGather += DeltaTime;
+	if (TimeSinceLastEyeDataGather < EyeDataGatheringDelay)
+	{
+		return true;
+	}
+
+	TimeSinceLastEyeDataGather = 0.0f;
+
+	if(bEyeTrackingStarted)
+	{
+#ifdef WITH_SRANIPAL
+		ViveSR::anipal::Eye::GetEyeData_v2(&SranipalEyeData);
+		bDataLogged = false;
+#endif
+	}
+	return true;
+}
+
+
+void USFGazeTracker::Init(EGazeTrackerMode Mode, bool IgnoreNonGazeTargetActors, float DataGatheringsPerSecond)
 {
 	bIgnoreNonGazeTargetActors = IgnoreNonGazeTargetActors;
 	bEyeTrackingStarted = false;
@@ -32,7 +55,20 @@ void USFGazeTracker::Init(EGazeTrackerMode Mode, bool IgnoreNonGazeTargetActors)
 #else
 		FSFUtils::OpenMessageBox("SRanipal Plugin is not present, cannot use eye tracking! Check out, e.g., StudyFramework Wiki where to get it", true);
 #endif
+
+		TimeSinceLastEyeDataGather = 0.0f;
+		if (DataGatheringsPerSecond > 0.0f) {
+			EyeDataGatheringDelay = 1.0f / DataGatheringsPerSecond;
+		}
+		else
+		{
+			EyeDataGatheringDelay = 0.0f;
+		}
 	}
+
+	TickDelegate = FTickerDelegate::CreateUObject(this, &USFGazeTracker::Tick);
+	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate);
+
 }
 
 FGazeRay USFGazeTracker::GetLocalGazeDirection()
@@ -40,20 +76,13 @@ FGazeRay USFGazeTracker::GetLocalGazeDirection()
 	if(!bEyeTrackingStarted)
 	{
 		// if no eye tracker is used we always "look ahead"
-		FGazeRay GazeRay;
-		GazeRay.Origin = FVector::ZeroVector;
-		GazeRay.Direction = FVector::ForwardVector;;
-		return GazeRay;
+		return FGazeRay();
 	}
-	FVector Origin;
-	FVector Direction;
 #ifdef WITH_SRANIPAL
-	USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, Origin, Direction);
+	return GetSranipalGazeRayFromData();
+	//USRanipalEye_FunctionLibrary::GetGazeRay(GazeIndex::COMBINE, Origin, Direction);
 #endif
-	FGazeRay GazeRay;
-	GazeRay.Origin = Origin;
-	GazeRay.Direction = Direction;
-	return GazeRay;
+	return FGazeRay();
 }
 
 FGazeRay USFGazeTracker::GetWorldGazeDirection()
@@ -78,7 +107,7 @@ FGazeRay USFGazeTracker::GetWorldGazeDirection()
 FString USFGazeTracker::GetCurrentGazeTarget()
 {
 	FString GazedAtTarget = "";
-	const float Distance = 1000.0f;
+	const float Distance = 10000.0f;
 
 	FGazeRay GazeRay = GetWorldGazeDirection();
 
@@ -163,11 +192,8 @@ bool USFGazeTracker::IsTrackingEyes()
 		return false;
 
 #ifdef WITH_SRANIPAL
-	ViveSR::anipal::Eye::EyeData_v2 Data;
-	ViveSR::anipal::Eye::GetEyeData_v2(&Data);
-
 	//no_user apparently is true, when a user is there... (weird but consistent)
-	return Data.no_user;
+	return SranipalEyeData.no_user;
 #endif
 
 	return false;
@@ -181,12 +207,20 @@ float USFGazeTracker::GetEyesOpenness()
 	}
 
 #ifdef WITH_SRANIPAL
-	ViveSR::anipal::Eye::EyeData_v2 Data;
-	ViveSR::anipal::Eye::GetEyeData_v2(&Data);
-	return 0.5f * (Data.verbose_data.left.eye_openness + Data.verbose_data.right.eye_openness);
+	return 0.5f * (SranipalEyeData.verbose_data.left.eye_openness + SranipalEyeData.verbose_data.right.eye_openness);
 #endif
 
 	return -1.0f;
+}
+
+bool USFGazeTracker::DataAlreadyLogged()
+{
+	return bDataLogged;
+}
+
+void USFGazeTracker::SetDataLogged()
+{
+	bDataLogged = true;
 }
 
 float USFGazeTracker::GetPupilDiameter()
@@ -197,10 +231,35 @@ float USFGazeTracker::GetPupilDiameter()
 	}
 
 #ifdef WITH_SRANIPAL
-	ViveSR::anipal::Eye::EyeData_v2 Data;
-	ViveSR::anipal::Eye::GetEyeData_v2(&Data);
-	return 0.5f * (Data.verbose_data.left.pupil_diameter_mm + Data.verbose_data.right.pupil_diameter_mm);
+	return 0.5f * (SranipalEyeData.verbose_data.left.pupil_diameter_mm + SranipalEyeData.verbose_data.right.pupil_diameter_mm);
 #endif
 
 	return 0.0f;
+}
+
+FGazeRay USFGazeTracker::GetSranipalGazeRayFromData()
+{
+	FGazeRay GazeRay;
+
+	//this is copied from SRanipalEye_Core.cpp GetGazeRay() (case gazeIndex == GazeIndex::COMBINE)
+	bool bValid = SranipalEyeData.verbose_data.left.GetValidity(ViveSR::anipal::Eye::SingleEyeDataValidity::SINGLE_EYE_DATA_GAZE_DIRECTION_VALIDITY)
+		&& SranipalEyeData.verbose_data.right.GetValidity(ViveSR::anipal::Eye::SingleEyeDataValidity::SINGLE_EYE_DATA_GAZE_DIRECTION_VALIDITY);
+	if (bValid)
+	{
+		FVector SranipalOrigin = (SranipalEyeData.verbose_data.left.gaze_origin_mm + SranipalEyeData.verbose_data.right.gaze_origin_mm) / 1000 / 2;
+		FVector SRanipalDirection = (SranipalEyeData.verbose_data.left.gaze_direction_normalized + SranipalEyeData.verbose_data.right.gaze_direction_normalized) / 2;
+
+		//CovertToUnrealLocation(origin)
+		GazeRay.Origin.X = SranipalOrigin.Z;
+		GazeRay.Origin.Y = SranipalOrigin.X * -1;
+		GazeRay.Origin.Z = SranipalOrigin.Y;
+		//ApplyUnrealWorldToMeterScale(origin);
+		float Scale = GWorld ? GWorld->GetWorldSettings()->WorldToMeters : 100.f;
+		GazeRay.Origin *= Scale;
+		//CovertToUnrealLocation(direction);
+		GazeRay.Direction.X = SRanipalDirection.Z;
+		GazeRay.Direction.Y = SRanipalDirection.X;
+		GazeRay.Direction.Z = SRanipalDirection.Y;
+	}
+	return GazeRay;
 }

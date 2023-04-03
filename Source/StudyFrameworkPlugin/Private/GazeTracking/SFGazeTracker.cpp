@@ -240,7 +240,7 @@ float USFGazeTracker::GetPupilDiameter()
 FGazeRay USFGazeTracker::GetSranipalGazeRayFromData()
 {
 	FGazeRay GazeRay;
-
+#ifdef WITH_SRANIPAL
 	//this is copied from SRanipalEye_Core.cpp GetGazeRay() (case gazeIndex == GazeIndex::COMBINE)
 	bool bValid = SranipalEyeData.verbose_data.left.GetValidity(ViveSR::anipal::Eye::SingleEyeDataValidity::SINGLE_EYE_DATA_GAZE_DIRECTION_VALIDITY)
 		&& SranipalEyeData.verbose_data.right.GetValidity(ViveSR::anipal::Eye::SingleEyeDataValidity::SINGLE_EYE_DATA_GAZE_DIRECTION_VALIDITY);
@@ -261,5 +261,6 @@ FGazeRay USFGazeTracker::GetSranipalGazeRayFromData()
 		GazeRay.Direction.Y = SRanipalDirection.X;
 		GazeRay.Direction.Z = SRanipalDirection.Y;
 	}
+#endif
 	return GazeRay;
 }

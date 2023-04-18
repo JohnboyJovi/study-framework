@@ -83,6 +83,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Gaze Tracking"))
 	bool bIgnoreNonGazeTargetActors = false;
 
+	//frame rate for eye tracking, 30 means read eye data 30 per second (0 means use unreal framerate)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup|Gaze Tracking"))
+	float EyeTrackingFrameRate = 0.0f;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced, meta = (TitleProperty = "Name", Category = "Study Setup"))
 	TArray<USFIndependentVariable*> IndependentVariables;
 

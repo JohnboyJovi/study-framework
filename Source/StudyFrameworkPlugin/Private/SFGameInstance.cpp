@@ -123,6 +123,7 @@ void USFGameInstance::OnWorldStart()
 
 	// else we started on an unrelated map and just disable the HUD, so people can test their stuff
 	bStartedOnUnrelatedMap = true;
+	StudySetup = NewObject<ASFStudySetup>(this, TEXT("DefaultStudySetupForUnrelatedMap"));
 	InitFadeHandler(FFadeConfig());
 	FadeHandler->FadeIn();
 	FSFLoggingUtils::Log(
@@ -371,7 +372,7 @@ bool USFGameInstance::StartStudy()
 	if(StudySetup && StudySetup->UseGazeTracker != EGazeTrackerMode::NotTracking)
 	{
 		GazeTracker = NewObject<USFGazeTracker>(this, TEXT("GazeTracker"));
-		GazeTracker->Init(StudySetup->UseGazeTracker, StudySetup->bIgnoreNonGazeTargetActors );
+		GazeTracker->Init(StudySetup->UseGazeTracker, StudySetup->bIgnoreNonGazeTargetActors, StudySetup->EyeTrackingFrameRate);
 	}
 
 
@@ -606,7 +607,10 @@ USFGazeTracker* USFGameInstance::GetGazeTracker() const
 
 FExperimenterViewConfig USFGameInstance::GetExperimenterViewConfig() const
 {
-	return StudySetup->ExperimenterViewConfig;
+	if(StudySetup)
+		return StudySetup->ExperimenterViewConfig;
+	FSFLoggingUtils::Log("[USFGameInstance::GetExperimenterViewConfig] No StudySetup present, returning default ExperimenterViewConfig.", true);
+	return FExperimenterViewConfig();
 }
 
 USFExperimenterWindow* USFGameInstance::GetExperimenterWindow() const
@@ -637,6 +641,12 @@ void USFGameInstance::OnLevelLoaded()
 
 void USFGameInstance::OnFadedIn()
 {
+	if(Participant && Participant->GetCurrentCondition())
+	{
+		//this should be logged first
+		USFLoggingBPLibrary::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
+	}
+
 	OnFadedInDelegate.Broadcast();
 
 	if(bStartedOnUnrelatedMap)
@@ -645,7 +655,6 @@ void USFGameInstance::OnFadedIn()
 	}
 
 	Participant->GetCurrentCondition()->Begin();
-	USFLoggingBPLibrary::LogComment("Start Condition: " + Participant->GetCurrentCondition()->GetPrettyName());
 
 	UpdateHUD("Condition "+FString::FromInt(GetCurrentConditionsSequenceNumber())+"/"+FString::FromInt(Participant->GetAllConditions().Num()));
 }

@@ -75,8 +75,15 @@ public:
 	//Get the level of a given factor in the current condition
 	//use this to configure everything in the scene for this condition
 	//Right Level is already accessible in BeginPlay
+	//return "FactorNotPresent" and prints an error if factor does not exist
 	UFUNCTION(BlueprintCallable)
 	FString GetFactorLevel(FString FactorName) const;
+
+	//Returns whether a factor with the given name is available in the current condition
+	//calling GetFactorLevel() directly will also work for non-existing factors
+	//but will also print an error
+	UFUNCTION(BlueprintCallable)
+	bool HasFactor(FString FactorName) const;
 
 	//Get value reported for an independet variable or "" if none was recorded
 	UFUNCTION(BlueprintCallable)

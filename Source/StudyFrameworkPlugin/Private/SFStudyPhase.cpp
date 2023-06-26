@@ -204,8 +204,9 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantSequenceN
 			continue;
 		}
 
-		TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(ParticipantSequenceNr + PhaseIndex, Factor->Levels.Num());
-		if (LatinSquare.Num() < ConditionsIndices.Num())
+		TArray<int> RandomOrder = {};
+		int RandomOrderIndex = 0;
+		if (Factor->Levels.Num() < ConditionsIndices.Num())
 		{
 			FSFLoggingUtils::Log(
 				"[USFStudyPhase::GenerateConditions] nonCombined factor levels will be repeated, since factor " + Factor->
@@ -216,8 +217,27 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantSequenceN
 		{
 			check(ConditionsIndices[j][i]==-1);
 
-			//repeat the latin square if it does not provide enough levels
-			ConditionsIndices[j][i] = LatinSquare[j % Factor->Levels.Num()];
+			if(RandomOrderIndex >= RandomOrder.Num())
+			{
+				//generate a new random order (since we maybe have to repeat the levels of this factor and then each repetition should be random
+				RandomOrder = USFStudyFactor::GenerateRandomOrder(ParticipantSequenceNr + PhaseIndex + i + j, Factor->Levels.Num());
+				RandomOrderIndex = 0;
+			}
+
+			if(Factor->NonCombinedMixingOrder == ENonCombinedFactorMixingOrder::RandomOrder)
+			{
+				ConditionsIndices[j][i] = RandomOrder[RandomOrderIndex++];
+			}
+			else if (Factor->NonCombinedMixingOrder == ENonCombinedFactorMixingOrder::InOrder)
+			{
+				ConditionsIndices[j][i] = RandomOrderIndex++;
+			}
+			else
+			{
+				FSFLoggingUtils::Log(
+					"[USFStudyPhase::GenerateConditions] unknown non-combined mixing order!");
+			}
+			
 		}
 	}
 

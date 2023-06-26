@@ -39,6 +39,18 @@ TSharedPtr<FJsonObject> USFStudyFactor::GetAsJson() const
 		FSFLoggingUtils::Log("[USFStudyFactor::GetAsJson] unknown MixingOrder!", true);
 	}
 
+	switch (NonCombinedMixingOrder)
+	{
+	case ENonCombinedFactorMixingOrder::RandomOrder:
+		Json->SetStringField("NonCombinedMixingOrder", "RandomOrder");
+		break;
+	case ENonCombinedFactorMixingOrder::InOrder:
+		Json->SetStringField("NonCombinedMixingOrder", "InOrder");
+		break;
+	default:
+		FSFLoggingUtils::Log("[USFStudyFactor::GetAsJson] unknown NonCombinedMixingOrder!", true);
+	}
+
 	switch (Type)
 	{
 	case EFactorType::Within:
@@ -85,6 +97,20 @@ void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 		FSFLoggingUtils::Log("[USFStudyFactor::FromJson] unknown MixingOrder: " + MixingOrderStr, true);
 	}
 
+	FString NonCombinedMixingOrderStr = Json->GetStringField("NonCombinedMixingOrder");
+	if (NonCombinedMixingOrderStr == "RandomOrder")
+	{
+		NonCombinedMixingOrder = ENonCombinedFactorMixingOrder::RandomOrder;
+	}
+	else if (NonCombinedMixingOrderStr == "InOrder")
+	{
+		NonCombinedMixingOrder = ENonCombinedFactorMixingOrder::InOrder;
+	}
+	else
+	{
+		FSFLoggingUtils::Log("[USFStudyFactor::FromJson] unknown NonCombinedMixingOrder: " + MixingOrderStr, true);
+	}
+
 	FString TypeStr = Json->GetStringField("Type");
 	if (TypeStr == "Within")
 	{
@@ -106,10 +132,6 @@ void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 bool USFStudyFactor::CanEditChange(const FProperty * InProperty) const
 {
 	if(InProperty->GetFName()=="MixingOrder" && (bNonCombined || Type==EFactorType::Between))
-	{
-		return false;
-	}
-	if(InProperty->GetFName()=="Type" && bNonCombined)
 	{
 		return false;
 	}
@@ -163,4 +185,26 @@ TArray<int> USFStudyFactor::GenerateLatinSquareOrder(int OrderNr, int NrConditio
 	}
 
 	return Result;
+}
+
+TArray<int> USFStudyFactor::GenerateRandomOrder(int OrderNr, int NrConditions)
+{
+	//not the most efficient implementation, but straight forward. Efficiency is not so important when creating study runs.
+	FRandomStream RNG(OrderNr);
+	//Create Ordered List;
+	TArray<int> Conditions;
+	for (int i = 0; i < NrConditions; ++i)
+	{
+		Conditions.Add(i);
+	}
+
+	TArray<int> RandomConditions;
+	for (int i = 0; i < NrConditions; ++i)
+	{
+		int RandomIndex = RNG.RandRange(0, Conditions.Num() - 1);
+		RandomConditions.Add(Conditions[RandomIndex]);
+		Conditions.RemoveAt(RandomIndex);
+	}
+	check(Conditions.Num()==0)
+	return RandomConditions;
 }

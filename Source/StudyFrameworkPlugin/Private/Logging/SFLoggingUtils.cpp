@@ -6,7 +6,6 @@
 
 #include "SFGameInstance.h"
 
-#include "Utility/VirtualRealityUtilities.h"
 
 #include "IUniversalLogging.h"
 #include "Help/SFUtils.h"

@@ -11,7 +11,8 @@
 #include "HUD/SFMasterHUD.h"
 #include "GazeTracking/SFGazeTracker.h"
 
-#include "Events/DisplayClusterEventWrapper.h"
+#include "Cluster/IDisplayClusterClusterManager.h"
+#include "Cluster/DisplayClusterClusterEvent.h"
 
 #include "Widgets/SWindow.h"
 
@@ -171,8 +172,12 @@ protected:
 
 	void EndStudy();
 
-	void GoToConditionSynced(FString ConditionName, bool bForced);
-	DECLARE_DISPLAY_CLUSTER_EVENT(USFGameInstance, GoToConditionSynced);
+	//we use cluster events so GoToConditionSynced can not run out of sync when using nDisplay in cluster mode
+	void GoToConditionSynced(FString ConditionName, bool bForced); //send the cluster event
+	void HandleGoToConditionSynced(FString ConditionName, bool bForced); //process the cluter event
+	FOnClusterEventJsonListener ClusterEventListenerDelegate;
+	void HandleClusterEvent(const FDisplayClusterClusterEventJson& Event);
+
 
 	void RestoreLastParticipantForDebugStart(USFCondition* InStartCondition);
 	//method called by a timer if we want to directly fade in on startup

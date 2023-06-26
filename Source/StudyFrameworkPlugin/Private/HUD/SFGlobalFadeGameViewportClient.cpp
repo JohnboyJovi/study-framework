@@ -7,7 +7,6 @@
 
 #include "Engine/Canvas.h"
 #include "HUD/SFMasterHUD.h"
-#include "Utility/VirtualRealityUtilities.h"
 
 // Link to the Tutorial of the manual Viewport Client
 // https://nerivec.github.io/old-ue4-wiki/pages/global-fade-in-out.html
@@ -77,7 +76,7 @@ void USFGlobalFadeGameViewportClient::DrawScreenFade(UCanvas* Canvas)
 				MasterHUD = Cast<ASFMasterHUD>(PlayerController->GetHUD());
 			}
 
-			if (MasterHUD && UVirtualRealityUtilities::IsMaster())
+			if (MasterHUD && FSFUtils::IsPrimary())
 			{
 				//if we use the HUD let it do the fading, so it can still be seen when faded out
 				MasterHUD->SetBackgroundAlpha(FadeColorTmp.A);

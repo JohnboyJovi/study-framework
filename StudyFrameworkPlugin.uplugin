@@ -26,10 +26,6 @@
       "Enabled": true
     },
     {
-      "Name": "RWTHVRToolkit",
-      "Enabled": true
-    },
-    {
       "Name": "UniversalLogging",
       "Enabled": true
     }

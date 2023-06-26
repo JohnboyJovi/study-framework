@@ -28,4 +28,7 @@ public:
 
 	static UWorld* GetWorld();
 	static FString GetStudyFrameworkPath();
+
+	static bool IsPrimary();
+	static bool IsHMD();
 };

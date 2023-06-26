@@ -8,7 +8,6 @@
 
 #include "IXRTrackingSystem.h"
 #include "HUD/SFHUDWidget.h"
-#include "Pawn/VirtualRealityPawn.h"
 #include "GameFramework/PlayerController.h"
 #include "Slate/SceneViewport.h"
 
@@ -58,15 +57,15 @@ void ASFHMDSpectatorHUDHelp::Tick(float DeltaSeconds)
 
 	//the widget needs to be always be facing away, so we do not see it in the HMD view
 	//we also move it down 10m so it does not get in our way when interacting etc.
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	AVirtualRealityPawn* Pawn = Cast<AVirtualRealityPawn>(PlayerController->AcknowledgedPawn);
-	FVector HeadPos = Pawn->Head->GetComponentLocation();
+	const APlayerCameraManager* CamManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+	FVector HeadPos = CamManager->GetCameraLocation();
 	SetActorLocation(HeadPos + 1000 * FVector::DownVector);
 	SetActorRotation(FQuat::FindBetweenNormals(FVector(0,0,1),(GetActorLocation()-HeadPos).GetSafeNormal()).Rotator());
 
 
 
 	//Set cursor to the right place
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	USFHUDWidget* HUDWidget = Cast<USFHUDWidget>(WidgetComponent->GetWidget());
 	FVector2D CursorPos = GetAbsoluteLocationForCursorWidgetFromMousePosition(PlayerController, DrawSize);
 	HUDWidget->SetCursorWidgetPosition(CursorPos);

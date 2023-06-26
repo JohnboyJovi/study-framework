@@ -8,7 +8,6 @@
 
 #include "IXRTrackingSystem.h"
 #include "HUD/SFHUDWidget.h"
-#include "Pawn/VirtualRealityPawn.h"
 #include "GameFramework/PlayerController.h"
 #include "Slate/SceneViewport.h"
 

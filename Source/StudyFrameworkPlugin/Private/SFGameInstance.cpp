@@ -26,7 +26,13 @@ void USFGameInstance::Init()
 
 	GEngine->GameViewportClientClass = USFGlobalFadeGameViewportClient::StaticClass();
 
-	GoToConditionSyncedEvent.Attach(this);
+	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
+	{
+		ClusterEventListenerDelegate = FOnClusterEventJsonListener::CreateUObject(this, &USFGameInstance::HandleClusterEvent);
+		ClusterManager->AddClusterEventJsonListener(ClusterEventListenerDelegate);
+	}
+
 
 	Instance = this;
 	LogObject = NewObject<USFLogObject>();
@@ -53,7 +59,14 @@ void USFGameInstance::Init()
 
 void USFGameInstance::Shutdown()
 {
-	GoToConditionSyncedEvent.Detach();
+
+	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+	if (ClusterManager && ClusterEventListenerDelegate.IsBound())
+	{
+		ClusterManager->RemoveClusterEventJsonListener(ClusterEventListenerDelegate);
+	}
+
+
 	if(ExperimenterWindow)
 	{
 		ExperimenterWindow->DestroyWindow();
@@ -432,11 +445,47 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition, bool bForced 
 		FSFLoggingUtils::Log("[USFGameInstance::GoToCondition()]: Could not load next condition.", true);
 		return false;
 	}
-	GoToConditionSyncedEvent.Send(Condition->UniqueName, bForced);
+	GoToConditionSynced(Condition->UniqueName, bForced);
 	return true;
 }
 
 void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced)
+{
+	const EDisplayClusterOperationMode OperationMode = IDisplayCluster::Get().GetOperationMode();
+	if (OperationMode != EDisplayClusterOperationMode::Cluster)
+	{
+		HandleGoToConditionSynced(ConditionName, bForced);
+	}
+	else
+	{
+		IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+		check(ClusterManager != nullptr);
+
+		FDisplayClusterClusterEventJson ClusterEvent;
+		ClusterEvent.Type = "SFGameInstanceEvent";
+		ClusterEvent.Name = "GoToConditionSynced";
+		TMap<FString, FString> Params;
+		Params.Add("ConditionName", ConditionName);
+		Params.Add("bForced", bForced ?"true":"false");
+		ClusterEvent.Parameters = Params;
+		ClusterEvent.bShouldDiscardOnRepeat = true;
+
+		ClusterManager->EmitClusterEventJson(ClusterEvent, true);
+	}
+}
+
+void USFGameInstance::HandleClusterEvent(const FDisplayClusterClusterEventJson& Event) {
+	if (Event.Type == "SFGameInstanceEvent") {
+		//now we actually react on all cluster nodes:
+		if(Event.Name == "GoToConditionSynced")
+		{
+			HandleGoToConditionSynced(Event.Parameters["ConditionName"], Event.Parameters["bForced"] == "true");
+		}
+	}
+}
+
+
+void USFGameInstance::HandleGoToConditionSynced(FString ConditionName, bool bForced)
 {
 	USFCondition* NextCondition = nullptr;
 	for (USFCondition* Condition : Participant->GetAllConditions())

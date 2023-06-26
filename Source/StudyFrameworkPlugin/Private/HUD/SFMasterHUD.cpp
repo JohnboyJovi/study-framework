@@ -8,7 +8,6 @@
 #include "SFPlugin.h"
 #include "Help/SFUtils.h"
 
-#include "Utility/VirtualRealityUtilities.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 
 
@@ -18,7 +17,7 @@ ASFMasterHUD::ASFMasterHUD()
 
 void ASFMasterHUD::DrawHUD()
 {
-	if (UVirtualRealityUtilities::IsMaster())
+	if (FSFUtils::IsPrimary())
 	{
 		DrawBackground();
 	}
@@ -49,13 +48,13 @@ void ASFMasterHUD::BeginPlay()
 	}
 
 	HMDHUDHelper = nullptr;
-	if (UVirtualRealityUtilities::IsHeadMountedMode())
+	if (FSFUtils::IsHMD())
 	{
 		HMDHUDHelper = Cast<ASFHMDSpectatorHUDHelp>(
 			GetWorld()->SpawnActor(ASFHMDSpectatorHUDHelp::StaticClass()));
 		HUDWidget = Cast<USFHUDWidget>(HMDHUDHelper->CreateWidget(SFWidgetClass));
 	}
-	else if (UVirtualRealityUtilities::IsMaster())
+	else if (FSFUtils::IsPrimary())
 	{
 		HUDWidget = CreateWidget<USFHUDWidget>(GetWorld(), SFWidgetClass);
 	}

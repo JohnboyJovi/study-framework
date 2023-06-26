@@ -6,18 +6,19 @@
 #include "Misc/MessageDialog.h"
 #include "Misc/FileHelper.h"
 
+#include "AudioDevice.h"
+
 #include "Json.h"
 
 #include "SFPlugin.h"
 #include "SFGameInstance.h"
 
-#include "Utility/VirtualRealityUtilities.h"
 
 #include "IUniversalLogging.h"
 
 void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 {
-	if (!UVirtualRealityUtilities::IsMaster())
+	if (!IsPrimary())
 	{
 		return;
 	}
@@ -118,4 +119,25 @@ UWorld* FSFUtils::GetWorld()
 FString FSFUtils::GetStudyFrameworkPath()
 {
 	return FPaths::ProjectDir() + "StudyFramework/";
+}
+
+bool FSFUtils::IsPrimary()
+{
+	if (!IDisplayCluster::IsAvailable())
+	{
+		return true;
+	}
+	IDisplayClusterClusterManager* Manager = IDisplayCluster::Get().GetClusterMgr();
+	if (Manager == nullptr)
+	{
+		return true; // if we are not in cluster mode, we are always the master
+	}
+	return Manager->IsMaster() || !Manager->IsSlave();
+}
+
+bool FSFUtils::IsHMD()
+{
+	// In editor builds: checks for EdEngine->IsVRPreviewActive()
+	// In packaged builds: checks for `-vr` in commandline or bStartInVR in UGeneralProjectSettings
+	return FAudioDevice::CanUseVRAudioDevice();
 }

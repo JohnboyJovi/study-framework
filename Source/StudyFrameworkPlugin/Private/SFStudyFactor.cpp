@@ -108,7 +108,7 @@ void USFStudyFactor::FromJson(TSharedPtr<FJsonObject> Json)
 	}
 	else
 	{
-		FSFLoggingUtils::Log("[USFStudyFactor::FromJson] unknown NonCombinedMixingOrder: " + MixingOrderStr, true);
+		FSFLoggingUtils::Log("[USFStudyFactor::FromJson] unknown NonCombinedMixingOrder: " + NonCombinedMixingOrderStr, true);
 	}
 
 	FString TypeStr = Json->GetStringField("Type");

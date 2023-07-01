@@ -90,6 +90,9 @@ FGazeRay USFGazeTracker::GetWorldGazeDirection()
 	FGazeRay LocalGazeRay = GetLocalGazeDirection();
 
 	UWorld* World = USFGameInstance::Get()->GetWorld();
+	if (!World->GetFirstPlayerController()) {
+		return FGazeRay();
+	}
 
 	//the gaze ray is relative to the HMD
 	const APlayerCameraManager* CamManager = World->GetFirstPlayerController()->

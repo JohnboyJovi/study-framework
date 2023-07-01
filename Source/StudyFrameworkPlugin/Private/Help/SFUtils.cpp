@@ -33,12 +33,12 @@ void FSFUtils::OpenMessageBox(const FString Text, const bool bError/*=false*/)
 int FSFUtils::OpenCustomDialog(const FString& Title, const FString& Content, const TArray<FString>& Buttons)
 {
 
-	TArray<SCustomDialog::FButton> Buttons_Text;
+	TArray<SFCustomDialog::FButton> Buttons_Text;
 	for (const FString& Btn : Buttons) {
-		Buttons_Text.Add(SCustomDialog::FButton(FText::FromString(Btn)));
+		Buttons_Text.Add(SFCustomDialog::FButton(FText::FromString(Btn)));
 	}
 
-	TSharedRef<SCustomDialog> Dialog = SNew(SCustomDialog)
+	TSharedRef<SFCustomDialog> Dialog = SNew(SFCustomDialog)
 		.Title(FText(FText::FromString(Title)))
 		.DialogContent(SNew(STextBlock).Text(FText::FromString(Content)))
 		.Buttons(Buttons_Text);
@@ -58,11 +58,11 @@ int FSFUtils::OpenCustomDialogText(const FString& Title, const FString& Content,
 	VBox->AddSlot().AttachWidget(ContentWidget);
 	VBox->AddSlot().AttachWidget(Border);
 
-	TSharedRef<SCustomDialog> Dialog = SNew(SCustomDialog)
+	TSharedRef<SFCustomDialog> Dialog = SNew(SFCustomDialog)
 		.Title(FText(FText::FromString(Title)))
 		.DialogContent(VBox)
 		.Buttons({
-			SCustomDialog::FButton(FText::FromString("Submit"))
+			SFCustomDialog::FButton(FText::FromString("Submit"))
 		});
 
 	int Result = Dialog->ShowModal();

@@ -158,6 +158,10 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 		return;
 	}
 
+	if (!USFGameInstance::Get()->GetWorld()->GetFirstPlayerController()) {
+		return;
+	}
+
 	if (!USFGameInstance::Get()->GetLogObject()->bGazingLoggingFileCreated)
 	{
 		USFGameInstance::Get()->GetLogObject()->CreateGazeTrackingLogFile();

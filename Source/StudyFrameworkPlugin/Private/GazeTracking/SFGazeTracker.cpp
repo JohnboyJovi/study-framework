@@ -14,8 +14,6 @@
 
 bool USFGazeTracker::Tick(float DeltaTime)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Tick ds: %f"), DeltaTime)
-
 	TimeSinceLastEyeDataGather += DeltaTime;
 	if (TimeSinceLastEyeDataGather < EyeDataGatheringDelay)
 	{

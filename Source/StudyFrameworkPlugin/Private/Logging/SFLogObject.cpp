@@ -158,8 +158,7 @@ void USFLogObject::WriteGazeTrackingLogToFile() {
 		return;
 	}
 
-	UWorld* World = USFGameInstance::Get()->GetWorld();
-	if (!World->GetFirstPlayerController() || !USFGameInstance::Get()->GetHUD()) {
+	if (!USFGameInstance::Get()->GetWorld()->GetFirstPlayerController()) {
 		return;
 	}
 

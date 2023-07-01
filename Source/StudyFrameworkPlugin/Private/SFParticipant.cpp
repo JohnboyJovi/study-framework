@@ -215,7 +215,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 	                              &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 
-void USFParticipant::StoreTrialInPhaseLongTable(USFMultipleTrialDependentVariable* DependentVariable, TArray<FString> Values) const
+void USFParticipant::StoreTrialInTrialDVLongTable(USFMultipleTrialDependentVariable* DependentVariable, TArray<FString> Values) const
 {
 	USFCondition* CurrCondition = GetCurrentCondition();
 	FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + CurrCondition->PhaseName + "_" + DependentVariable->Name + ".csv";
@@ -304,6 +304,62 @@ void USFParticipant::StoreInIndependentVarLongTable() const
 		FFileHelper::SaveStringToFile(*VarValues, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
 			&IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 	}
+}
+
+void USFParticipant::DeleteStoredDataForConditionFromLongTable(USFCondition* Condition)
+{
+	const FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + Condition->PhaseName + ".csv";
+	RemoveLinesOfConditionAndWriteToFile(Condition, Filename);
+}
+
+void USFParticipant::DeleteStoredTrialDataForCondition(USFCondition* Condition, USFMultipleTrialDependentVariable* DependentVariable)
+{
+	const FString Filename = FPaths::ProjectDir() + "StudyFramework/StudyLogs/Phase_" + Condition->PhaseName + "_" + DependentVariable->Name + ".csv";
+	RemoveLinesOfConditionAndWriteToFile(Condition, Filename);
+}
+
+void USFParticipant::RemoveLinesOfConditionAndWriteToFile(USFCondition* Condition, const FString Filename)
+{
+	TArray<FString> Lines;
+	TArray<FString> CleanedLines;
+	if (!FFileHelper::LoadFileToStringArray(Lines, *Filename))
+	{
+		FSFLoggingUtils::Log("[USFParticipant::RemoveLinesOfConditionAndWriteToFile] Cannot read file: " + Filename + " (probably there was no data recorded yet).", false);
+		return;
+	}
+
+	TArray<FString> HeaderEntries;
+	if (Lines.Num() > 0)
+	{
+		Lines[0].ParseIntoArray(HeaderEntries, TEXT(","), false);
+	}
+	CleanedLines.Add(Lines[0]);
+
+	for (int i = 1; i < Lines.Num(); ++i)
+	{
+		TArray<FString> Entries;
+		Lines[i].ParseIntoArray(Entries, TEXT(","), false);
+
+		if (Entries.Num() > 0 && Entries[0] == ParticipantID)
+		{
+			//so this is a line of this participant, but also from the right condition?
+			bool bRightCondition = true;
+			for (auto FactorLevel : Condition->FactorLevels)
+			{
+				if (Entries[HeaderEntries.Find(FactorLevel.Key)] != FactorLevel.Value)
+				{
+					//This line does not belong to this condition
+					bRightCondition = false;
+				}
+			}
+			if (!bRightCondition)
+			{
+				CleanedLines.Add(Lines[i]);
+			}
+		}
+	}
+	FFileHelper::SaveStringArrayToFile(CleanedLines, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
+		&IFileManager::Get(), EFileWrite::FILEWRITE_None);
 }
 
 bool USFParticipant::StartStudy()
@@ -615,7 +671,7 @@ bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 		{
 			StoreInPhaseLongTable();
 		}
-		else
+		else if (!NextCondition->WasStarted()) //otherwise we are restarting a condition, so obviously not finishing the current one
 		{
 			FSFLoggingUtils::Log(
 				"[USFParticipant::SetCondition] Not storing unfinished last condition, when going to next. Make sure all required dependent variables received data!",

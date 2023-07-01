@@ -75,8 +75,9 @@ public:
 	// So: USE WITH CARE!
 	static void ClearPhaseLongtables(ASFStudySetup* StudySetup);
 
-	void StoreTrialInPhaseLongTable(USFMultipleTrialDependentVariable* DependentVariable, TArray<FString> Values) const;
-
+	void StoreTrialInTrialDVLongTable(USFMultipleTrialDependentVariable* DependentVariable, TArray<FString> Values) const;
+	void DeleteStoredDataForConditionFromLongTable(USFCondition* Condition);
+	void DeleteStoredTrialDataForCondition(USFCondition* Condition, USFMultipleTrialDependentVariable* DependentVariable);
 
 protected:
 	bool SetCondition(const USFCondition* NextCondition);
@@ -90,6 +91,8 @@ protected:
 
 	void StoreInPhaseLongTable() const;
 	void StoreInIndependentVarLongTable() const;
+	void RemoveLinesOfConditionAndWriteToFile(USFCondition* Condition, FString Filename);
+
 
 	FString ParticipantID;
 	//sequence number is used for randomization etc. it is also unique per participant and starts at 0

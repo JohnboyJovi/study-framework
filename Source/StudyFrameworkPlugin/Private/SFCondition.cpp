@@ -155,7 +155,7 @@ bool USFCondition::StoreMultipleTrialDependentVariableData(const FString& VarNam
 	{
 		SanitizeValueForCSV(Value);
 	}
-	USFGameInstance::Get()->GetParticipant()->StoreTrialInPhaseLongTable(TrialDependentVar, SanitizedValues);
+	USFGameInstance::Get()->GetParticipant()->StoreTrialInTrialDVLongTable(TrialDependentVar, SanitizedValues);
 
 	std::vector<FString> ValuesVector;
 	for(const FString& Value : SanitizedValues)

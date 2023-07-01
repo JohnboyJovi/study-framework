@@ -497,7 +497,23 @@ void USFGameInstance::HandleGoToConditionSynced(FString ConditionName, bool bFor
 	}
 
 	USFCondition* LastCondition = Participant->GetCurrentCondition();
-	if (LastCondition && LastCondition->WasStarted())
+
+	if(NextCondition->WasStarted() && bForced)
+	{
+		LogComment("Restarting Condition " + NextCondition->UniqueName + ", so we delete all gathered data for that condition.");
+
+		//so remove already stored data!
+		Participant->DeleteStoredDataForConditionFromLongTable(NextCondition);
+		for (USFDependentVariable* DV : NextCondition->DependentVariables)
+		{
+			if(USFMultipleTrialDependentVariable* MTDV = Cast<USFMultipleTrialDependentVariable>(DV))
+			{
+				Participant->DeleteStoredTrialDataForCondition(NextCondition, MTDV);
+			}
+		}
+
+	}
+	else if (LastCondition && LastCondition->WasStarted())
 	{
 		TArray<FString> UnfinishedVars = LastCondition->End();
 		if (UnfinishedVars.Num() != 0)

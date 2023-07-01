@@ -61,8 +61,7 @@ void USFMultipleTrialDependentVariable::RecoverStudyResults(USFCondition* Condit
 	}
 }
 
-void USFMultipleTrialDependentVariable::RecoverStudyResultsOfLine(const TArray<FString>& Header,
-	const TArray<FString>& Entries, USFCondition* Condition)
+void USFMultipleTrialDependentVariable::RecoverStudyResultsOfLine(const TArray<FString>& Header, const TArray<FString>& Entries, USFCondition* Condition)
 {
 	check(Header.Num() == Entries.Num())
 
@@ -71,7 +70,7 @@ void USFMultipleTrialDependentVariable::RecoverStudyResultsOfLine(const TArray<F
 		if (!Header.Contains(FactorLevel.Key) || Entries[Header.Find(FactorLevel.Key)] != FactorLevel.Value)
 		{
 			//This line does not belong to this condition
-			return;;
+			return;
 		}
 	}
 

@@ -290,6 +290,7 @@ TSharedPtr<FJsonObject> ASFStudySetup::GetAsJson() const
 	if(UseGazeTracker == EGazeTrackerMode::HeadRotationOnly) Json->SetStringField("UseGazeTracker", "HeadRotationOnly");
 	if(UseGazeTracker == EGazeTrackerMode::EyeTracking) Json->SetStringField("UseGazeTracker", "EyeTracking");
 	Json->SetBoolField("bIgnoreNonGazeTargetActors", bIgnoreNonGazeTargetActors);
+	Json->SetBoolField("bNoFadingOnSameMap", bNoFadingOnSameMap);
 
 	return Json;
 }
@@ -326,6 +327,7 @@ void ASFStudySetup::FromJson(TSharedPtr<FJsonObject> Json)
 	if(Json->GetStringField("UseGazeTracker") == "HeadRotationOnly") UseGazeTracker = EGazeTrackerMode::HeadRotationOnly;
 	if(Json->GetStringField("UseGazeTracker") == "EyeTracking") UseGazeTracker = EGazeTrackerMode::EyeTracking;
 	bIgnoreNonGazeTargetActors = Json->GetBoolField("bIgnoreNonGazeTargetActors");
+	bNoFadingOnSameMap = Json->GetBoolField("bNoFadingOnSameMap");
 }
 
 void ASFStudySetup::LoadSetupFile()

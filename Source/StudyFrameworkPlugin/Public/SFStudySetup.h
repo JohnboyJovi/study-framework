@@ -103,6 +103,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
 	bool bUseCustomParticipantIDs = false;
 
+	//this will allow studies to do no fading -in and -out when having two consecutive conditions on the same map
+	//instead OnFadedIn() is directly called. This also means that BeginPlay cannot be used to set up everything according to factor levels,
+	//since the map is not started/loaded anew. Developers need to take care themselves to clean up everything during OnFadedIn delegate calls
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Category = "Study Setup"))
+	bool bNoFadingOnSameMap = false;
+
 	// ****************************************************************** // 
 	// ******* Getters ************************************************** //
 	// ****************************************************************** //

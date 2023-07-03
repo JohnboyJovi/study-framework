@@ -49,8 +49,6 @@ void USFFadeHandler::Tick()
 	case EFadeState::FadingOut:
 		if(!NewLevelName.IsEmpty())
 		{
-			// reset logging info array for new condition, because actors in list will be destroyed and garbage collected when new level is loaded
-			USFGameInstance::Get()->GetLogObject()->RemoveAllTrackedComponents();
 			FSFLoggingUtils::Log("[USFFadeHandler::Tick()]: Opening Level now", false);
 			UGameplayStatics::OpenLevel(GameInstance->GetWorld(), *NewLevelName, false);
 			SetTimerForNextTick();
@@ -95,7 +93,7 @@ void USFFadeHandler::Tick()
 	}
 }
 
-void USFFadeHandler::FadeToLevel(const FString& LevelName, const bool bStartFadeFadedOut)
+void USFFadeHandler::FadeToLevel(const FString& NextLevelName, const bool bStartFadeFadedOut)
 {
 	if (GetCameraManager() == nullptr)
 	{
@@ -108,11 +106,16 @@ void USFFadeHandler::FadeToLevel(const FString& LevelName, const bool bStartFade
 	}
 	// Pause Logging Loops (e.g. position logging) between conditions
 	USFGameInstance::Get()->GetLogObject()->SetLoggingLoopsActive(false);
+	// reset logging info array for new condition, because actors in list will be destroyed and garbage collected when new level is loaded
+	USFGameInstance::Get()->GetLogObject()->RemoveAllTrackedComponents();
+	FString CurrentLevelName = USFGameInstance::Get()->GetWorld()->GetMapName();
+	CurrentLevelName.RemoveFromStart(USFGameInstance::Get()->GetWorld()->StreamingLevelsPrefix);
 	FSFLoggingUtils::Log(
-		"[USFFadeHandler::FadeToLevel()]: Fading From level (" + USFGameInstance::Get()->GetWorld()->GetMapName() + ") to level (" +
-		LevelName + ")", false);
+		"[USFFadeHandler::FadeToLevel()]: Fading From level (" + CurrentLevelName + ") to level (" + NextLevelName + ")", false);
+
 	if (bStartFadeFadedOut || bIsFadedOut)
 	{
+		//we only need to fade in
 		if (bIsFadedOut)
 		{
 			bIsFadedOut = false;
@@ -120,14 +123,23 @@ void USFFadeHandler::FadeToLevel(const FString& LevelName, const bool bStartFade
 		Fade(0.0f, true);
 		FadeState = EFadeState::FadingOut;
 	}
+	else if (USFGameInstance::Get()->GetStudySetup()->bNoFadingOnSameMap 
+		&& CurrentLevelName == FPackageName::GetShortName(NextLevelName))
+	{
+		//bNoFadingOnSameMap and fade to same map, so no fading, but pretend we "faded in"
+		FadeState = EFadeState::FadingIn;
+		FSFLoggingUtils::Log(
+			"[USFFadeHandler::FadeToLevel()]: Actually not fading but just calling OnFaded in (bNoFadingOnSameMap)", false);
+	}
 	else
 	{
+		//fade out and then in again
 		Fade(FadeConfig.FadeDuration, true);
 		FadeState = EFadeState::FadingOut;
 	}
 
 
-	NewLevelName = LevelName;
+	NewLevelName = NextLevelName;
 	SetTimerForNextTick();
 }
 

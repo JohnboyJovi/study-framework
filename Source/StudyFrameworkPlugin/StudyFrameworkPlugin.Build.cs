@@ -70,7 +70,8 @@ public class StudyFrameworkPlugin : ModuleRules
         //see https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/plugins/unreal-study-framework/-/wikis/EyeTracking how to add it
         string PluginsPath = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../.."));
         bool bSRanipalPlugin = Directory.Exists(Path.Combine(PluginsPath, "SRanipal"));
-        if(bSRanipalPlugin)
+		//so we check whether the plugin is present (however, this only works for windows)
+        if(bSRanipalPlugin && Target.Platform == UnrealTargetPlatform.Win64)
         {
             PrivateDefinitions.Add("WITH_SRANIPAL");
             PrivateDependencyModuleNames.AddRange(new string[] {"SRanipal", "SRanipalEye" });

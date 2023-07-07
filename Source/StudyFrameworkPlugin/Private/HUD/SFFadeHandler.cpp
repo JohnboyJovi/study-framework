@@ -93,7 +93,7 @@ void USFFadeHandler::Tick()
 	}
 }
 
-void USFFadeHandler::FadeToLevel(const FString& NextLevelName, const bool bStartFadeFadedOut)
+void USFFadeHandler::FadeToLevel(const FString& NextLevelName, bool bForceFade, const bool bStartFadeFadedOut)
 {
 	if (GetCameraManager() == nullptr)
 	{
@@ -124,7 +124,8 @@ void USFFadeHandler::FadeToLevel(const FString& NextLevelName, const bool bStart
 		FadeState = EFadeState::FadingOut;
 	}
 	else if (USFGameInstance::Get()->GetStudySetup()->bNoFadingOnSameMap 
-		&& CurrentLevelName == FPackageName::GetShortName(NextLevelName))
+		&& CurrentLevelName == FPackageName::GetShortName(NextLevelName)
+		&& !bForceFade)
 	{
 		//bNoFadingOnSameMap and fade to same map, so no fading, but pretend we "faded in"
 		FadeState = EFadeState::FadingIn;
@@ -157,7 +158,7 @@ void USFFadeHandler::FadeIn()
 
 void USFFadeHandler::FadeOut()
 {
-	FadeToLevel("");
+	FadeToLevel("", true);
 }
 
 

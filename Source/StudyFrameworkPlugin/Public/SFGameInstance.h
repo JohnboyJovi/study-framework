@@ -51,13 +51,17 @@ public:
 
 	//Fade to the next condition (use this to proceed in the study once condition is done)
 	//bForce also goes to the next condition if the current condition was not finished (not all required dependent variables gathered)
+	//bForceFade: unless specified differently in the StudySetup it is faded between every two conditions, if bNoFadingOnSameMap is set to false,
+	//            bForceFade forces to fade anyways between two conditions on the same map and has not effect otherwise 
 	UFUNCTION(BlueprintCallable)
-	bool NextCondition(bool bForce = false);
+	bool NextCondition(bool bForce = false, bool bForceFade = false);
 
 	//This method can be used to jump to a specific condition (DO NOT USE during normal study run)
 	//bForce also goes to the next condition if the current condition was not finished (not all required dependent variables gathered)
+	//bForceFade: unless specified differently in the StudySetup it is faded between every two conditions, if bNoFadingOnSameMap is set to false,
+	//            bForceFade forces to fade anyways between two conditions on the same map and has not effect otherwise 
 	UFUNCTION(BlueprintCallable)
-	bool GoToCondition(const USFCondition* Condition, bool bForce = false);
+	bool GoToCondition(const USFCondition* Condition, bool bForce = false, bool bForceFade = false);
 
 	//Whether the study was started already
 	UFUNCTION(BlueprintCallable)
@@ -173,8 +177,8 @@ protected:
 	void EndStudy();
 
 	//we use cluster events so GoToConditionSynced can not run out of sync when using nDisplay in cluster mode
-	void GoToConditionSynced(FString ConditionName, bool bForced); //send the cluster event
-	void HandleGoToConditionSynced(FString ConditionName, bool bForced); //process the cluter event
+	void GoToConditionSynced(FString ConditionName, bool bForced, bool bForceFade); //send the cluster event
+	void HandleGoToConditionSynced(FString ConditionName, bool bForced, bool bForceFade); //process the cluter event
 	FOnClusterEventJsonListener ClusterEventListenerDelegate;
 	void HandleClusterEvent(const FDisplayClusterClusterEventJson& Event);
 

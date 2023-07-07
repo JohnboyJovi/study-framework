@@ -45,7 +45,7 @@ class STUDYFRAMEWORKPLUGIN_API USFFadeHandler : public UObject
 public:
 	void Tick();
 
-	void FadeToLevel(const FString& LevelName, bool bStartFadedOut = false);
+	void FadeToLevel(const FString& LevelName, bool bForceFade, bool bStartFadedOut = false);
 	void FadeIn();
 	void FadeOut();
 	float FadeTimeRemaining() const;

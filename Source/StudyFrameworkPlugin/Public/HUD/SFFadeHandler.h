@@ -36,6 +36,14 @@ struct FFadeConfig
 	void FromJson(TSharedPtr<FJsonObject> Json);
 };
 
+UENUM()
+enum class EFadeBetweenCondition : uint8
+{
+	AsDefault = 0, //set ASFStudySetup::bNoFadingOnSameMap
+	ForceNoFade = 1, //is it is possible (same map used on next condition)
+	ForceFade = 2
+};
+
 
 UCLASS()
 class STUDYFRAMEWORKPLUGIN_API USFFadeHandler : public UObject
@@ -45,7 +53,7 @@ class STUDYFRAMEWORKPLUGIN_API USFFadeHandler : public UObject
 public:
 	void Tick();
 
-	void FadeToLevel(const FString& LevelName, bool bForceFade, bool bStartFadedOut = false);
+	void FadeToLevel(const FString& LevelName, EFadeBetweenCondition ShouldFade, bool bStartFadedOut = false);
 	void FadeIn();
 	void FadeOut();
 	float FadeTimeRemaining() const;

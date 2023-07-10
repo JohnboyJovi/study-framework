@@ -9,6 +9,7 @@
 #include "SFStudySetup.h"
 #include "SFParticipant.h"
 #include "HUD/SFMasterHUD.h"
+#include "HUD/SFFadeHandler.h"
 #include "GazeTracking/SFGazeTracker.h"
 
 #include "Cluster/IDisplayClusterClusterManager.h"
@@ -18,7 +19,6 @@
 
 #include "SFGameInstance.generated.h"
 
-class USFFadeHandler;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFadedInDelegate);
 
@@ -51,17 +51,19 @@ public:
 
 	//Fade to the next condition (use this to proceed in the study once condition is done)
 	//bForce also goes to the next condition if the current condition was not finished (not all required dependent variables gathered)
-	//bForceFade: unless specified differently in the StudySetup it is faded between every two conditions, if bNoFadingOnSameMap is set to false,
-	//            bForceFade forces to fade anyways between two conditions on the same map and has not effect otherwise 
+	//Fade: if set to AsDefault, the value specified in ASFStudySetup::bNoFadingOnSameMap considered to decide whether to fade btw 2 conditions on the same map
+	//      if ForceNoFade: independently from ASFStudySetup::bNoFadingOnSameMap it is not faded btw conditions on the same map
+	//      if ForceFade: independently from ASFStudySetup::bNoFadingOnSameMap it is always faded
 	UFUNCTION(BlueprintCallable)
-	bool NextCondition(bool bForce = false, bool bForceFade = false);
+	bool NextCondition(bool bForce = false, EFadeBetweenCondition Fade = EFadeBetweenCondition::AsDefault);
 
 	//This method can be used to jump to a specific condition (DO NOT USE during normal study run)
 	//bForce also goes to the next condition if the current condition was not finished (not all required dependent variables gathered)
-	//bForceFade: unless specified differently in the StudySetup it is faded between every two conditions, if bNoFadingOnSameMap is set to false,
-	//            bForceFade forces to fade anyways between two conditions on the same map and has not effect otherwise 
+	//Fade: if set to AsDefault, the value specified in ASFStudySetup::bNoFadingOnSameMap considered to decide whether to fade btw 2 conditions on the same map
+	//      if ForceNoFade: independently from ASFStudySetup::bNoFadingOnSameMap it is not faded btw conditions on the same map
+	//      if ForceFade: independently from ASFStudySetup::bNoFadingOnSameMap it is always faded
 	UFUNCTION(BlueprintCallable)
-	bool GoToCondition(const USFCondition* Condition, bool bForce = false, bool bForceFade = false);
+	bool GoToCondition(const USFCondition* Condition, bool bForce = false, EFadeBetweenCondition Fade = EFadeBetweenCondition::AsDefault);
 
 	//Whether the study was started already
 	UFUNCTION(BlueprintCallable)
@@ -177,8 +179,8 @@ protected:
 	void EndStudy();
 
 	//we use cluster events so GoToConditionSynced can not run out of sync when using nDisplay in cluster mode
-	void GoToConditionSynced(FString ConditionName, bool bForced, bool bForceFade); //send the cluster event
-	void HandleGoToConditionSynced(FString ConditionName, bool bForced, bool bForceFade); //process the cluter event
+	void GoToConditionSynced(FString ConditionName, bool bForced, EFadeBetweenCondition Fade); //send the cluster event
+	void HandleGoToConditionSynced(FString ConditionName, bool bForced, EFadeBetweenCondition Fade); //process the cluter event
 	FOnClusterEventJsonListener ClusterEventListenerDelegate;
 	void HandleClusterEvent(const FDisplayClusterClusterEventJson& Event);
 

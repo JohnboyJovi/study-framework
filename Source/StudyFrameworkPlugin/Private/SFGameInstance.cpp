@@ -412,7 +412,7 @@ void USFGameInstance::EndStudy()
 }
 
 
-bool USFGameInstance::NextCondition(bool bForced /*=false*/, bool bForceFade /*= false*/)
+bool USFGameInstance::NextCondition(bool bForced /*=false*/, EFadeBetweenCondition Fade /*= EFadeBetweenCondition::AsDefault*/)
 {
 	// Check if is already fading
 	if (FadeHandler->GetIsFading() && !FadeHandler->GetIsFadedOutWaitingForLevel())
@@ -428,10 +428,10 @@ bool USFGameInstance::NextCondition(bool bForced /*=false*/, bool bForceFade /*=
 		EndStudy();
 		return false;
 	}
-	return GoToCondition(NextCondition, bForced, bForceFade);
+	return GoToCondition(NextCondition, bForced, Fade);
 }
 
-bool USFGameInstance::GoToCondition(const USFCondition* Condition, bool bForced /*=false*/, bool bForceFade /*= false*/)
+bool USFGameInstance::GoToCondition(const USFCondition* Condition, bool bForced /*=false*/, EFadeBetweenCondition Fade /*= EFadeBetweenCondition::AsDefault*/)
 {
 	// Check if is already fading
 	if (FadeHandler->GetIsFading() && !FadeHandler->GetIsFadedOutWaitingForLevel())
@@ -445,16 +445,16 @@ bool USFGameInstance::GoToCondition(const USFCondition* Condition, bool bForced 
 		FSFLoggingUtils::Log("[USFGameInstance::GoToCondition()]: Could not load next condition.", true);
 		return false;
 	}
-	GoToConditionSynced(Condition->UniqueName, bForced, bForceFade);
+	GoToConditionSynced(Condition->UniqueName, bForced, Fade);
 	return true;
 }
 
-void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced, bool bForceFade)
+void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced, EFadeBetweenCondition Fade)
 {
 	const EDisplayClusterOperationMode OperationMode = IDisplayCluster::Get().GetOperationMode();
 	if (OperationMode != EDisplayClusterOperationMode::Cluster)
 	{
-		HandleGoToConditionSynced(ConditionName, bForced, bForceFade);
+		HandleGoToConditionSynced(ConditionName, bForced, Fade);
 	}
 	else
 	{
@@ -467,7 +467,7 @@ void USFGameInstance::GoToConditionSynced(FString ConditionName, bool bForced, b
 		TMap<FString, FString> Params;
 		Params.Add("ConditionName", ConditionName);
 		Params.Add("bForced", bForced ?"true":"false");
-		Params.Add("bForceFade", bForceFade ? "true" : "false");
+		Params.Add("Fade", (Fade == EFadeBetweenCondition::AsDefault ? "AsDefault" : (Fade == EFadeBetweenCondition::ForceNoFade ? "ForceNoFade" : "ForceFade")));
 		ClusterEvent.Parameters = Params;
 		ClusterEvent.bShouldDiscardOnRepeat = true;
 
@@ -480,13 +480,29 @@ void USFGameInstance::HandleClusterEvent(const FDisplayClusterClusterEventJson& 
 		//now we actually react on all cluster nodes:
 		if(Event.Name == "GoToConditionSynced")
 		{
-			HandleGoToConditionSynced(Event.Parameters["ConditionName"], Event.Parameters["bForced"] == "true", Event.Parameters["bForceFade"] == "true");
+			EFadeBetweenCondition Fade = EFadeBetweenCondition::AsDefault;
+			if (Event.Parameters["Fade"] != "AsDefault")
+			{
+				if (Event.Parameters["Fade"] == "ForceNoFade")
+				{
+					Fade = EFadeBetweenCondition::ForceNoFade;
+				}
+				else if (Event.Parameters["Fade"] == "ForceFade")
+				{
+					Fade = EFadeBetweenCondition::ForceFade;
+				}
+				else
+				{
+					FSFLoggingUtils::Log("[USFGameInstance::HandleClusterEvent] Unknown Fade value: " + Event.Parameters["Fade"], true);
+				}
+			}
+			HandleGoToConditionSynced(Event.Parameters["ConditionName"], Event.Parameters["bForced"] == "true", Fade);
 		}
 	}
 }
 
 
-void USFGameInstance::HandleGoToConditionSynced(FString ConditionName, bool bForced, bool bForceFade)
+void USFGameInstance::HandleGoToConditionSynced(FString ConditionName, bool bForced, EFadeBetweenCondition Fade)
 {
 	USFCondition* NextCondition = nullptr;
 	for (USFCondition* Condition : Participant->GetAllConditions())
@@ -557,7 +573,7 @@ void USFGameInstance::HandleGoToConditionSynced(FString ConditionName, bool bFor
 		}
 		else
 		{
-			FadeHandler->FadeToLevel(NextCondition->Map, bForceFade);
+			FadeHandler->FadeToLevel(NextCondition->Map, Fade);
 		}
 		UpdateHUD("Fading out");
 	}

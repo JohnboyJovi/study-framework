@@ -93,7 +93,7 @@ void USFFadeHandler::Tick()
 	}
 }
 
-void USFFadeHandler::FadeToLevel(const FString& NextLevelName, bool bForceFade, const bool bStartFadeFadedOut)
+void USFFadeHandler::FadeToLevel(const FString& NextLevelName, EFadeBetweenCondition ShouldFade, const bool bStartFadeFadedOut)
 {
 	if (GetCameraManager() == nullptr)
 	{
@@ -113,6 +113,20 @@ void USFFadeHandler::FadeToLevel(const FString& NextLevelName, bool bForceFade, 
 	FSFLoggingUtils::Log(
 		"[USFFadeHandler::FadeToLevel()]: Fading From level (" + CurrentLevelName + ") to level (" + NextLevelName + ")", false);
 
+	bool bShouldFade = true;
+	if(ShouldFade == EFadeBetweenCondition::AsDefault)
+	{
+		bShouldFade = !USFGameInstance::Get()->GetStudySetup()->bNoFadingOnSameMap;
+	}
+	else if (ShouldFade == EFadeBetweenCondition::ForceFade)
+	{
+		bShouldFade = true;
+	}
+	else if (ShouldFade == EFadeBetweenCondition::ForceNoFade)
+	{
+		bShouldFade = false;
+	}
+
 	if (bStartFadeFadedOut || bIsFadedOut)
 	{
 		//we only need to fade in
@@ -123,9 +137,7 @@ void USFFadeHandler::FadeToLevel(const FString& NextLevelName, bool bForceFade, 
 		Fade(0.0f, true);
 		FadeState = EFadeState::FadingOut;
 	}
-	else if (USFGameInstance::Get()->GetStudySetup()->bNoFadingOnSameMap 
-		&& CurrentLevelName == FPackageName::GetShortName(NextLevelName)
-		&& !bForceFade)
+	else if (!bShouldFade && CurrentLevelName == FPackageName::GetShortName(NextLevelName))
 	{
 		//bNoFadingOnSameMap and fade to same map, so no fading, but pretend we "faded in"
 		FadeState = EFadeState::FadingIn;
@@ -158,7 +170,7 @@ void USFFadeHandler::FadeIn()
 
 void USFFadeHandler::FadeOut()
 {
-	FadeToLevel("", true);
+	FadeToLevel("", EFadeBetweenCondition::ForceFade);
 }
 
 

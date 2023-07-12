@@ -314,6 +314,16 @@ void USFGameInstance::PrepareWithStudySetup(ASFStudySetup* Setup)
 	if (bRecoverParticipantData)
 	{
 		Participant->RecoverStudyResultsOfFinishedConditions();
+		//also delete any data of the condition that is now restarted (StartCondition)
+		Participant->DeleteStoredDataForConditionFromLongTable(StartCondition);
+		for (USFDependentVariable* DV : StartCondition->DependentVariables)
+		{
+			if (USFMultipleTrialDependentVariable* MTDV = Cast<USFMultipleTrialDependentVariable>(DV))
+			{
+				Participant->DeleteStoredTrialDataForCondition(StartCondition, MTDV);
+			}
+		}
+
 	}
 
 

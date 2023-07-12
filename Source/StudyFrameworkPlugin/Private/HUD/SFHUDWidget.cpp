@@ -4,6 +4,7 @@
 #include "HUD/SFHUDWidget.h"
 
 #include "Help/SFUtils.h"
+#include "Logging/SFLoggingUtils.h"
 
 
 USFHUDWidget::USFHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -27,12 +28,18 @@ void USFHUDWidget::SetPhase(const FString& Text)
 
 void USFHUDWidget::SetCondition(const TMap<FString, FString>& Texts)
 {
+	//TODO: as of now we have a fixed number of text blocks, maybe this can be made dynamic
 	TArray<UTextBlock*> TextBlocks = {
 		ConditionText1, ConditionText2, ConditionText3, ConditionText4, ConditionText5, ConditionText6
 	};
 	int TextIndex=0;
 	for(auto FactorLevel : Texts)
 	{
+		if(TextIndex>=TextBlocks.Num())
+		{
+			FSFLoggingUtils::Log("Not all factor levels fit in the HUD, so only showing the first 6 levels");
+			break;
+		}
 		TextBlocks[TextIndex++]->SetText(FText::FromString(FactorLevel.Key + ": "+FactorLevel.Value));
 	}
 	while(TextIndex<TextBlocks.Num())

@@ -719,6 +719,13 @@ USFExperimenterWindow* USFGameInstance::GetExperimenterWindow() const
 	return ExperimenterWindow;
 }
 
+void USFGameInstance::SetHUDVisible(bool bVisible)
+{
+	if (GetHUD()) {
+		GetHUD()->SetHUDVisible(bVisible);
+	}
+}
+
 USFFadeHandler* USFGameInstance::GetFadeHandler()
 {
 	return FadeHandler;

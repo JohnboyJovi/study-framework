@@ -273,3 +273,13 @@ void ASFMasterHUD::OnShowConditionsButtonPressed()
 const ASFHMDSpectatorHUDHelp* ASFMasterHUD::GetHUDHelper() {
 	return HMDHUDHelper;
 }
+
+void ASFMasterHUD::SetHUDVisible(bool bVisible)
+{
+	if (bVisible) {
+		HUDWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	else {
+		HUDWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+}

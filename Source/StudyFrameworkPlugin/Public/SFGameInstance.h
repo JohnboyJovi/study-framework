@@ -144,6 +144,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USFExperimenterWindow* GetExperimenterWindow() const;
 
+	//setting HUD in-/visibile at runtime
+	UFUNCTION(BlueprintCallable)
+	void SetHUDVisible(bool bVisible);
+
 	//this is used by the SFMasterHUD to store content between levels
 	FHUDSavedData HUDSavedData;
 

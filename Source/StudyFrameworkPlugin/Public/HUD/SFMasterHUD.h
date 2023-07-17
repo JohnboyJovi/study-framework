@@ -63,6 +63,9 @@ public:
 
 	const ASFHMDSpectatorHUDHelp* GetHUDHelper();
 
+	//setting HUD in-/visibile at runtime
+	void SetHUDVisible(bool bVisible);
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	USFHUDWidget* HUDWidget;

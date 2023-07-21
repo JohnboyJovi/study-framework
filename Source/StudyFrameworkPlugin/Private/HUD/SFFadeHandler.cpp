@@ -286,5 +286,7 @@ void USFFadeHandler::SetTimerForNextTick(const float TimeToWait)
 void USFFadeHandler::SetLevelToLoad(const FString& LevelName)
 {
 	if (!GetIsFadedOutWaitingForLevel()) return;
+	//in case something was already loaded (e.g., when debig starting)
+	USFGameInstance::Get()->GetLogObject()->RemoveAllTrackedComponents();
 	NewLevelName = LevelName;
 }

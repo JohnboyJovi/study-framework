@@ -116,6 +116,9 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantSequenceN
 
 	// first restructure factors, such that:
 	// - a potential enBlock factor is the first one
+	// - then follow InOrder factors
+	// - then Random factors
+	// - and in the end non-combined factors
 	TArray<USFStudyFactor*> SortedFactors = SortFactors();
 	const bool bHasEnBlock = SortedFactors[0]->MixingOrder == EFactorMixingOrder::EnBlock;
 
@@ -139,7 +142,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantSequenceN
 	// Generate Condition Indices
 	// ****************************
 
-	//create an array holding for each condition an array of each factors' level index
+	//create an array holding for each condition an array of each factors' level index (leaving -1 for nonCombined factors, they will be considered later)
 	TArray<TArray<int>> ConditionsIndices;
 	ConditionsIndices.Reserve(NumberOfConditions);
 	CreateAllConditionsRecursively(0, {}, SortedFactors, ParticipantSequenceNr, ConditionsIndices);
@@ -153,18 +156,24 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantSequenceN
 	ConditionsIndices.Empty();
 
 	//compute what factors we have to consider:
-	int FullyRandomFactorsStartIndex = 0;
-	int NumFullyRandomConditions = ConditionsIndicesCopy.Num();
-	int NumEnBlockLevels = bHasEnBlock ? SortedFactors[0]->Levels.Num() : 1;
+	int NumRandomConditions = 1;
+	int NumEnBlockLevels = 1;
 	int NumInOrderLevels = 1;
-
-	while (FullyRandomFactorsStartIndex < SortedFactors.Num() && SortedFactors[FullyRandomFactorsStartIndex]->MixingOrder != EFactorMixingOrder::RandomOrder) {
-		//so we jump over all inOrder factors and the enBlock factor (if it exists)
-		NumFullyRandomConditions /= SortedFactors[FullyRandomFactorsStartIndex]->Levels.Num();
-		if (SortedFactors[FullyRandomFactorsStartIndex]->MixingOrder == EFactorMixingOrder::InOrder) {
-			NumInOrderLevels *= SortedFactors[FullyRandomFactorsStartIndex]->Levels.Num();
+#
+	for (USFStudyFactor* Factor : SortedFactors)
+	{
+		if (Factor->bNonCombined) {
+			continue;
 		}
-		FullyRandomFactorsStartIndex++;
+		else if (Factor->MixingOrder == EFactorMixingOrder::EnBlock) {
+			NumEnBlockLevels *= Factor->Levels.Num();
+		}
+		else if (Factor->MixingOrder == EFactorMixingOrder::InOrder) {
+			NumInOrderLevels *= Factor->Levels.Num();
+		}
+		else if (Factor->MixingOrder == EFactorMixingOrder::RandomOrder) {
+			NumRandomConditions *= Factor->Levels.Num();
+		}
 	}
 
 
@@ -176,15 +185,15 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantSequenceN
 	{
 		for (int InOrderLevel = 0; InOrderLevel < NumInOrderLevels; InOrderLevel++)
 		{
-			const TArray<int> FullyRandomLatinSquare = USFStudyFactor::GenerateLatinSquareOrder(
-				ParticipantSequenceNr + PhaseIndex + EnBlockLevel + InOrderLevel, NumFullyRandomConditions);
+			const TArray<int> LatinSquare = USFStudyFactor::GenerateLatinSquareOrder(
+				ParticipantSequenceNr + PhaseIndex + EnBlockLevel + InOrderLevel, NumRandomConditions);
 			//we use all EnBlockLevel + InOrderLevel also for "seeding" so it is not repetitive
-			for (int FullyRandomCondition = 0; FullyRandomCondition < FullyRandomLatinSquare.Num(); FullyRandomCondition++)
+			for (int RandomLevel = 0; RandomLevel < LatinSquare.Num(); RandomLevel++)
 			{
 				ConditionsIndices.Add(ConditionsIndicesCopy[
-					NumInOrderLevels * NumFullyRandomConditions * EnBlockLatinSquare[EnBlockLevel]
-						+ NumFullyRandomConditions * InOrderLevel
-						+ FullyRandomLatinSquare[FullyRandomCondition]
+					NumInOrderLevels * NumRandomConditions * EnBlockLatinSquare[EnBlockLevel]
+						+ NumRandomConditions * InOrderLevel
+						+ LatinSquare[RandomLevel]
 				]);
 			}
 		}
@@ -376,16 +385,22 @@ int USFStudyPhase::GetMapFactorIndex() const
 TArray<USFStudyFactor*> USFStudyPhase::SortFactors() const
 {
 	//puts the enBlock factor first! (in PhaseValid() it is checked that max one exists!)
-	//then it puts th inOrder factors and then the rest
+	//then it puts th inOrder factors, then random factors and in the end nonCombined factors
+
 	TArray<USFStudyFactor*> EnBlockFactor;
 	TArray<USFStudyFactor*> InOrderFactors;
 	TArray<USFStudyFactor*> RandomFactors;
+	TArray<USFStudyFactor*> NonCombinedFactors;
 	
 	
 
 	for (USFStudyFactor* Factor : Factors)
 	{
-		if (Factor->MixingOrder == EFactorMixingOrder::RandomOrder)
+		if (Factor->bNonCombined)
+		{
+			NonCombinedFactors.Add(Factor);
+		}
+		else if (Factor->MixingOrder == EFactorMixingOrder::RandomOrder)
 		{
 			RandomFactors.Add(Factor);
 		}
@@ -409,6 +424,7 @@ TArray<USFStudyFactor*> USFStudyPhase::SortFactors() const
 	TArray<USFStudyFactor*> SortedFactors = EnBlockFactor;
 	SortedFactors.Append(InOrderFactors);
 	SortedFactors.Append(RandomFactors);
+	SortedFactors.Append(NonCombinedFactors);
 
 	return SortedFactors;
 }

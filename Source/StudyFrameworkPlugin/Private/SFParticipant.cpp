@@ -357,6 +357,11 @@ void USFParticipant::RemoveLinesOfConditionAndWriteToFile(USFCondition* Conditio
 				CleanedLines.Add(Lines[i]);
 			}
 		}
+		else
+		{
+			//from another participant so just keep this line!
+			CleanedLines.Add(Lines[i]);
+		}
 	}
 	FFileHelper::SaveStringArrayToFile(CleanedLines, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
 		&IFileManager::Get(), EFileWrite::FILEWRITE_None);

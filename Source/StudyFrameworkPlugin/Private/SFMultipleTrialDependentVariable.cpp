@@ -77,7 +77,9 @@ void USFMultipleTrialDependentVariable::RecoverStudyResultsOfLine(const TArray<F
 	//so this is the right condition
 
 	//these should be in the right order, just double-check
-	check(FCString::Atoi(*Entries[Header.Find("Trial")]) == Values.size())
+	if (FCString::Atoi(*Entries[Header.Find("Trial")]) != Values.size()) {
+		FSFLoggingUtils::Log("Try to recover trial #" + Entries[Header.Find("Trial")] + " while already " + FString::FromInt(Values.size()) + " trial were recovered! (probably jumped back and forth in conditions, this must not happen in a correct run!", true);
+	}
 
 	std::vector<FString> Data;
 	for (const FString& SubName : SubVariableNames)

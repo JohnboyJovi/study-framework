@@ -27,13 +27,15 @@ bool USFGazeTracker::Tick(float DeltaTime)
 #ifdef WITH_SRANIPAL
 		bIsAsyncEyeTrackingTaskRunning = true;
 		ViveSR::anipal::Eye::EyeData_v2 TempEyeData;
-		AsyncTask(ENamedThreads::AnyThread, [TempEyeDataAddr = MoveTemp(&TempEyeData), OnEyeTrackingDataReceived]()
+		AsyncTask(ENamedThreads::AnyThread, [TempEyeDataAddr = &TempEyeData, SranipalEyeData = MoveTemp(SranipalEyeData), bIsAsyncEyeTrackingTaskRunning = MoveTemp(bIsAsyncEyeTrackingTaskRunning), bDataLogged = MoveTemp(bDataLogged)]()
 			{				
 				ViveSR::anipal::Eye::GetEyeData_v2(TempEyeDataAddr);
 
-				AsyncTask(ENamedThreads::GameThread, [TempEyeDataAddr = MoveTemp(TempEyeDataAddr), OnEyeTrackingDataReceived]() mutable
+				AsyncTask(ENamedThreads::GameThread, [TempEyeDataAddr =TempEyeDataAddr, SranipalEyeData, bIsAsyncEyeTrackingTaskRunning, bDataLogged]() mutable
 					{
-						OnEyeTrackingDataReceived.ExecuteIfBound(*TempEyeDataAddr);
+						SranipalEyeData = *TempEyeDataAddr;
+						bDataLogged = false;
+						bIsAsyncEyeTrackingTaskRunning = false;
 					});
 	
 			});		

@@ -11,7 +11,7 @@
 
 #ifdef WITH_SRANIPAL
 //Use this to broadcast the data from async thread to game thread for logging
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnEyeTrackingDataReceived, const ViveSR::anipal::Eye::EyeData_v2, EyeData);
+//DECLARE_DYNAMIC_DELEGATE_OneParam(FOnEyeTrackingDataReceived, const ViveSR::anipal::Eye::EyeData_v2, EyeData);
 #endif
 
 UENUM()
@@ -82,7 +82,7 @@ public:
 
 
 #ifdef WITH_SRANIPAL
-	FOnEyeTrackingDataReceived& OnEyeTrackingDataReceived;
+	//FOnEyeTrackingDataReceived& OnEyeTrackingDataReceived;
 	void OnEyeTrackingDataReceived(ViveSR::anipal::Eye::EyeData_v2 EyeData);
 #endif
 private:

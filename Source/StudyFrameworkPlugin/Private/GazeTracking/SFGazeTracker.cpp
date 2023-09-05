@@ -22,16 +22,25 @@ bool USFGazeTracker::Tick(float DeltaTime)
 
 	TimeSinceLastEyeDataGather = 0.0f;
 
-	if(bEyeTrackingStarted)
+	if(bEyeTrackingStarted && !bIsAsyncEyeTrackingTaskRunning)
 	{
 #ifdef WITH_SRANIPAL
-		ViveSR::anipal::Eye::GetEyeData_v2(&SranipalEyeData);
-		bDataLogged = false;
+		bIsAsyncEyeTrackingTaskRunning = true;
+		ViveSR::anipal::Eye::EyeData_v2 TempEyeData;
+		AsyncTask(ENamedThreads::AnyThread, [TempEyeDataAddr = MoveTemp(&TempEyeData), OnEyeTrackingDataReceived]()
+			{				
+				ViveSR::anipal::Eye::GetEyeData_v2(TempEyeDataAddr);
+
+				AsyncTask(ENamedThreads::GameThread, [TempEyeDataAddr = MoveTemp(TempEyeDataAddr), OnEyeTrackingDataReceived]() mutable
+					{
+						OnEyeTrackingDataReceived.ExecuteIfBound(*TempEyeDataAddr);
+					});
+	
+			});		
 #endif
 	}
 	return true;
 }
-
 
 void USFGazeTracker::Init(EGazeTrackerMode Mode, bool IgnoreNonGazeTargetActors, float DataGatheringsPerSecond)
 {
@@ -236,6 +245,13 @@ float USFGazeTracker::GetPupilDiameter()
 #endif
 
 	return 0.0f;
+}
+
+void USFGazeTracker::OnEyeTrackingDataReceived(ViveSR::anipal::Eye::EyeData_v2 EyeData)
+{
+	bIsAsyncEyeTrackingTaskRunning = false;
+	SranipalEyeData = EyeData;
+	bDataLogged = false;
 }
 
 FGazeRay USFGazeTracker::GetSranipalGazeRayFromData()

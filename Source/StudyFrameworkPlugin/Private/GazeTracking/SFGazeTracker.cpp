@@ -22,24 +22,34 @@ bool USFGazeTracker::Tick(float DeltaTime)
 
 	TimeSinceLastEyeDataGather = 0.0f;
 
-	if(bEyeTrackingStarted && !bIsAsyncEyeTrackingTaskRunning)
+	//We should not start another Async task, if the first has not terminated yet
+	if(bIsAsyncEyeTrackingTaskRunning)
+	{
+		USFLoggingBPLibrary::LogComment("Missed eye update due to slow async execution");
+	}
+	else if(bEyeTrackingStarted)
 	{
 #ifdef WITH_SRANIPAL
 		bIsAsyncEyeTrackingTaskRunning = true;
 		ViveSR::anipal::Eye::EyeData_v2 TempEyeData;
-		//transfer 'this' into the function in order to have access to the boolean member variables in the nested GameThread-async task
+		//transfer 'this' into the AnyThread-task and pass it to the GameThread-task in order to have access to bDataLogged, bIsAsyncEyeTrackingTaskRunning, SranipalEyeData there
 		AsyncTask(ENamedThreads::AnyThread, [this]()
 			{
 				ViveSR::anipal::Eye::EyeData_v2 LocalEyeData;
 				int Result = ViveSR::anipal::Eye::GetEyeData_v2(&LocalEyeData);
 				// Set member variables from GameThread to avoid race conditions
-				AsyncTask(ENamedThreads::GameThread, [this, LocalEyeData =MoveTemp(LocalEyeData), Result]() mutable
+				AsyncTask(ENamedThreads::GameThread, [this, LocalEyeData = MoveTemp(LocalEyeData), Result]() mutable
 					{
-						//UE_LOG(LogTemp, Warning, TEXT("Tried to get EyeData, Result: %d"), Result);
-						SranipalEyeData = LocalEyeData;
-						bDataLogged = false;
+						if(Result != 0)
+						{
+							USFLoggingBPLibrary::LogComment("GetEyeData_v2 ERROR: " + FString::FromInt(Result) + " (see ViveSR::Error for coding). Did not update SranipalEyeData.");
+						}
+						else
+						{
+							SranipalEyeData = LocalEyeData;
+							bDataLogged = false;
+						}
 						bIsAsyncEyeTrackingTaskRunning = false;
-						//UE_LOG(LogTemp, Warning, TEXT("finished async task"));
 					});
 	
 			});		

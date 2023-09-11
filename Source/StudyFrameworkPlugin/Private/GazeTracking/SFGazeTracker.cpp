@@ -29,13 +29,14 @@ bool USFGazeTracker::Tick(float DeltaTime)
 		ViveSR::anipal::Eye::EyeData_v2 TempEyeData;
 		AsyncTask(ENamedThreads::AnyThread, [TempEyeDataAddr = &TempEyeData, SranipalEyeData = MoveTemp(SranipalEyeData), bIsAsyncEyeTrackingTaskRunning = MoveTemp(bIsAsyncEyeTrackingTaskRunning), bDataLogged = MoveTemp(bDataLogged)]()
 			{				
-				ViveSR::anipal::Eye::GetEyeData_v2(TempEyeDataAddr);
+				int Result = ViveSR::anipal::Eye::GetEyeData_v2(TempEyeDataAddr);
 
-				AsyncTask(ENamedThreads::GameThread, [TempEyeDataAddr =TempEyeDataAddr, SranipalEyeData, bIsAsyncEyeTrackingTaskRunning, bDataLogged]() mutable
+				AsyncTask(ENamedThreads::GameThread, [TempEyeDataAddr =TempEyeDataAddr, SranipalEyeData, bIsAsyncEyeTrackingTaskRunning, bDataLogged, Result]() mutable
 					{
 						SranipalEyeData = *TempEyeDataAddr;
 						bDataLogged = false;
 						bIsAsyncEyeTrackingTaskRunning = false;
+						UE_LOG(LogTemp, Warning, TEXT("Tried to get EyeData, Result: %d"), Result);
 					});
 	
 			});		
@@ -247,13 +248,6 @@ float USFGazeTracker::GetPupilDiameter()
 #endif
 
 	return 0.0f;
-}
-
-void USFGazeTracker::OnEyeTrackingDataReceived(ViveSR::anipal::Eye::EyeData_v2 EyeData)
-{
-	bIsAsyncEyeTrackingTaskRunning = false;
-	SranipalEyeData = EyeData;
-	bDataLogged = false;
 }
 
 FGazeRay USFGazeTracker::GetSranipalGazeRayFromData()

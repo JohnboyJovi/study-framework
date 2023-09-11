@@ -9,11 +9,6 @@
 
 #include "SFGazeTracker.generated.h"
 
-#ifdef WITH_SRANIPAL
-//Use this to broadcast the data from async thread to game thread for logging
-//DECLARE_DYNAMIC_DELEGATE_OneParam(FOnEyeTrackingDataReceived, const ViveSR::anipal::Eye::EyeData_v2, EyeData);
-#endif
-
 UENUM()
 enum class EGazeTrackerMode : uint8
 {
@@ -80,11 +75,6 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bDebugRenderRayTraces = false;
 
-
-#ifdef WITH_SRANIPAL
-	//FOnEyeTrackingDataReceived& OnEyeTrackingDataReceived;
-	void OnEyeTrackingDataReceived(ViveSR::anipal::Eye::EyeData_v2 EyeData);
-#endif
 private:
 
 	FGazeRay GetSranipalGazeRayFromData();

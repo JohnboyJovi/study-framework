@@ -657,11 +657,14 @@ void USFParticipant::ClearPhaseLongtables(ASFStudySetup* StudySetup)
 	TArray<FString> FileNames;
 	IFileManager& FileManager = IFileManager::Get();
 	FileManager.FindFiles(FileNames, *SearchPattern, true, false);
+	//Instead of actually deleting files, we want to move them to a recycling bin folder, to minimize risk of data loss
+	FString NewParentFolderPath = LongTableFolder + "RecyclingBin/" + "RestartStudyBackup-" + FDateTime::Now().ToString() + "/";
 	for (FString Filename : FileNames)
 	{
 		const FString FullName = LongTableFolder + Filename;
-		FileManager.Delete(*FullName);
+		FileManager.Move(*(NewParentFolderPath + Filename), *FullName);
 	}
+	FSFLoggingUtils::Log("Moved .csv files: " + NewParentFolderPath);
 }
 
 bool USFParticipant::SetCondition(const USFCondition* NextCondition)

@@ -186,7 +186,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 			Header += "," + Var->Name;
 		}
 		Header += ",Time\n";
-		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
+		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
 	}
 
 	FString ConditionResults = ParticipantID; 
@@ -211,7 +211,7 @@ void USFParticipant::StoreInPhaseLongTable() const
 	ConditionResults += "," + FString::Printf(TEXT("%.2f"), CurrCondition->GetTimeTaken());
 	//append this
 	ConditionResults += "\n";
-	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
+	FFileHelper::SaveStringToFile(*ConditionResults, *Filename, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM,
 	                              &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 
@@ -238,7 +238,7 @@ void USFParticipant::StoreTrialInTrialDVLongTable(USFMultipleTrialDependentVaria
 			Header += "," + SubName;
 		}
 		Header += "\n";
-		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
+		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
 	}
 
 	FString TrialResult = ParticipantID;
@@ -259,7 +259,7 @@ void USFParticipant::StoreTrialInTrialDVLongTable(USFMultipleTrialDependentVaria
 
 	//append this
 	TrialResult += "\n";
-	FFileHelper::SaveStringToFile(*TrialResult, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
+	FFileHelper::SaveStringToFile(*TrialResult, *Filename, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM,
 		&IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 }
 
@@ -273,7 +273,7 @@ void USFParticipant::StoreInIndependentVarLongTable() const
 			Header += "," + Var.Key->Name;
 		}
 		Header += "\n";
-		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
+		FFileHelper::SaveStringToFile(*Header, *Filename, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
 	}
 
 	FString VarValues = ParticipantID;
@@ -297,11 +297,11 @@ void USFParticipant::StoreInIndependentVarLongTable() const
 		for (int i = 0; i < ExistingLines.Num(); i++) {
 			ToSave += ExistingLines[i] + "\n";
 		}
-		FFileHelper::SaveStringToFile(ToSave, *Filename, FFileHelper::EEncodingOptions::ForceUTF8);
+		FFileHelper::SaveStringToFile(ToSave, *Filename, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
 	}
 	else {
 		VarValues += "\n";
-		FFileHelper::SaveStringToFile(*VarValues, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
+		FFileHelper::SaveStringToFile(*VarValues, *Filename, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM,
 			&IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 	}
 }
@@ -363,7 +363,7 @@ void USFParticipant::RemoveLinesOfConditionAndWriteToFile(USFCondition* Conditio
 			CleanedLines.Add(Lines[i]);
 		}
 	}
-	FFileHelper::SaveStringArrayToFile(CleanedLines, *Filename, FFileHelper::EEncodingOptions::ForceUTF8,
+	FFileHelper::SaveStringArrayToFile(CleanedLines, *Filename, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM,
 		&IFileManager::Get(), EFileWrite::FILEWRITE_None);
 }
 

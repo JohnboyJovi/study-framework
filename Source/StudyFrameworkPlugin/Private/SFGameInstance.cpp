@@ -529,6 +529,8 @@ void USFGameInstance::HandleGoToConditionSynced(FString ConditionName, bool bFor
 	{
 		LogComment("Restarting Condition " + NextCondition->UniqueName + ", so we delete all gathered data for that condition.");
 
+		FString BackUpFolderName = "Restart_" + NextCondition->UniqueName + "_BackUp-" + FDateTime::Now().ToString();
+		Participant->SetCurrentBackUpFolderName(BackUpFolderName);
 		//so remove already stored data!
 		Participant->DeleteStoredDataForConditionFromLongTable(NextCondition);
 		for (USFDependentVariable* DV : NextCondition->DependentVariables)

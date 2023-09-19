@@ -37,6 +37,7 @@ public:
 	bool IsFinished() const;
 	bool HasRequiredVariables() const;
 	bool WasStarted() const;
+	void SetbStarted(bool WasStarted);
 
 	//this is used to recover study results from the phase long table if a participant's run is continued
 	//return false if this entry does not match this condition

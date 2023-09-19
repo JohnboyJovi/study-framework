@@ -50,6 +50,7 @@ public:
 	static int GetLastParticipantSequenceNumber();
 	static FString GetLastParticipantID();
 	static int GetLastParticipantLastConditionStarted();
+	static TMap<FString, bool> GetLastParticipantHasStartedConditionValues();
 	static bool GetLastParticipantFinished();
 	static ASFStudySetup* GetLastParticipantSetup();
 	void LoadLastParticipantsIndependentVariables();
@@ -69,15 +70,21 @@ public:
 	void RecoverStudyResultsOfFinishedConditions();
 
 
-	// the results of all participants are stored in a file per phase (called longtable)
-	// for the data to be ready to use in statistics software, this methods clears all
-	// of that data (e.g. if study is entirely restarted)
-	// So: USE WITH CARE!
+	// The results of all participants are stored in a file per phase (called longtable)
+	// for the data to be ready to use in statistics software. This methods clears all
+	// of that data (e.g. if study is entirely restarted).
+	// The data can be recovered from /StudyLogs/RecyclingBin
 	static void ClearPhaseLongtables(ASFStudySetup* StudySetup);
 
+	// Whenever we delete data in a file (e.g. with by restarting a condition),
+	// we want to create a backup, to enable data recovery
+	// EditOperation reflects the reason (e.g. restart condition), which appears in
+	// recycling bin file name
+	void CreateLongTableBackUp(const FString PathToSrcFile) const;
 	void StoreTrialInTrialDVLongTable(USFMultipleTrialDependentVariable* DependentVariable, TArray<FString> Values) const;
 	void DeleteStoredDataForConditionFromLongTable(USFCondition* Condition);
 	void DeleteStoredTrialDataForCondition(USFCondition* Condition, USFMultipleTrialDependentVariable* DependentVariable);
+	void SetCurrentBackUpFolderName(FString BackUpFolderName);
 
 protected:
 	bool SetCondition(const USFCondition* NextCondition);
@@ -93,7 +100,13 @@ protected:
 	void StoreInIndependentVarLongTable() const;
 	void RemoveLinesOfConditionAndWriteToFile(USFCondition* Condition, FString Filename);
 
-
+	// This is the parent folder within RecyclingBin, where backups
+	// of the current operation will be stored.
+	// E.g. "RestartConditionBackUp-TIMESTAMP"
+	// Whenever we delete lines within a .csv file we should update this.
+	// We want to store all files related to one operation in the same
+	// backup folder, this is why we need this variable.
+	FString CurrentBackUpFolderName;
 	FString ParticipantID;
 	//sequence number is used for randomization etc. it is also unique per participant and starts at 0
 	int ParticipantSequenceNumber; 

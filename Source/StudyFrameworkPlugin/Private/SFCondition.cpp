@@ -26,7 +26,7 @@ void USFCondition::Generate(const FString& InPhaseName, const TArray<int>& Condi
 		if (Factor->IsA(USFMapFactor::StaticClass()))
 		{
 			Map = FactorLevel;
-			//for better readybility strip path!
+			//for better readability strip path!
 			FactorLevel = FPaths::GetBaseFilename(FactorLevel);
 		}
 		FactorLevels.Add(Factor->FactorName, FactorLevel);
@@ -230,6 +230,11 @@ bool USFCondition::HasRequiredVariables() const
 		}
 	}
 	return false;
+}
+
+void USFCondition::SetbStarted(bool WasStarted)
+{
+	bStarted = WasStarted;
 }
 
 bool USFCondition::WasStarted() const

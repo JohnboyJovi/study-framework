@@ -10,6 +10,7 @@
 #include "Help/SFUtils.h"
 #include "Logging/SFLoggingBPLibrary.h"
 #include "Logging/SFLoggingUtils.h"
+#include "JsonUtilities.h"
 
 USFParticipant::USFParticipant()
 {
@@ -335,10 +336,11 @@ void USFParticipant::RemoveLinesOfConditionAndWriteToFile(USFCondition* Conditio
 	}
 	CleanedLines.Add(Lines[0]);
 
+	bool bHasRemovedLines = false;
 	for (int i = 1; i < Lines.Num(); ++i)
 	{
 		TArray<FString> Entries;
-		Lines[i].ParseIntoArray(Entries, TEXT(","), false);
+		Lines[i].ParseIntoArray(Entries, TEXT(","), false);		
 
 		if (Entries.Num() > 0 && Entries[0] == ParticipantID)
 		{
@@ -356,6 +358,11 @@ void USFParticipant::RemoveLinesOfConditionAndWriteToFile(USFCondition* Conditio
 			{
 				CleanedLines.Add(Lines[i]);
 			}
+			//At least this line will be removed
+			else if(!bHasRemovedLines)
+			{
+				bHasRemovedLines = true;
+			}
 		}
 		else
 		{
@@ -363,6 +370,12 @@ void USFParticipant::RemoveLinesOfConditionAndWriteToFile(USFCondition* Conditio
 			CleanedLines.Add(Lines[i]);
 		}
 	}
+
+	if(bHasRemovedLines)
+	{
+		CreateLongTableBackUp(Filename);
+	}
+
 	FFileHelper::SaveStringArrayToFile(CleanedLines, *Filename, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM,
 		&IFileManager::Get(), EFileWrite::FILEWRITE_None);
 }
@@ -451,6 +464,15 @@ TArray<USFCondition*> USFParticipant::GetLastParticipantsConditions()
 	TArray<USFCondition*> LoadedConditions;
 	TMap<USFIndependentVariable*, FString> LoadedIndependentVariablesValues;
 	ReadExecutionJsonFile(GetLastParticipantID(), LoadedConditions, LoadedIndependentVariablesValues);
+	//Load WasStarted-Values from JSON, to ensure data is not overwritten without backups, if conditions are restarted
+	TMap<FString, bool> LastParticipantHasStartedConditionValues = GetLastParticipantHasStartedConditionValues();
+	for(int i = 0; i<LoadedConditions.Num(); i++)
+	{
+		if(LastParticipantHasStartedConditionValues.Contains(LoadedConditions[i]->CreateIdentifiableName()))
+		{
+			LoadedConditions[i]->SetbStarted(LastParticipantHasStartedConditionValues[LoadedConditions[i]->CreateIdentifiableName()]);
+		}
+	}
 	return LoadedConditions;
 }
 
@@ -485,6 +507,27 @@ int USFParticipant::GetLastParticipantLastConditionStarted()
 		return -1;
 	}
 	return ParticipantJson->GetNumberField("CurrentConditionIdx");
+}
+
+TMap<FString, bool> USFParticipant::GetLastParticipantHasStartedConditionValues()
+{
+	TMap<FString, bool> ConditionsStarted;
+	TSharedPtr<FJsonObject> ParticipantJson = FSFUtils::ReadJsonFromFile("StudyRuns/LastParticipant.txt");
+	if (ParticipantJson != nullptr)
+	{
+		TArray<TSharedPtr<FJsonValue>> StartedConditionsArray = ParticipantJson->GetArrayField("StartedConditions");
+		for(auto& JsonValue : StartedConditionsArray)
+		{
+			TSharedPtr<FJsonObject> Entry = JsonValue->AsObject();
+			if(Entry.IsValid())
+			{
+				ConditionsStarted.Add(Entry->GetStringField("Condition"), Entry->GetBoolField("WasStarted"));
+			}			
+		}
+
+	}
+	return ConditionsStarted;
+
 }
 
 bool USFParticipant::GetLastParticipantFinished()
@@ -649,6 +692,16 @@ void USFParticipant::RecoverStudyResultsOfFinishedConditions()
 	}
 }
 
+void USFParticipant::CreateLongTableBackUp(const FString PathToSrcFile) const
+{	
+	IFileManager& FileManager = IFileManager::Get();
+	const FString ReplaceWith = "StudyFramework/StudyLogs/RecyclingBin/" + CurrentBackUpFolderName + "/";
+	const FString PathToDestFile = PathToSrcFile.Replace(TEXT("StudyFramework/StudyLogs/"), *ReplaceWith);
+	FileManager.Copy( *PathToDestFile, *PathToSrcFile);
+	FSFLoggingUtils::Log("Created Backup: " + PathToDestFile);
+
+}
+
 void USFParticipant::ClearPhaseLongtables(ASFStudySetup* StudySetup)
 {
 	const FString LongTableFolder = FPaths::ProjectDir() + "StudyFramework/StudyLogs/";
@@ -666,6 +719,12 @@ void USFParticipant::ClearPhaseLongtables(ASFStudySetup* StudySetup)
 	}
 	FSFLoggingUtils::Log("Moved .csv files: " + NewParentFolderPath);
 }
+
+void USFParticipant::SetCurrentBackUpFolderName(FString BackUpFolderName)
+{
+	CurrentBackUpFolderName = BackUpFolderName;
+}
+
 
 bool USFParticipant::SetCondition(const USFCondition* NextCondition)
 {
@@ -707,10 +766,16 @@ void USFParticipant::LogCurrentParticipant() const
 	Json->SetNumberField("ParticipantSequenceNumber", ParticipantSequenceNumber);
 	Json->SetStringField("ParticipantID", ParticipantID);
 	bool bFinished = true;
+	TArray<TSharedPtr<FJsonValue>> StartedConditions; //Cannot use TMap because we want to save to JSON
 	for (USFCondition* Condition : Conditions)
 	{
 		bFinished = bFinished && (Condition->IsFinished() || !Condition->HasRequiredVariables());
+		TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
+		JsonObject->SetStringField("Condition", Condition->CreateIdentifiableName());
+		JsonObject->SetBoolField("WasStarted", Condition->WasStarted());
+		StartedConditions.Add(MakeShared<FJsonValueObject>(JsonObject));
 	}
+	Json->SetArrayField("StartedConditions", StartedConditions);
 	Json->SetBoolField("Finished", bFinished);
 	Json->SetNumberField("CurrentConditionIdx", CurrentConditionIdx);
 	if (USFGameInstance::Get() && USFGameInstance::Get()->GetStudySetup())

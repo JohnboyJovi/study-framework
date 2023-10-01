@@ -93,11 +93,16 @@ bool USFStudyPhase::PhaseValid() const
 			//what to actually do when more than one factor wants that???
 			FSFUtils::OpenMessageBox(
 				"[USFStudyPhase::PhaseValid] " + Factor->FactorName + " in phase " + PhaseName +
-				" is already the second enBlock factor, how should that work? If you know, implement ;-)", true);
+				" is already the second enBlock factor, \"nested\" enBlock factors are not supported since they don't seem needed", true);
 			return false;
 		}
 
 		NrNonCombinedFactors += (Factor->bNonCombined ? 1 : 0);
+	}
+
+	if (NrEnBlockFactors + NrInOrderFactors > 1)
+	{
+		FSFLoggingUtils::Log("[USFStudyPhase::PhaseValid] there is a \"nested\" inOrder factor, globally its levels will not be in order but per level of the prior inOrder/enBlock factor.");
 	}
 
 	if (NrNonCombinedFactors == Factors.Num())

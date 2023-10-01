@@ -159,7 +159,7 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantSequenceN
 	int NumRandomConditions = 1;
 	int NumEnBlockLevels = 1;
 	int NumInOrderLevels = 1;
-#
+
 	for (USFStudyFactor* Factor : SortedFactors)
 	{
 		if (Factor->bNonCombined) {
@@ -177,9 +177,13 @@ TArray<USFCondition*> USFStudyPhase::GenerateConditions(int ParticipantSequenceN
 	}
 
 
-	//create shuffling of enBlock factor, trivial case ({0}) if we do not have an enBlock factor
+	// create shuffling of enBlock factor, trivial case ({0}) if we do not have an enBlock factor
+	// we devide the participantNr by NumRandomConditions so we do not progress at the same speed, otherwise for simple setup (2-level enBlock, 2-level Random):
+	// a1 a2 b2 b1
+	// b2 b1 a1 a2 (and then repeating)
+	// in case NumRandomConditions is uneven even devide by 2*NumRandomConditions since we have twice as many rows in the Latin Square
 	const TArray<int> EnBlockLatinSquare = USFStudyFactor::GenerateLatinSquareOrder(
-		ParticipantSequenceNr + PhaseIndex, NumEnBlockLevels);
+		ParticipantSequenceNr / (NumRandomConditions*(1 + NumRandomConditions%2)) + PhaseIndex, NumEnBlockLevels);
 
 	for (int EnBlockLevel = 0; EnBlockLevel < NumEnBlockLevels; EnBlockLevel++)
 	{
